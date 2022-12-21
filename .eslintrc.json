@@ -1,3 +1,18 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "rules": {
+    "block-scoped-var": "error",
+    "consistent-return": "warn",
+    "comma-dangle": ["error", "always-multiline"],
+    "curly": "warn",
+    "keyword-spacing": "error",
+    "no-extra-semi": "error",
+    "no-sequences": "error",
+    "quotes": ["error", "double"],
+    "no-unexpected-multiline": "error",
+    "no-extra-boolean-cast": "warn",
+    "no-unsafe-finally": "warn",
+    "no-irregular-whitespace": "error",
+    "semi": ["error", "never"]
+  }
 }
