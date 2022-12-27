@@ -24,6 +24,10 @@ export class JpdbService {
     this.jpdbSid = jpdbSid
   }
 
+  isJpdbEnalbed() {
+    return this.jpdbSid.length > 0
+  }
+
   async analyze(bookId: string, page: number): Promise<AnalysisResults> {
     const ocr = await services.bookService.getBookOcrResults(bookId, page)
     const ocrBlocks = ocr.annotations.pages?.[0].blocks || []

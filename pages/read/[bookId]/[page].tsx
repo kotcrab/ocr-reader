@@ -11,7 +11,7 @@ import ZoomSelector from "../../../components/ZoomSelector"
 import SelectionColorOverride from "../../../components/SelectionColorOverride"
 import PageSwitcher from "../../../components/PageSwitcher"
 import {homeRoute, readBookRoute} from "../../../util/Route"
-import {bookPageUrl} from "../../../util/Url"
+import {bookAnalyzePageUrl, bookPageUrl, bookTextDumpUrl} from "../../../util/Url"
 import SvgOverlay from "../../../components/SvgOverlay"
 import {AnalysisResults} from "../../../model/AnalysisResults"
 import {ParsedUrlQuery} from "querystring"
@@ -21,19 +21,18 @@ import {ImExit} from "react-icons/im"
 
 interface Props {
   ocr: PageOcrResults,
-  analysis?: AnalysisResults,
+  jpdbEnabled: boolean,
 }
 
 function getParams(params: ParsedUrlQuery) {
-  const {bookId, page, analyze} = params
+  const {bookId, page} = params
   return {
     bookId: bookId as string,
     page: parseInt(page as string) || 1,
-    analyze: analyze === "true",
   }
 }
 
-export default function ReadBookPage({ocr, analysis}: Props) {
+export default function ReadBookPage({ocr, jpdbEnabled}: Props) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
@@ -42,7 +41,24 @@ export default function ReadBookPage({ocr, analysis}: Props) {
   const [fontSizeHover, setFontSizeHover] = useState(false)
   const [showText, setShowText] = useState(false)
   const [showParagraphs, setShowParagraphs] = useState(false)
+  const [showAnalysis, setShowAnalysis] = useState(true)
   const [textOrientation, setTextOrientation] = useState(TextOrientation.Vertical)
+  const [analysis, setAnalysis] = useState<AnalysisResults | undefined>(undefined)
+  const [analysisStarted, setAnalysisStarted] = useState(false)
+
+  async function analyze() {
+    if (analysisStarted) {
+      return
+    }
+    setAnalysisStarted(true)
+    const res = await fetch(bookAnalyzePageUrl(bookId, page - 1))
+    if (res.ok) {
+      setAnalysis(await res.json())
+    } else {
+      console.log("Failed to analyze page")
+      console.log(res)
+    }
+  }
 
   const zoomPx = Math.round(ocr.width * zoom / 100) + "px"
   return (
@@ -75,20 +91,25 @@ export default function ReadBookPage({ocr, analysis}: Props) {
             <GridItem justifySelf="end">
               <HStack>
                 <ZoomSelector zoom={zoom} onChange={v => setZoom(v)}/>
-                <Box pr={4}/>
+                <Box pr={5}/>
                 <FontSizeSelector
                   fontSize={fontSize}
                   onChange={v => setFontSize(v)}
                   onHover={v => setFontSizeHover(v)}
                 />
-                <Box pr={4}/>
+                <Box pr={5}/>
                 <ReaderMenu
                   showText={showText}
                   showParagraphs={showParagraphs}
+                  showAnalysis={showAnalysis}
                   textOrientation={textOrientation}
+                  analysisEnabled={jpdbEnabled && !analysisStarted}
+                  hasAnalysis={analysis !== undefined}
                   onChangeShowText={it => setShowText(it)}
                   onChangeShowParagraphs={it => setShowParagraphs(it)}
+                  onChangeShowAnalysis={it => setShowAnalysis(it)}
                   onChangeTextOrientation={it => setTextOrientation(it)}
+                  onAnalyze={async () => await analyze()}
                 />
                 <ColorModeSwitcher/>
               </HStack>
@@ -98,7 +119,7 @@ export default function ReadBookPage({ocr, analysis}: Props) {
             <Image alt="Page" width="100%" src={bookPageUrl(bookId, page - 1)}/>
             <SvgOverlay
               ocr={ocr}
-              analysis={analysis}
+              analysis={showAnalysis ? analysis : undefined}
               showParagraphs={showParagraphs}
               showText={showText || fontSizeHover}
               fontSize={fontSize}
@@ -112,15 +133,14 @@ export default function ReadBookPage({ocr, analysis}: Props) {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const {bookId, page, analyze} = getParams(context.query)
+  const {bookId, page} = getParams(context.query)
   const pageIndex = page - 1
   const ocr = await services.bookService.getBookOcrResults(bookId, pageIndex)
-  const analysis = analyze ? await services.jpdbService.analyze(bookId, pageIndex) : null
   await services.bookService.updateBookProgress(bookId, pageIndex)
   return {
     props: {
       ocr: ocr,
-      analysis: analysis,
+      jpdbEnabled: services.jpdbService.isJpdbEnalbed(),
     },
   }
 }

@@ -1,7 +1,7 @@
 import {Box, HStack, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Tooltip} from "@chakra-ui/react"
 import * as React from "react"
 import {FaFont} from "react-icons/fa"
-import {useState} from "react";
+import {useState} from "react"
 
 interface Props {
   fontSize: number,
