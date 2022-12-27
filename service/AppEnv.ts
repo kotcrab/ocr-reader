@@ -1,6 +1,6 @@
 export class AppEnv {
   readonly dataDirectory = getEnvOrThrow("DATA_DIRECTORY")
-  // noinspection JSUnusedLocalSymbols
+  readonly jpdbSid = getEnvOrElse("JPDB_SID", "")
   private googleApplicationCredentials = getEnvOrThrow("GOOGLE_APPLICATION_CREDENTIALS")
 }
 

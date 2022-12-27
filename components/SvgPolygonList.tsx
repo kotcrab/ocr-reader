@@ -1,7 +1,7 @@
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {verticesToPolygonPoints} from "../util/OverlayUtil"
 import * as React from "react"
-import IBoundingPoly = google.cloud.vision.v1.IBoundingPoly;
+import IBoundingPoly = google.cloud.vision.v1.IBoundingPoly
 
 interface Props {
   polys: IBoundingPoly[],

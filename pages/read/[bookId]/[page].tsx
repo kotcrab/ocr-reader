@@ -15,20 +15,24 @@ import PageSwitcher from "../../../components/PageSwitcher"
 import {readBookRoute} from "../../../util/Route"
 import {bookPageUrl} from "../../../util/Url"
 import SvgOverlay from "../../../components/SvgOverlay"
+import {AnalysisResults} from "../../../model/AnalysisResults"
+import {ParsedUrlQuery} from "querystring"
 
 interface Props {
   ocr: PageOcrResults,
+  analysis?: AnalysisResults,
 }
 
-function getParams(params: any) {
-  const {bookId, page} = params
+function getParams(params: ParsedUrlQuery) {
+  const {bookId, page, analyze} = params
   return {
     bookId: bookId as string,
     page: parseInt(page as string) || 0,
+    analyze: analyze == "true",
   }
 }
 
-export default function ReadBookPage({ocr}: Props) {
+export default function ReadBookPage({ocr, analysis}: Props) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
@@ -61,7 +65,7 @@ export default function ReadBookPage({ocr}: Props) {
           </HStack>
           <div style={{position: "relative", width: zoomPx}}>
             <Image alt="Page" width="100%" src={bookPageUrl(bookId, page)}/>
-            <SvgOverlay ocr={ocr} showParagraphs={showParagraphs} showText={showText} fontSize={fontSize}/>
+            <SvgOverlay ocr={ocr} analysis={analysis} showParagraphs={showParagraphs} showText={showText} fontSize={fontSize}/>
           </div>
         </Flex>
       </main>
@@ -70,12 +74,14 @@ export default function ReadBookPage({ocr}: Props) {
 }
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const {bookId, page} = getParams(context.params)
+  const {bookId, page, analyze} = getParams(context.query)
   const ocr = await services.bookService.getBookOcrResults(bookId, page)
+  const analysis = analyze ? await services.jpdbService.analyze(bookId, page) : null
   await services.bookService.updateBookProgress(bookId, page)
   return {
     props: {
       ocr: ocr,
+      analysis: analysis,
     },
   }
 }

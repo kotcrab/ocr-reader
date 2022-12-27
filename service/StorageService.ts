@@ -3,21 +3,23 @@ import path from "path"
 import * as crypto from "crypto"
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {Book, BookInfo} from "../model/Book"
+import {CachedJpdbResult} from "../model/CachedJpdbResult"
 import IAnnotateImageResponse = google.cloud.vision.v1.IAnnotateImageResponse;
 
 export class StorageService {
   private readonly dataDir: string
+  private readonly jpdbCacheDir: string
   private readonly allowedExtensions = [".png", ".jpg", ".jpeg"]
   private readonly ocrExtension = ".json"
 
   constructor(dataDir: string) {
     this.dataDir = path.resolve(dataDir)
-    if (!fs.existsSync(dataDir)) {
-      fs.mkdirSync(dataDir)
-    }
+    this.makeDirIfNeededSync(dataDir)
     if (!fs.existsSync(dataDir)) {
       throw new Error(`Can't initialize data directory. Please create the directory manually at ${dataDir} or use a different path`)
     }
+    this.jpdbCacheDir = path.join(dataDir, ".jpdb-cache")
+    this.makeDirIfNeededSync(this.jpdbCacheDir)
   }
 
   async readBooks(): Promise<Book[]> {
@@ -149,5 +151,24 @@ export class StorageService {
     if (!fileExists) {
       await fs.promises.mkdir(dir)
     }
+  }
+
+  private makeDirIfNeededSync(path: string) {
+    if (!fs.existsSync(path)) {
+      fs.mkdirSync(path)
+    }
+  }
+
+  async readJpdbCache(file: string): Promise<CachedJpdbResult | null> {
+    const cacheFile = path.join(this.jpdbCacheDir, file)
+    const fileExists = await fs.promises.stat(cacheFile).then(() => true, () => false)
+    if (!fileExists) {
+      return null
+    }
+    return JSON.parse(await fs.promises.readFile(cacheFile, "utf8"))
+  }
+
+  async writeJpdbCache(file: string, result: CachedJpdbResult) {
+    await fs.promises.writeFile(path.join(this.jpdbCacheDir, file), JSON.stringify(result), "utf8")
   }
 }
