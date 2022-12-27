@@ -28,7 +28,7 @@ function getParams(params: ParsedUrlQuery) {
   const {bookId, page, analyze} = params
   return {
     bookId: bookId as string,
-    page: parseInt(page as string) || 0,
+    page: parseInt(page as string) || 1,
     analyze: analyze === "true",
   }
 }
@@ -95,7 +95,7 @@ export default function ReadBookPage({ocr, analysis}: Props) {
             </GridItem>
           </Grid>
           <div style={{position: "relative", width: zoomPx}}>
-            <Image alt="Page" width="100%" src={bookPageUrl(bookId, page)}/>
+            <Image alt="Page" width="100%" src={bookPageUrl(bookId, page - 1)}/>
             <SvgOverlay
               ocr={ocr}
               analysis={analysis}
@@ -113,9 +113,10 @@ export default function ReadBookPage({ocr, analysis}: Props) {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {bookId, page, analyze} = getParams(context.query)
-  const ocr = await services.bookService.getBookOcrResults(bookId, page)
-  const analysis = analyze ? await services.jpdbService.analyze(bookId, page) : null
-  await services.bookService.updateBookProgress(bookId, page)
+  const pageIndex = page - 1
+  const ocr = await services.bookService.getBookOcrResults(bookId, pageIndex)
+  const analysis = analyze ? await services.jpdbService.analyze(bookId, pageIndex) : null
+  await services.bookService.updateBookProgress(bookId, pageIndex)
   return {
     props: {
       ocr: ocr,
