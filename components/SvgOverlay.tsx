@@ -4,6 +4,7 @@ import * as React from "react"
 import {PageOcrResults} from "../model/PageOcrResults"
 import {AnalysisResults} from "../model/AnalysisResults"
 import SvgAnalysisOverlay from "./SvgAnalysisOverlay"
+import {TextOrientation} from "../model/TextOrientation"
 
 interface Props {
   ocr: PageOcrResults,
@@ -11,9 +12,10 @@ interface Props {
   showParagraphs: boolean,
   showText: boolean,
   fontSize: number,
+  textOrientation: TextOrientation,
 }
 
-export default function SvgOverlay({ocr, analysis, showParagraphs, showText, fontSize}: Props) {
+export default function SvgOverlay({ocr, analysis, showParagraphs, showText, fontSize, textOrientation}: Props) {
   const sizeDiv = 1000
   const scaleX = ocr.width / sizeDiv
   const scaleY = ocr.height / sizeDiv
@@ -42,7 +44,14 @@ export default function SvgOverlay({ocr, analysis, showParagraphs, showText, fon
          }}>
       {!showParagraphs || <SvgPolygonList polys={paragraphs} scaleX={scaleX} scaleY={scaleY}/>}
       {analysis && <SvgAnalysisOverlay analysis={analysis} scaleX={scaleX} scaleY={scaleY}/>}
-      <SvgWordList showText={showText} words={words} scaleX={scaleX} scaleY={scaleY} fontSize={fontSize}/>
+      <SvgWordList
+        showText={showText}
+        words={words}
+        scaleX={scaleX}
+        scaleY={scaleY}
+        fontSize={fontSize}
+        textOrientation={textOrientation}
+      />
     </svg>
   )
 }

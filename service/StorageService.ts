@@ -4,7 +4,7 @@ import * as crypto from "crypto"
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {Book, BookInfo} from "../model/Book"
 import {CachedJpdbResult} from "../model/CachedJpdbResult"
-import IAnnotateImageResponse = google.cloud.vision.v1.IAnnotateImageResponse;
+import IAnnotateImageResponse = google.cloud.vision.v1.IAnnotateImageResponse
 
 export class StorageService {
   private readonly dataDir: string

@@ -8,7 +8,7 @@ function getParams(req: NextApiRequest) {
     bookId: bookId as string,
     page: parseInt(page as string),
     ocr: ocr === "true",
-    analyze: analyze == "true",
+    analyze: analyze === "true",
   }
 }
 

@@ -1,12 +1,6 @@
 import {google} from "@google-cloud/vision/build/protos/protos"
 import IVertex = google.cloud.vision.v1.IVertex
-
-interface BoundingRectangle {
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-}
+import {BoundingRectangle} from "../model/BoundingRectangle"
 
 export function calculateBoundingRectangle(vertices: IVertex[], scaleX: number, scaleY: number): BoundingRectangle {
   let minX = Number.MAX_VALUE
