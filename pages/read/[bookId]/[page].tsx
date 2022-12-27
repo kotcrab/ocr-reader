@@ -54,10 +54,17 @@ export default function ReadBookPage({ocr, jpdbEnabled}: Props) {
     const res = await fetch(bookAnalyzePageUrl(bookId, page - 1))
     if (res.ok) {
       setAnalysis(await res.json())
+      setShowAnalysis(true)
     } else {
       console.log("Failed to analyze page")
       console.log(res)
     }
+  }
+
+  async function changePage(newPage: number) {
+    setAnalysis(undefined)
+    setAnalysisStarted(false)
+    await router.push(readBookRoute(bookId, newPage))
   }
 
   const zoomPx = Math.round(ocr.width * zoom / 100) + "px"
@@ -85,7 +92,7 @@ export default function ReadBookPage({ocr, jpdbEnabled}: Props) {
               <PageSwitcher
                 page={page}
                 pages={ocr.pages}
-                onChange={(newPage) => router.push(readBookRoute(bookId, newPage))}
+                onChange={(newPage) => changePage(newPage)}
               />
             </GridItem>
             <GridItem justifySelf="end">
