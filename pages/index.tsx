@@ -1,7 +1,7 @@
 import PageHead from "../components/PageHead"
 import {Button, Container, Flex, Text, VStack} from "@chakra-ui/react"
 import BookCard from "../components/BookCard"
-import React from "react"
+import React, {useState} from "react"
 import {services} from "../service/Services"
 import {BookResponse} from "../model/BookResponse"
 import SearchBar from "../components/SearchBar"
@@ -49,7 +49,7 @@ function NoBooks() {
 }
 
 function BookList({books}: Props) {
-  const [filter, setFilter] = React.useState("")
+  const [filter, setFilter] = useState("")
   const filteredBooks = books
     .filter(book => {
       return !filter ||

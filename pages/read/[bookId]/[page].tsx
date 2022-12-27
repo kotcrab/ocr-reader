@@ -40,7 +40,7 @@ export default function ReadBookPage({ocr, analysis}: Props) {
   const [zoom, setZoom] = useState(40)
   const [fontSize, setFontSize] = useState(17)
   const [fontSizeHover, setFontSizeHover] = useState(false)
-  const [showText, setShowText] = useState(true)
+  const [showText, setShowText] = useState(false)
   const [showParagraphs, setShowParagraphs] = useState(false)
   const [textOrientation, setTextOrientation] = useState(TextOrientation.Vertical)
 
