@@ -3,6 +3,7 @@ import {
   Menu,
   MenuButton,
   MenuDivider,
+  MenuGroup,
   MenuItem,
   MenuItemOption,
   MenuList,
@@ -12,6 +13,8 @@ import {
 import {HamburgerIcon} from "@chakra-ui/icons"
 import React from "react"
 import {TextOrientation} from "../model/TextOrientation"
+import FontSizeSelector from "./FontSizeSelector"
+import {useHotkeys} from "react-hotkeys-hook"
 
 const optionText = "text"
 const optionParagraphs = "paragraphs"
@@ -24,11 +27,14 @@ interface Props {
   textOrientation: TextOrientation,
   analysisEnabled: boolean,
   hasAnalysis: boolean,
-  onChangeShowText: (textVisible: boolean) => void,
-  onChangeShowParagraphs: (textVisible: boolean) => void,
-  onChangeShowAnalysis: (textVisible: boolean) => void,
+  fontSize: number,
+  onChangeShowText: (showText: boolean) => void,
+  onChangeShowParagraphs: (showParagraphs: boolean) => void,
+  onChangeShowAnalysis: (showAnalysis: boolean) => void,
   onChangeTextOrientation: (textOrientation: TextOrientation) => void,
   onAnalyze: () => void,
+  onFontSizeChange: (newSize: number) => void,
+  onFontSizeHover: (inside: boolean) => void,
 }
 
 export default function ReaderMenu(
@@ -39,13 +45,28 @@ export default function ReaderMenu(
     textOrientation,
     analysisEnabled,
     hasAnalysis,
+    fontSize,
     onChangeShowText,
     onChangeShowParagraphs,
     onChangeShowAnalysis,
     onChangeTextOrientation,
     onAnalyze,
+    onFontSizeChange,
+    onFontSizeHover,
   }: Props
 ) {
+  useHotkeys("q", () => onChangeTextOrientation(TextOrientation.Horizontal))
+  useHotkeys("w", () => onChangeTextOrientation(TextOrientation.Vertical))
+  useHotkeys("a", () => {
+    if (analysisEnabled) {
+      onAnalyze()
+    } else if (hasAnalysis) {
+      onChangeShowAnalysis(!showAnalysis)
+    }
+  }, [analysisEnabled, hasAnalysis, showAnalysis])
+  useHotkeys("s", () => onChangeShowText(!showText), [showText])
+  useHotkeys("d", () => onChangeShowParagraphs(!showParagraphs), [showParagraphs])
+
   const overlayValues = []
   if (showText) {
     overlayValues.push(optionText)
@@ -56,7 +77,7 @@ export default function ReaderMenu(
   if (showAnalysis) {
     overlayValues.push(optionAnalysis)
   }
-  return <Menu>
+  return <Menu closeOnSelect={false}>
     <MenuButton
       as={IconButton}
       aria-label='Options'
@@ -68,6 +89,13 @@ export default function ReaderMenu(
         <MenuItem isDisabled={!analysisEnabled} onClick={() => onAnalyze()}>
           Analyze using JPDB{hasAnalysis ? " (analyzed)" : ""}
         </MenuItem>
+        <MenuDivider/>
+
+        <MenuGroup title='Font size'>
+          <MenuItem>
+            <FontSizeSelector fontSize={fontSize} onChange={onFontSizeChange} onHover={onFontSizeHover}/>
+          </MenuItem>
+        </MenuGroup>
         <MenuDivider/>
 
         <MenuOptionGroup title='Text orientation' type='radio' value={textOrientation}>

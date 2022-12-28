@@ -1,6 +1,7 @@
-import {Button, HStack, Text} from "@chakra-ui/react"
+import {HStack, IconButton, Text} from "@chakra-ui/react"
 import * as React from "react"
 import {useHotkeys} from "react-hotkeys-hook"
+import {FaChevronLeft, FaChevronRight} from "react-icons/fa"
 
 interface Props {
   page: number,
@@ -14,9 +15,15 @@ export default function PageSwitcher({page, pages, onChange}: Props) {
 
   return (
     <HStack spacing={8}>
-      <Button variant="ghost" onClick={() => onChange(page - 1)} disabled={page <= 1}>&#60;</Button>
+      <IconButton
+        icon={<FaChevronLeft/>} variant="ghost" onClick={() => onChange(page - 1)} disabled={page <= 1}
+        aria-label="Previous page"
+      />
       <Text>{page}&nbsp;/&nbsp;{pages}</Text>
-      <Button variant="ghost" onClick={() => onChange(page + 1)} disabled={page >= pages}>&#62;</Button>
+      <IconButton
+        icon={<FaChevronRight/>} variant="ghost" onClick={() => onChange(page + 1)} disabled={page >= pages}
+        aria-label="Next page"
+      />
     </HStack>
   )
 }

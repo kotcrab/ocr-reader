@@ -1,7 +1,10 @@
-import {Box, HStack, Slider, SliderFilledTrack, SliderThumb, SliderTrack, Tooltip} from "@chakra-ui/react"
+import {Slider, SliderFilledTrack, SliderThumb, SliderTrack, Tooltip} from "@chakra-ui/react"
 import * as React from "react"
-import {FaFont} from "react-icons/fa"
 import {useState} from "react"
+import {useHotkeys} from "react-hotkeys-hook"
+
+const minValue = 10
+const maxValue = 40
 
 interface Props {
   fontSize: number,
@@ -10,43 +13,41 @@ interface Props {
 }
 
 export default function FontSizeSelector({fontSize, onChange, onHover}: Props) {
-  const [showTooltip, setShowTooltip] = useState(false)
+  useHotkeys("comma", () => onChange(Math.max(fontSize - 2, minValue)), {enabled: fontSize > minValue}, [fontSize])
+  useHotkeys(".", () => onChange(Math.min(fontSize + 2, maxValue)), {enabled: fontSize < maxValue}, [fontSize])
 
+  const [showTooltip, setShowTooltip] = useState(false)
   return (
-    <HStack spacing={3}>
-      <FaFont/>
-      <Box width="200px">
-        <Slider
-          id='slider'
-          defaultValue={17}
-          min={10}
-          max={40}
-          colorScheme='blue'
-          onChange={(v) => onChange(v)}
-          onMouseEnter={() => {
-            setShowTooltip(true)
-            onHover(true)
-          }}
-          onMouseLeave={() => {
-            setShowTooltip(false)
-            onHover(false)
-          }}
-        >
-          <SliderTrack>
-            <SliderFilledTrack/>
-          </SliderTrack>
-          <Tooltip
-            hasArrow
-            bg='blue.500'
-            color='white'
-            placement='top'
-            isOpen={showTooltip}
-            label={fontSize}
-          >
-            <SliderThumb/>
-          </Tooltip>
-        </Slider>
-      </Box>
-    </HStack>
+    <Slider
+      id='slider'
+      defaultValue={17}
+      min={minValue}
+      max={maxValue}
+      colorScheme='blue'
+      value={fontSize}
+      onChange={(v) => onChange(v)}
+      onMouseEnter={() => {
+        setShowTooltip(true)
+        onHover(true)
+      }}
+      onMouseLeave={() => {
+        setShowTooltip(false)
+        onHover(false)
+      }}
+    >
+      <SliderTrack>
+        <SliderFilledTrack/>
+      </SliderTrack>
+      <Tooltip
+        hasArrow
+        bg='blue.500'
+        color='white'
+        placement='top'
+        isOpen={showTooltip}
+        label={fontSize}
+      >
+        <SliderThumb/>
+      </Tooltip>
+    </Slider>
   )
 }

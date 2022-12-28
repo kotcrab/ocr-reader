@@ -6,12 +6,11 @@ import {ColorModeSwitcher} from "../../../components/ColorModeSwitcher"
 import {services} from "../../../service/Services"
 import {GetServerSidePropsContext} from "next"
 import {PageOcrResults} from "../../../model/PageOcrResults"
-import FontSizeSelector from "../../../components/FontSizeSelector"
 import ZoomSelector from "../../../components/ZoomSelector"
 import SelectionColorOverride from "../../../components/SelectionColorOverride"
 import PageSwitcher from "../../../components/PageSwitcher"
 import {homeRoute, readBookRoute} from "../../../util/Route"
-import {bookAnalyzePageUrl, bookPageUrl, bookTextDumpUrl} from "../../../util/Url"
+import {bookAnalyzePageUrl, bookPageUrl} from "../../../util/Url"
 import SvgOverlay from "../../../components/SvgOverlay"
 import {AnalysisResults} from "../../../model/AnalysisResults"
 import {ParsedUrlQuery} from "querystring"
@@ -97,14 +96,9 @@ export default function ReadBookPage({ocr, jpdbEnabled}: Props) {
             </GridItem>
             <GridItem justifySelf="end">
               <HStack>
-                <ZoomSelector zoom={zoom} onChange={v => setZoom(v)}/>
-                <Box pr={5}/>
-                <FontSizeSelector
-                  fontSize={fontSize}
-                  onChange={v => setFontSize(v)}
-                  onHover={v => setFontSizeHover(v)}
-                />
-                <Box pr={5}/>
+                <Box pr={4}>
+                  <ZoomSelector zoom={zoom} onChange={v => setZoom(v)}/>
+                </Box>
                 <ReaderMenu
                   showText={showText}
                   showParagraphs={showParagraphs}
@@ -112,11 +106,14 @@ export default function ReadBookPage({ocr, jpdbEnabled}: Props) {
                   textOrientation={textOrientation}
                   analysisEnabled={jpdbEnabled && !analysisStarted}
                   hasAnalysis={analysis !== undefined}
+                  fontSize={fontSize}
                   onChangeShowText={it => setShowText(it)}
                   onChangeShowParagraphs={it => setShowParagraphs(it)}
                   onChangeShowAnalysis={it => setShowAnalysis(it)}
                   onChangeTextOrientation={it => setTextOrientation(it)}
                   onAnalyze={async () => await analyze()}
+                  onFontSizeChange={it => setFontSize(it)}
+                  onFontSizeHover={it => setFontSizeHover(it)}
                 />
                 <ColorModeSwitcher/>
               </HStack>
