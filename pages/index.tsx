@@ -100,7 +100,7 @@ function BookItem({book}: BookItemProps) {
   return <BookCard
     key={book.id}
     book={book}
-    onRead={id => router.push(readBookRoute(id, book.currentPage))}
+    onRead={id => router.push(readBookRoute(id, book.currentPage + 1))}
     onRunOcr={onRunOcr}
     onEdit={onEdit}
     onDownloadText={onDownloadText}
