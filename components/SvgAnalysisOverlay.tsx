@@ -30,12 +30,12 @@ export default function SvgAnalysisOverlay({analysis, scaleX, scaleY}: Props) {
 function getColorForStatus(status: WordStatus) {
   switch (status) {
     case WordStatus.Learning:
-      return "rgba(74,231,129,0.3)"
+      return "rgba(74,231,129,0.15)"
     case WordStatus.Locked:
-      return "rgba(84,65,67,0.3)"
+      return "rgba(84,65,67,0.15)"
     case WordStatus.New:
-      return "rgba(32,48,145,0.3)"
+      return "rgba(32,48,145,0.15)"
     default:
-      return "rgba(255,0,255,0.3)"
+      return "rgba(255,0,255,0.15)"
   }
 }
