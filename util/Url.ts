@@ -1,3 +1,7 @@
+export function analyzeTextUrl(text: string): string {
+  return `/api/analyze?text=${text}`
+}
+
 export function booksUrl(): string {
   return "/api/books"
 }

@@ -1,6 +1,12 @@
 export enum WordStatus {
-  Learning = "Learning",
-  Locked = "Locked",
   New = "New",
-  Other = "Other",
+  Known = "Known", // also covers never forget and redundant
+  Due = "Due",
+  Suspended = "Suspended",
+  Locked = "Locked",
+  Learning = "Learning",
+  Failed = "Failed",
+  Blacklisted = "Blacklisted",
+  NotInDeck = "NotInDeck",
+  Missing = "Missing",
 }

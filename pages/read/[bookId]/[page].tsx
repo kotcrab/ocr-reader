@@ -1,5 +1,5 @@
 import PageHead from "../../../components/PageHead"
-import {Box, Flex, Grid, GridItem, HStack, IconButton, Image} from "@chakra-ui/react"
+import {Box, Flex, Grid, GridItem, HStack, Image} from "@chakra-ui/react"
 import React, {useState} from "react"
 import {useRouter} from "next/router"
 import {ColorModeSwitcher} from "../../../components/ColorModeSwitcher"
@@ -9,14 +9,14 @@ import {PageOcrResults} from "../../../model/PageOcrResults"
 import ZoomSelector from "../../../components/ZoomSelector"
 import SelectionColorOverride from "../../../components/SelectionColorOverride"
 import PageSwitcher from "../../../components/PageSwitcher"
-import {homeRoute, readBookRoute} from "../../../util/Route"
+import {readBookRoute} from "../../../util/Route"
 import {bookAnalyzePageUrl, bookPageUrl} from "../../../util/Url"
 import SvgOverlay from "../../../components/SvgOverlay"
 import {AnalysisResults} from "../../../model/AnalysisResults"
 import {ParsedUrlQuery} from "querystring"
 import ReaderMenu from "../../../components/ReaderMenu"
 import {TextOrientation} from "../../../model/TextOrientation"
-import {ImExit} from "react-icons/im"
+import ExitButton from "../../../components/ExitButton"
 
 interface Props {
   ocr: PageOcrResults,
@@ -75,17 +75,7 @@ export default function ReadBookPage({ocr, jpdbEnabled}: Props) {
         <Flex p={4} direction="column" alignItems="center">
           <Grid alignSelf="stretch" templateColumns='repeat(3, 1fr)' pb={4}>
             <GridItem>
-              <IconButton
-                size="md"
-                fontSize="lg"
-                variant="ghost"
-                color="current"
-                marginLeft="2"
-                onClick={() => router.push(homeRoute())}
-                icon={<ImExit/>}
-                aria-label="Exit reader"
-                disabled={zoom <= 5}
-              />
+              <ExitButton/>
             </GridItem>
             <GridItem justifySelf="center">
               <PageSwitcher
@@ -144,7 +134,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   return {
     props: {
       ocr: ocr,
-      jpdbEnabled: services.jpdbService.isJpdbEnalbed(),
+      jpdbEnabled: services.jpdbService.isEnabled(),
     },
   }
 }

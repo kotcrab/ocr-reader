@@ -5,6 +5,7 @@ import {StorageService} from "./StorageService"
 import {AnalysisResults} from "../model/AnalysisResults"
 import {WordStatus} from "../model/WordStatus"
 import * as crypto from "crypto"
+import {TextAnalysisResult} from "../model/TextAnalysisResults"
 import ISymbol = google.cloud.vision.v1.ISymbol
 import IVertex = google.cloud.vision.v1.IVertex
 
@@ -12,7 +13,11 @@ const jsdom = require("jsdom")
 const {JSDOM} = jsdom
 
 export class JpdbService {
-  private readonly queriedStatuses = [WordStatus.Learning, WordStatus.Locked, WordStatus.New]
+  private readonly queriedStatuses = [
+    WordStatus.New, WordStatus.Known, WordStatus.Due, WordStatus.Suspended, WordStatus.Locked,
+    WordStatus.Learning, WordStatus.Failed, WordStatus.Blacklisted,
+  ]
+  private readonly analysisStatues = [WordStatus.New, WordStatus.Locked, WordStatus.Learning, WordStatus.NotInDeck]
 
   private readonly storageService: StorageService
   private readonly bookService: BookService
@@ -24,14 +29,14 @@ export class JpdbService {
     this.jpdbSid = jpdbSid
   }
 
-  isJpdbEnalbed() {
+  isEnabled() {
     return this.jpdbSid.length > 0
   }
 
   async analyze(bookId: string, page: number): Promise<AnalysisResults> {
     const ocr = await services.bookService.getBookOcrResults(bookId, page)
     const ocrBlocks = ocr.annotations.pages?.[0].blocks || []
-    const sentenceSymbols = ocrBlocks.flatMap(block =>
+    const pageSymbols = ocrBlocks.flatMap(block =>
       block?.paragraphs?.flatMap(paragraph =>
         paragraph.words?.flatMap(word =>
           word.symbols?.flatMap(symbol => mapSymbol(symbol)) || []
@@ -40,38 +45,52 @@ export class JpdbService {
     )
       .filter(it => it.text && it.vertices)
 
-    const sentenceText = sentenceSymbols.map(it => it.text).join("")
-    const html = await this.getOrFetchJpdbHtml(sentenceText)
+    const pageText = pageSymbols.map(it => it.text).join("")
+    const results = (await this.analyzeText(pageText)).map(it => {
+      const symbols = pageSymbols.splice(0, it.fragment.length)
+      const vertices = this.partitionSymbolsVertices(symbols)
+      return {
+        fragment: it.fragment,
+        status: it.status,
+        vertices: vertices,
+      }
+    })
+      .filter(it => this.analysisStatues.includes(it.status))
+    return {results: results}
+  }
+
+  async analyzeText(text: string): Promise<TextAnalysisResult[]> {
+    if (!text) {
+      return []
+    }
+    const html = await this.getOrFetchJpdbHtmlFor(text)
     const document = new JSDOM(html).window.document
 
     const ruby = [...document.getElementsByTagName("rt")] as Element[]
     ruby.forEach(it => it.remove())
 
-    const parsedSentence = [...document.getElementsByClassName("floating-sentence")[0].children] as Element[]
-    const results = parsedSentence.map(fragment => {
+    const floatingSentence = document.getElementsByClassName("floating-sentence")
+    if (floatingSentence.length === 0) {
+      return [{fragment: text, status: WordStatus.Missing}]
+    }
+    const parsedSentence = [...floatingSentence[0].children] as Element[]
+    return parsedSentence.map(fragment => {
       const fragmentText = fragment.textContent || ""
-      const symbols = sentenceSymbols.splice(0, fragmentText.length)
       const reference = fragment.querySelector("a")?.href.split("#")[1]
       const status = this.queryWordStatusFromReference(document, reference)
-      const vertices = this.partitionSymbolsVertices(symbols)
       return {
         fragment: fragmentText,
         status: status,
-        vertices: vertices,
       }
     })
-      .filter(it => it.status !== WordStatus.Other)
-
-    return {results: results}
   }
 
   private queryWordStatusFromReference(
     document: Document,
     reference: string | undefined,
-    defaultStatus = WordStatus.Other
   ): WordStatus {
     if (!reference) {
-      return defaultStatus
+      return WordStatus.Missing
     }
     const referenceDiv = document.getElementById(reference)
     for (const queriedStatus of this.queriedStatuses) {
@@ -79,19 +98,29 @@ export class JpdbService {
         return queriedStatus
       }
     }
-    return defaultStatus
+    return WordStatus.NotInDeck
   }
 
   private jpdbStatusSelectorFor(status: WordStatus) {
     switch (status) {
+      case WordStatus.New:
+        return "div.tag.new"
+      case WordStatus.Known:
+        return "div.tag.known"
+      case WordStatus.Due:
+        return "div.tag.overdue"
+      case WordStatus.Suspended:
+        return "div.tag.suspended"
+      case WordStatus.Failed:
+        return "div.tag.failed"
+      case WordStatus.Blacklisted:
+        return "div.tag.blacklisted"
       case WordStatus.Learning:
         return "div.tag.learning"
       case WordStatus.Locked:
         return "div.tag.locked"
-      case WordStatus.New:
-        return "div.tag.new"
       default:
-        throw new Error("Unsupported word status")
+        throw new Error(`No selector for word status: ${status}`)
     }
   }
 
@@ -106,12 +135,12 @@ export class JpdbService {
     return vertices
   }
 
-  private async getOrFetchJpdbHtml(text: string): Promise<string> {
+  private async getOrFetchJpdbHtmlFor(text: string): Promise<string> {
     const cacheFile = crypto.createHash("sha256").update(text).digest("hex") + ".json"
     const cache = await this.storageService.readJpdbCache(cacheFile)
     if (!cache || Date.now() > cache.expireAt) {
       console.log(`JPDB cache miss for ${cacheFile}`)
-      const html = await this.fetchJpdbHtml(text)
+      const html = await this.fetchJpdbHtmlFor(text)
       const expireAt = new Date()
       expireAt.setDate(expireAt.getDate() + 1)
       await this.storageService.writeJpdbCache(cacheFile, {expireAt: expireAt.getTime(), html: html})
@@ -122,7 +151,7 @@ export class JpdbService {
     }
   }
 
-  private async fetchJpdbHtml(text: string): Promise<string> {
+  private async fetchJpdbHtmlFor(text: string): Promise<string> {
     console.log("Sending request to JPDB")
     const response = await fetch("https://jpdb.io/search?q=" + text, {
       headers: {

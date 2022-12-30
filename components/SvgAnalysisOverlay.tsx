@@ -32,6 +32,7 @@ function getColorForStatus(status: WordStatus) {
     case WordStatus.Learning:
       return "rgba(74,231,129,0.15)"
     case WordStatus.Locked:
+    case WordStatus.NotInDeck:
       return "rgba(84,65,67,0.15)"
     case WordStatus.New:
       return "rgba(32,48,145,0.15)"

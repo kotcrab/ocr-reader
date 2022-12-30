@@ -7,8 +7,8 @@ import {BookResponse} from "../model/BookResponse"
 import SearchBar from "../components/SearchBar"
 import {useRouter} from "next/router"
 import {booksUrl, bookTextDumpUrl, bookUrl} from "../util/Url"
-import {ColorModeSwitcher} from "../components/ColorModeSwitcher"
 import {readBookRoute} from "../util/Route"
+import NavBar from "../components/NavBar"
 
 interface Props {
   books: BookResponse[],
@@ -26,7 +26,8 @@ export default function Home({books}: Props) {
     <>
       <PageHead/>
       <main>
-        <Flex p={4}>
+        <Flex p={4} direction="column">
+          <NavBar/>
           <Container maxW='6xl'>
             <VStack align="stretch" spacing={4}>
               {books.length === 0 ? <NoBooks/> : <BookList books={books}/>}
@@ -35,7 +36,6 @@ export default function Home({books}: Props) {
               </Button>
             </VStack>
           </Container>
-          <ColorModeSwitcher justifySelf="flex-end"/>
         </Flex>
       </main>
     </>
