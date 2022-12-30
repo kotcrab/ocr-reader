@@ -17,7 +17,7 @@ export class JpdbService {
     WordStatus.New, WordStatus.Known, WordStatus.Due, WordStatus.Suspended, WordStatus.Locked,
     WordStatus.Learning, WordStatus.Failed, WordStatus.Blacklisted,
   ]
-  private readonly analysisStatues = [WordStatus.New, WordStatus.Locked, WordStatus.Learning, WordStatus.NotInDeck]
+  private readonly analysisStatuses = [WordStatus.New, WordStatus.Locked, WordStatus.Learning, WordStatus.NotInDeck]
 
   private readonly storageService: StorageService
   private readonly bookService: BookService
@@ -55,7 +55,7 @@ export class JpdbService {
         vertices: vertices,
       }
     })
-      .filter(it => this.analysisStatues.includes(it.status))
+      .filter(it => this.analysisStatuses.includes(it.status))
     return {results: results}
   }
 
