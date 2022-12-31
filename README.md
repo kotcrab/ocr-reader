@@ -113,10 +113,10 @@ Text hooker page works with text extractors with support for WebSocket server, t
 Assuming your text extractor is configured correctly you should automatically see that
 WebSocket is connected after opening text hooker page.
 
-If you have configured JPDB then check the `Analyze with JPDB (experimental)` to enable word highlighting.
+If you have configured JPDB then click the `Analyze with JPDB (experimental)` checkbox to enable word highlighting.
 The page tries to rate limit and won't send more than 1 request per second to JPDB.
 
 ### Maintenance
 
 JPDB results are cached in `data/.jpdb-cache`, currently it's not automatically cleared. You can safely delete
-it when app is running.
+it when app is not running.
