@@ -58,8 +58,6 @@ be http://localhost:3000. Open this address in your browser to access the app.
 
 ### Reader
 
-#### Adding books
-
 To add books to the reader, place images inside the `data` folder following this structure:
 
 ```
