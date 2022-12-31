@@ -30,8 +30,8 @@ export default function TextHooker({jpdbEnabled}: Props) {
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
     [ReadyState.OPEN]: "Connected",
-    [ReadyState.CLOSING]: "Closing",
-    [ReadyState.CLOSED]: "Closed",
+    [ReadyState.CLOSING]: "Disconnecting",
+    [ReadyState.CLOSED]: "Disconnected",
     [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState]
 
