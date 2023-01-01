@@ -25,14 +25,15 @@ might be breaking changes.
 In Google Cloud Console create new project and enable Cloud Vision API. Then create service
 account with access to your project and download its JSON key file (**never share this file with anyone**).
 This part of the setup is mostly covered by this [guide](https://cloud.google.com/vision/docs/detect-labels-image-client-libraries#before-you-begin),
-section `Before you begin`, step 1-5.
+section `Before you begin`, skip last step with setting environment variable.
 
 ### Setup
 
 1. Download ZIP of this project [here](https://github.com/kotcrab/ocr-reader/archive/refs/heads/master.zip), extract it.
-2. If you have JSON key file for your Google Cloud account rename it to `gcp.json` and place it inside `data` folder.
-3. Rename `.env.local.sample` to `.env.local`.
+2. Rename `.env.local.sample` to `.env.local`.
    - This file may be hidden by default on Linux and macOS.
+3. If you have JSON key file for your Google Cloud account rename it to `gcp.json` and place it inside `data` folder.
+   - This file may be placed in any location but in that case you will need to change the path in `.env.local`.
 4. If you have JPDB account and want to use it for unknown words highlighting:
    - Using your browser devtools get the SID cookie value from the JPDB page.
    - Open `.env.local` using any text editor.
@@ -53,7 +54,7 @@ To update to a different version:
 
 ## Usage
 
-After starting the app you will see its url in the terminal window, usually that will
+After starting the app you will see its URL in the terminal window, usually that will
 be http://localhost:3000. Open this address in your browser to access the app.
 
 ### Reader
@@ -89,7 +90,7 @@ Press `Rescan books` on the home page after changing books.
 
 Press `OCR pending...` to start OCR, after it's done you will be able to press `Read` button.
 
-You can also use the menu to download OCRed text. This is useful for creating JPDB deck
+You can also use the menu to download OCRed text. This is useful for creating JPDB decks
 (for this you should download text with line breaks removed).
 
 In reader mode, you can:
@@ -111,7 +112,7 @@ Text hooker page works with text extractors with support for WebSocket server, t
   - Server must be manually enabled in settings.
 
 Assuming your text extractor is configured correctly you should automatically see that
-WebSocket is connected after opening text hooker page.
+WebSocket is connected after opening the text hooker page.
 
 If you have configured JPDB then click the `Analyze with JPDB (experimental)` checkbox to enable word highlighting.
 The page tries to rate limit and won't send more than 1 request per second to JPDB.
