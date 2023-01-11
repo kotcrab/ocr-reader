@@ -77,7 +77,7 @@ data
         ....jpg
 ```
 
-- Images can be scans, photos, screenshots. If it's readable OCR should handle it.
+- Images can be scans, photos, screenshots etc. If it's readable OCR should handle it.
 - Names can be anything you want. Image names will be used for page sorting.
 - Only images are supported (JPG, PNG). PDFs are not supported.
 
@@ -94,7 +94,7 @@ You can also use the menu to download OCRed text. This is useful for creating JP
 
 In reader mode, you can:
 - Use your favorite pop-up dictionary as-if you were reading normal text.
-- Switch the text direction from vertical to horizontal (it won't be autodetected).
+- Switch the text direction from vertical to horizontal (it's not autodetected for now).
 - Adjust font size of the overlaid text.
   - Overlaid text just need to roughly match actual image text, don't worry about getting it perfect.
 - Adjust page zoom.
