@@ -36,9 +36,8 @@ section `Before you begin`, skip last step with setting environment variable.
    - This file may be placed in any location but in that case you will need to change the path in `.env.local`.
 4. If you have JPDB account and want to use it for unknown words highlighting:
    - Using your browser devtools get the SID cookie value from the JPDB page.
-   - Open `.env.local` using any text editor.
-   - Paste the SID value after `JPDB_SID=` (it should look like this `JPDB_SID=1234...`).
-   - Save file.
+   - Edit `.env.local` using any text editor.
+   - Paste the SID value after `JPDB_SID=` (it should look like this `JPDB_SID=1234...`) and save the file.
 5. Run `build.bat`.
    - On Linux or macOS run `npm install && npm run build` from your terminal.
    - Wait until build finishes, this might take a while.
@@ -80,7 +79,7 @@ data
 
 - Images can be scans, photos, screenshots. If it's readable OCR should handle it.
 - Names can be anything you want. Image names will be used for page sorting.
-- Only images are supported (JPG, PNG), PDFs are not supported.
+- Only images are supported (JPG, PNG). PDFs are not supported.
 
 **Warning**: images with EXIF rotation in metadata won't be handled correctly.
 Make sure all EXIF rotation data is removed and images are rotated correctly before continuing.

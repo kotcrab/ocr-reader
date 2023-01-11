@@ -8,9 +8,12 @@ interface Props {
   onChange: (zoom: number) => void,
 }
 
+const minZoom = 5
+const maxZoom = 300
+
 export default function ZoomSelector({zoom, onChange}: Props) {
-  useHotkeys("[", () => onChange(zoom - 5), {enabled: zoom > 5}, [zoom])
-  useHotkeys("]", () => onChange(zoom + 5), {enabled: zoom < 100}, [zoom])
+  useHotkeys("[", () => onChange(zoom - 5), {enabled: zoom > minZoom}, [zoom])
+  useHotkeys("]", () => onChange(zoom + 5), {enabled: zoom < maxZoom}, [zoom])
 
   return (
     <HStack>
@@ -23,7 +26,7 @@ export default function ZoomSelector({zoom, onChange}: Props) {
         onClick={() => onChange(zoom - 5)}
         icon={<HiZoomOut/>}
         aria-label={"Zoom Out"}
-        disabled={zoom <= 5}
+        disabled={zoom <= minZoom}
       />
       <Text width="50px" align="center">{zoom}%</Text>
       <IconButton
@@ -35,7 +38,7 @@ export default function ZoomSelector({zoom, onChange}: Props) {
         onClick={() => onChange(zoom + 5)}
         icon={<HiZoomIn/>}
         aria-label={"Zoom In"}
-        disabled={zoom >= 100}
+        disabled={zoom >= maxZoom}
       />
     </HStack>
   )
