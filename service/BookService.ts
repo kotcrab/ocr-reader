@@ -133,12 +133,13 @@ export class BookService {
     }
   }
 
-  async updateBookProgress(bookId: string, currentPage: number) {
+  async updateBookProgress(bookId: string, currentPage: number): Promise<Book> {
     await this.initialScanBooksIfNeeded()
     const book = this.getBookById(bookId)
     this.checkBookPageInRange(book, currentPage)
     book.info.currentPage = currentPage
     await this.storageService.writeBook(book)
+    return book
   }
 
   private checkBookPageInRange(book: Book, page: number) {

@@ -1,4 +1,4 @@
-import PageHead from "../../../components/PageHead"
+import PageHead, {defaultPageTitle} from "../../../components/PageHead"
 import {Box, Flex, Grid, GridItem, HStack, Image} from "@chakra-ui/react"
 import React, {useState} from "react"
 import {useRouter} from "next/router"
@@ -19,6 +19,7 @@ import {TextOrientation} from "../../../model/TextOrientation"
 import ExitButton from "../../../components/ExitButton"
 
 interface Props {
+  title: string,
   ocr: PageOcrResults,
   jpdbEnabled: boolean,
 }
@@ -31,7 +32,7 @@ function getParams(params: ParsedUrlQuery) {
   }
 }
 
-export default function ReadBookPage({ocr, jpdbEnabled}: Props) {
+export default function ReadBookPage({title, ocr, jpdbEnabled}: Props) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
@@ -69,7 +70,7 @@ export default function ReadBookPage({ocr, jpdbEnabled}: Props) {
   const zoomPx = Math.round(ocr.width * zoom / 100) + "px"
   return (
     <>
-      <PageHead/>
+      <PageHead title={`${title} - ${defaultPageTitle}`}/>
       <main>
         <SelectionColorOverride/>
         <Flex p={4} direction="column" alignItems="center">
@@ -130,9 +131,10 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {bookId, page} = getParams(context.query)
   const pageIndex = page - 1
   const ocr = await services.bookService.getBookOcrResults(bookId, pageIndex)
-  await services.bookService.updateBookProgress(bookId, pageIndex)
+  const book = await services.bookService.updateBookProgress(bookId, pageIndex)
   return {
     props: {
+      title: book.title,
       ocr: ocr,
       jpdbEnabled: services.jpdbService.isEnabled(),
     },
