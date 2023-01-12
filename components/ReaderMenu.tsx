@@ -15,6 +15,7 @@ import React from "react"
 import {TextOrientation} from "../model/TextOrientation"
 import FontSizeSelector from "./FontSizeSelector"
 import {useHotkeys} from "react-hotkeys-hook"
+import {ReadingDirection} from "../model/ReadingDirection"
 
 const optionText = "text"
 const optionParagraphs = "paragraphs"
@@ -25,6 +26,7 @@ interface Props {
   showParagraphs: boolean,
   showAnalysis: boolean,
   textOrientation: TextOrientation,
+  readingDirection: ReadingDirection,
   analysisEnabled: boolean,
   hasAnalysis: boolean,
   fontSize: number,
@@ -32,6 +34,7 @@ interface Props {
   onChangeShowParagraphs: (showParagraphs: boolean) => void,
   onChangeShowAnalysis: (showAnalysis: boolean) => void,
   onChangeTextOrientation: (textOrientation: TextOrientation) => void,
+  onChangeReadingDirection: (readingDirection: ReadingDirection) => void,
   onAnalyze: () => void,
   onFontSizeChange: (newSize: number) => void,
   onFontSizeHover: (inside: boolean) => void,
@@ -43,6 +46,7 @@ export default function ReaderMenu(
     showParagraphs,
     showAnalysis,
     textOrientation,
+    readingDirection,
     analysisEnabled,
     hasAnalysis,
     fontSize,
@@ -50,6 +54,7 @@ export default function ReaderMenu(
     onChangeShowParagraphs,
     onChangeShowAnalysis,
     onChangeTextOrientation,
+    onChangeReadingDirection,
     onAnalyze,
     onFontSizeChange,
     onFontSizeHover,
@@ -101,15 +106,27 @@ export default function ReaderMenu(
         <MenuOptionGroup title='Text orientation' type='radio' value={textOrientation}>
           <MenuItemOption
             value={TextOrientation.Horizontal}
-            onClick={() => onChangeTextOrientation(TextOrientation.Horizontal)}
-          >
+            onClick={() => onChangeTextOrientation(TextOrientation.Horizontal)}>
             Horizontal
           </MenuItemOption>
           <MenuItemOption
             value={TextOrientation.Vertical}
-            onClick={() => onChangeTextOrientation(TextOrientation.Vertical)}
-          >
+            onClick={() => onChangeTextOrientation(TextOrientation.Vertical)}>
             Vertical
+          </MenuItemOption>
+        </MenuOptionGroup>
+        <MenuDivider/>
+
+        <MenuOptionGroup title='Reading direction' type='radio' value={readingDirection}>
+          <MenuItemOption
+            value={ReadingDirection.LeftToRight}
+            onClick={() => onChangeReadingDirection(ReadingDirection.LeftToRight)}>
+            Left to right
+          </MenuItemOption>
+          <MenuItemOption
+            value={ReadingDirection.RightToLeft}
+            onClick={() => onChangeReadingDirection(ReadingDirection.RightToLeft)}>
+            Right to left
           </MenuItemOption>
         </MenuOptionGroup>
         <MenuDivider/>

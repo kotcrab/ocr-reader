@@ -17,6 +17,7 @@ import {ParsedUrlQuery} from "querystring"
 import ReaderMenu from "../../../components/ReaderMenu"
 import {TextOrientation} from "../../../model/TextOrientation"
 import ExitButton from "../../../components/ExitButton"
+import {ReadingDirection} from "../../../model/ReadingDirection"
 
 interface Props {
   title: string,
@@ -43,6 +44,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled}: Props) {
   const [showParagraphs, setShowParagraphs] = useState(false)
   const [showAnalysis, setShowAnalysis] = useState(true)
   const [textOrientation, setTextOrientation] = useState(TextOrientation.Vertical)
+  const [readingDirection, setReadingDirection] = useState(ReadingDirection.RightToLeft)
   const [analysis, setAnalysis] = useState<AnalysisResults | undefined>(undefined)
   const [analysisStarted, setAnalysisStarted] = useState(false)
 
@@ -82,6 +84,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled}: Props) {
               <PageSwitcher
                 page={page}
                 pages={ocr.pages}
+                readingDirection={readingDirection}
                 onChange={(newPage) => changePage(newPage)}
               />
             </GridItem>
@@ -95,6 +98,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled}: Props) {
                   showParagraphs={showParagraphs}
                   showAnalysis={showAnalysis}
                   textOrientation={textOrientation}
+                  readingDirection={readingDirection}
                   analysisEnabled={jpdbEnabled && !analysisStarted}
                   hasAnalysis={analysis !== undefined}
                   fontSize={fontSize}
@@ -102,6 +106,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled}: Props) {
                   onChangeShowParagraphs={it => setShowParagraphs(it)}
                   onChangeShowAnalysis={it => setShowAnalysis(it)}
                   onChangeTextOrientation={it => setTextOrientation(it)}
+                  onChangeReadingDirection={it => setReadingDirection(it)}
                   onAnalyze={async () => await analyze()}
                   onFontSizeChange={it => setFontSize(it)}
                   onFontSizeHover={it => setFontSizeHover(it)}
