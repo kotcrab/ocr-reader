@@ -40,7 +40,7 @@ export default function SvgWordList({words, scaleX, scaleY, showText, fontSize, 
         case TextOrientation.Horizontal:
           return <text
             key={index}
-            x={rect.x} y={rect.y + rect.height / 2}
+            x={rect.x} y={rect.y + rect.height}
             style={{
               writingMode: "horizontal-tb",
               glyphOrientationVertical: "auto",
