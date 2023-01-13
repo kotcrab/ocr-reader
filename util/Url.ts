@@ -10,6 +10,10 @@ export function bookUrl(bookId: string): string {
   return `/api/books/${bookId}`
 }
 
+export function bookReaderSettingsUrl(bookId: string): string {
+  return `/api/books/${bookId}/reader-settings`
+}
+
 export function bookTextDumpUrl(bookId: string, removeLineBreaks: Boolean): string {
   return `/api/books/${bookId}/text?removeLineBreaks=${removeLineBreaks}`
 }

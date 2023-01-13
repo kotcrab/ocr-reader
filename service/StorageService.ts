@@ -4,6 +4,9 @@ import * as crypto from "crypto"
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {Book, BookInfo} from "../model/Book"
 import {CachedJpdbResult} from "../model/CachedJpdbResult"
+import {ReaderSettings} from "../model/ReaderSettings"
+import {TextOrientation} from "../model/TextOrientation"
+import {ReadingDirection} from "../model/ReadingDirection"
 import IAnnotateImageResponse = google.cloud.vision.v1.IAnnotateImageResponse
 
 export class StorageService {
@@ -52,6 +55,7 @@ export class StorageService {
     const appDir = path.join(dir, ".app")
     const ocrDir = path.join(appDir, "ocr")
     const infoFile = path.join(appDir, "info.json")
+    const readerFile = path.join(appDir, "reader.json")
     await this.makeDirIfNeeded(appDir)
     await this.makeDirIfNeeded(ocrDir)
 
@@ -64,6 +68,7 @@ export class StorageService {
       appDir: appDir,
       ocrDir: ocrDir,
       infoFile: infoFile,
+      readerSettingsFile: readerFile,
       info: await this.readBookInfo(infoFile),
       images: images,
       ocrFiles: ocrFiles,
@@ -115,6 +120,36 @@ export class StorageService {
       .map(it => it.name)
       .filter(it => this.allowedExtensions.includes(path.extname(it).toLowerCase()))
       .sort()
+  }
+
+  async readReaderSettings(book: Book): Promise<ReaderSettings> {
+    const defaultSettings: ReaderSettings = {
+      zoom: 40,
+      fontSize: 17,
+      showText: false,
+      showParagraphs: false,
+      showAnalysis: true,
+      textOrientation: TextOrientation.Auto,
+      readingDirection: ReadingDirection.RightToLeft,
+    }
+    const fileExists = await fs.promises.stat(book.readerSettingsFile).then(() => true, () => false)
+    if (!fileExists) {
+      return defaultSettings
+    }
+    const data = JSON.parse(await fs.promises.readFile(book.readerSettingsFile, "utf8"))
+    return {
+      zoom: data.zoom || defaultSettings.zoom,
+      fontSize: data.fontSize || defaultSettings.fontSize,
+      showText: data.showText || defaultSettings.showText,
+      showParagraphs: data.showParagraphs || defaultSettings.showParagraphs,
+      showAnalysis: data.showAnalysis || defaultSettings.showAnalysis,
+      textOrientation: data.textOrientation || defaultSettings.textOrientation,
+      readingDirection: data.readingDirection || defaultSettings.readingDirection,
+    }
+  }
+
+  async writeReaderSettings(book: Book, readerSettings: ReaderSettings) {
+    await fs.promises.writeFile(book.readerSettingsFile, JSON.stringify(readerSettings), "utf8")
   }
 
   async readOcrFile(book: Book, ocrName: string): Promise<IAnnotateImageResponse> {

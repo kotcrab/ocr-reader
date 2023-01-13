@@ -56,7 +56,7 @@ export class BookService {
     await this.initialScanBooksIfNeeded()
     this.ocrJob.running = true
     try {
-      const book = this.getBookById(bookId)
+      const book = await this.getBookById(bookId)
       console.log(`Running OCR on book ${book.title} (${book.info.id})`)
       this.ocrJob.currentImage = 0
       this.ocrJob.totalImages = book.images.length
@@ -94,8 +94,7 @@ export class BookService {
   }
 
   async getBookTextDump(bookId: string, removeLineBreaks: boolean): Promise<string> {
-    await this.initialScanBooksIfNeeded()
-    const book = this.getBookById(bookId)
+    const book = await this.getBookById(bookId)
     const texts = []
     for (const ocrName of book.ocrFiles) {
       const annotations = (await this.storageService.readOcrFile(book, ocrName)).fullTextAnnotation
@@ -113,8 +112,7 @@ export class BookService {
   }
 
   async getBookImage(bookId: string, page: number): Promise<string> {
-    await this.initialScanBooksIfNeeded()
-    const book = this.getBookById(bookId)
+    const book = await this.getBookById(bookId)
     this.checkBookPageInRange(book, page)
     return path.join(book.baseDir, book.images[page])
   }
@@ -188,8 +186,7 @@ export class BookService {
   }
 
   async getBookOcrAnnotations(bookId: string, page: number) {
-    await this.initialScanBooksIfNeeded()
-    const book = this.getBookById(bookId)
+    const book = await this.getBookById(bookId)
     this.checkBookPageInRange(book, page)
     const ocrName = this.storageService.getOcrName(book.images[page])
     if (!book.ocrFiles.includes(ocrName)) {
@@ -202,8 +199,7 @@ export class BookService {
   }
 
   async updateBookProgress(bookId: string, currentPage: number): Promise<Book> {
-    await this.initialScanBooksIfNeeded()
-    const book = this.getBookById(bookId)
+    const book = await this.getBookById(bookId)
     this.checkBookPageInRange(book, currentPage)
     book.info.currentPage = currentPage
     await this.storageService.writeBook(book)
@@ -216,7 +212,8 @@ export class BookService {
     }
   }
 
-  private getBookById(bookId: string): Book {
+  async getBookById(bookId: string): Promise<Book> {
+    await this.initialScanBooksIfNeeded()
     const book = this.books.find(it => it.info.id === bookId)
     if (!book) {
       throw new RequestError(`No such book with ID ${bookId}`)

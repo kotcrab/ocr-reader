@@ -1,6 +1,6 @@
 import PageHead, {defaultPageTitle} from "../../../components/PageHead"
 import {Box, Flex, Grid, GridItem, HStack, Image} from "@chakra-ui/react"
-import React, {useState} from "react"
+import React, {useEffect, useState} from "react"
 import {useRouter} from "next/router"
 import {ColorModeSwitcher} from "../../../components/ColorModeSwitcher"
 import {services} from "../../../service/Services"
@@ -10,19 +10,19 @@ import ZoomSelector from "../../../components/ZoomSelector"
 import SelectionColorOverride from "../../../components/SelectionColorOverride"
 import PageSwitcher from "../../../components/PageSwitcher"
 import {readBookRoute} from "../../../util/Route"
-import {bookAnalyzePageUrl, bookPageUrl} from "../../../util/Url"
+import {bookAnalyzePageUrl, bookPageUrl, bookReaderSettingsUrl, bookUrl} from "../../../util/Url"
 import SvgOverlay from "../../../components/SvgOverlay"
 import {AnalysisResults} from "../../../model/AnalysisResults"
 import {ParsedUrlQuery} from "querystring"
 import ReaderMenu from "../../../components/ReaderMenu"
-import {TextOrientation} from "../../../model/TextOrientation"
 import ExitButton from "../../../components/ExitButton"
-import {ReadingDirection} from "../../../model/ReadingDirection"
+import {ReaderSettings} from "../../../model/ReaderSettings"
 
 interface Props {
   title: string,
   ocr: PageOcrResults,
   jpdbEnabled: boolean,
+  readerSettings: ReaderSettings,
 }
 
 function getParams(params: ParsedUrlQuery) {
@@ -33,21 +33,43 @@ function getParams(params: ParsedUrlQuery) {
   }
 }
 
-export default function ReadBookPage({title, ocr, jpdbEnabled}: Props) {
+export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings}: Props) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
-  const [zoom, setZoom] = useState(40)
-  const [fontSize, setFontSize] = useState(17)
-  const [fontSizeHover, setFontSizeHover] = useState(false)
-  const [showText, setShowText] = useState(false)
-  const [showParagraphs, setShowParagraphs] = useState(false)
-  const [showAnalysis, setShowAnalysis] = useState(true)
-  const [textOrientation, setTextOrientation] = useState(TextOrientation.Auto)
-  const [readingDirection, setReadingDirection] = useState(ReadingDirection.RightToLeft)
+  const [zoom, setZoom] = useState(readerSettings.zoom)
+  const [fontSize, setFontSize] = useState(readerSettings.fontSize)
+  const [showText, setShowText] = useState(readerSettings.showText)
+  const [showParagraphs, setShowParagraphs] = useState(readerSettings.showParagraphs)
+  const [showAnalysis, setShowAnalysis] = useState(readerSettings.showAnalysis)
+  const [textOrientation, setTextOrientation] = useState(readerSettings.textOrientation)
+  const [readingDirection, setReadingDirection] = useState(readerSettings.readingDirection)
 
+  const [fontSizeHover, setFontSizeHover] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResults | undefined>(undefined)
   const [analysisStarted, setAnalysisStarted] = useState(false)
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      const newReaderSettings: ReaderSettings = {
+        zoom: zoom,
+        fontSize: fontSize,
+        showText: showText,
+        showParagraphs: showParagraphs,
+        showAnalysis: showAnalysis,
+        textOrientation: textOrientation,
+        readingDirection: readingDirection,
+      }
+      await fetch(bookReaderSettingsUrl(bookId), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({readerSettings: newReaderSettings}),
+      })
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [bookId, zoom, fontSize, showText, showParagraphs, showAnalysis, textOrientation, readingDirection])
 
   async function analyze() {
     if (analysisStarted) {
@@ -139,11 +161,13 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const pageIndex = page - 1
   const ocr = await services.bookService.getBookOcrResults(bookId, pageIndex)
   const book = await services.bookService.updateBookProgress(bookId, pageIndex)
+  const readerSettings = await services.storageService.readReaderSettings(book)
   return {
     props: {
       title: book.title,
       ocr: ocr,
       jpdbEnabled: services.jpdbService.isEnabled(),
+      readerSettings: readerSettings,
     },
   }
 }

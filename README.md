@@ -97,8 +97,6 @@ In reader mode, you can:
 - Change text direction from vertical to horizontal (if auto-detection fails), change reading direction.
 - Analyze the text and highlight unknown words with JPDB.
 
-Reader settings are unfortunately not yet saved between sessions.
-
 ### Text hooker
 
 Text hooker page works with text extractors with support for WebSocket server, those are:

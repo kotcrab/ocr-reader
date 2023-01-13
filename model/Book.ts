@@ -5,6 +5,7 @@ export interface Book {
   readonly appDir: string,
   readonly ocrDir: string,
   readonly infoFile: string,
+  readonly readerSettingsFile: string,
   readonly info: BookInfo,
   readonly images: string[],
   readonly ocrFiles: string[],
