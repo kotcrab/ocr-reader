@@ -15,6 +15,7 @@ export default async function handler(
 ) {
   if (req.method !== "GET") {
     res.status(400).end()
+    return
   }
   const {bookId, removeLineBreaks} = getParams(req)
 

@@ -19,6 +19,7 @@ export default async function handler(
 ) {
   if (req.method !== "POST") {
     res.status(400).end()
+    return
   }
   const {bookId} = getParams(req)
   const body = req.body as Body
