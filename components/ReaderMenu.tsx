@@ -60,8 +60,6 @@ export default function ReaderMenu(
     onFontSizeHover,
   }: Props
 ) {
-  useHotkeys("q", () => onChangeTextOrientation(TextOrientation.Horizontal))
-  useHotkeys("w", () => onChangeTextOrientation(TextOrientation.Vertical))
   useHotkeys("a", () => {
     if (analysisEnabled) {
       onAnalyze()
@@ -104,6 +102,11 @@ export default function ReaderMenu(
         <MenuDivider/>
 
         <MenuOptionGroup title='Text orientation' type='radio' value={textOrientation}>
+          <MenuItemOption
+            value={TextOrientation.Auto}
+            onClick={() => onChangeTextOrientation(TextOrientation.Auto)}>
+            Auto
+          </MenuItemOption>
           <MenuItemOption
             value={TextOrientation.Horizontal}
             onClick={() => onChangeTextOrientation(TextOrientation.Horizontal)}>

@@ -1,4 +1,4 @@
-import {calculateBoundingRectangle} from "../util/OverlayUtil"
+import {calculateBoundingRectangle, scaleRectangle} from "../util/OverlayUtil"
 import * as React from "react"
 import {AnalysisResults} from "../model/AnalysisResults"
 import {WordStatus} from "../model/WordStatus"
@@ -12,14 +12,14 @@ interface Props {
 export default function SvgAnalysisOverlay({analysis, scaleX, scaleY}: Props) {
   return <>{
     analysis.results.flatMap((result, resultIndex) =>
-      result.vertices.flatMap((vertices, index) => {
-        const rect = calculateBoundingRectangle(vertices, scaleX, scaleY)
+      result.bounds.flatMap((rectangle, index) => {
+        const bounds = scaleRectangle(rectangle, scaleX, scaleY)
         return <rect
           key={`a-${resultIndex}-${index}`}
-          x={rect.x}
-          y={rect.y}
-          width={rect.width}
-          height={rect.height}
+          x={bounds.x}
+          y={bounds.y}
+          width={bounds.w}
+          height={bounds.h}
           style={{fill: getColorForStatus(result.status)}}
         />
       })

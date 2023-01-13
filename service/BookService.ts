@@ -6,7 +6,11 @@ import {Book} from "../model/Book"
 import {RequestError} from "../util/RequestError"
 import {bookToBookResponse} from "../model/BookResponse"
 import {PromisePool} from "@supercharge/promise-pool"
-import {PageOcrResults} from "../model/PageOcrResults"
+import {OcrLine, OcrWord, PageOcrResults} from "../model/PageOcrResults"
+import {google} from "@google-cloud/vision/build/protos/protos"
+import {calculateBoundingRectangle} from "../util/OverlayUtil"
+import {TextOrientation} from "../model/TextOrientation"
+import IWord = google.cloud.vision.v1.IWord
 
 const {promisify} = require("util")
 const sizeOf = promisify(require("image-size"))
@@ -116,6 +120,74 @@ export class BookService {
   }
 
   async getBookOcrResults(bookId: string, page: number): Promise<PageOcrResults> {
+    const {book, annotations} = await this.getBookOcrAnnotations(bookId, page)
+    const blocks = annotations.pages?.[0].blocks || []
+    const paragraphsPoints = blocks
+      .flatMap(block => block?.paragraphs)
+      .flatMap(paragraph => paragraph?.boundingBox)
+      .map(boundingBox => boundingBox?.vertices)
+      .map(vertices => vertices?.flatMap(vertex => [vertex.x || 0, vertex.y || 0]) || [])
+    const lines = blocks
+      .flatMap(block => block?.paragraphs)
+      .flatMap(paragraphs => this.mapParagraphWords(paragraphs?.words || []))
+    const dimensions = await sizeOf(path.join(book.baseDir, book.images[page]))
+    return {
+      lines: lines,
+      paragraphsPoints: paragraphsPoints,
+      width: dimensions.width,
+      height: dimensions.height,
+      pages: book.images.length,
+    }
+  }
+
+  private mapParagraphWords(words: IWord[]) {
+    const lines: OcrLine[] = []
+    let lineWords: OcrWord[] = []
+
+    function commitLine() {
+      if (!lineWords.length) {
+        return
+      }
+
+      let minX = Number.MAX_VALUE
+      let maxX = -Number.MAX_VALUE
+      let minY = Number.MAX_VALUE
+      let maxY = -Number.MAX_VALUE
+      for (const word of lineWords) {
+        minX = Math.min(minX, word.bounds.x)
+        maxX = Math.max(maxX, word.bounds.x)
+        minY = Math.min(minY, word.bounds.y)
+        maxY = Math.max(maxY, word.bounds.y)
+      }
+      const deltaX = Math.abs(maxX - minX)
+      const deltaY = Math.abs(maxY - minY)
+
+      lines.push({
+        orientation: deltaX > deltaY ? TextOrientation.Horizontal : TextOrientation.Vertical,
+        words: lineWords,
+      })
+      lineWords = []
+    }
+
+    for (const word of words) {
+      const vertices = word?.boundingBox?.vertices || []
+      const symbols = word.symbols || []
+      const text = symbols.map(it => it.text || "").join("")
+      const lastSymbol = symbols.length > 0 && symbols[symbols.length - 1] || null
+      const detectedBreak = lastSymbol?.property?.detectedBreak
+      lineWords.push({
+        text: text,
+        bounds: calculateBoundingRectangle(vertices),
+      })
+      if (detectedBreak && detectedBreak.type != "SPACE") {
+        commitLine()
+      }
+    }
+    commitLine()
+    return lines
+  }
+
+  async getBookOcrAnnotations(bookId: string, page: number) {
     await this.initialScanBooksIfNeeded()
     const book = this.getBookById(bookId)
     this.checkBookPageInRange(book, page)
@@ -123,13 +195,9 @@ export class BookService {
     if (!book.ocrFiles.includes(ocrName)) {
       throw new RequestError("No OCR results for this page exist")
     }
-    const annotations = (await this.storageService.readOcrFile(book, ocrName)).fullTextAnnotation || {}
-    const dimensions = await sizeOf(path.join(book.baseDir, book.images[page]))
     return {
-      annotations: annotations,
-      width: dimensions.width,
-      height: dimensions.height,
-      pages: book.images.length,
+      book: book,
+      annotations: (await this.storageService.readOcrFile(book, ocrName)).fullTextAnnotation || {},
     }
   }
 

@@ -43,8 +43,9 @@ export default function ReadBookPage({title, ocr, jpdbEnabled}: Props) {
   const [showText, setShowText] = useState(false)
   const [showParagraphs, setShowParagraphs] = useState(false)
   const [showAnalysis, setShowAnalysis] = useState(true)
-  const [textOrientation, setTextOrientation] = useState(TextOrientation.Vertical)
+  const [textOrientation, setTextOrientation] = useState(TextOrientation.Auto)
   const [readingDirection, setReadingDirection] = useState(ReadingDirection.RightToLeft)
+
   const [analysis, setAnalysis] = useState<AnalysisResults | undefined>(undefined)
   const [analysisStarted, setAnalysisStarted] = useState(false)
 
@@ -58,6 +59,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled}: Props) {
       setAnalysis(await res.json())
       setShowAnalysis(true)
     } else {
+      setAnalysisStarted(false)
       console.log("Failed to analyze page")
       console.log(res)
     }

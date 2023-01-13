@@ -11,7 +11,7 @@ JPDB integration.
 Please note that this app is in activate development. There are bugs, missing features and there
 might be breaking changes.
 
-## Installation
+## Setup
 
 ### Requirements
 - [Node.js](https://nodejs.org/en/) (v18 LTS recommended).
@@ -20,14 +20,14 @@ might be breaking changes.
   - 1000 images per month can be processed for free, then $1.50 for each 1000 images, see [details](https://cloud.google.com/vision/pricing).
 - Optionally, [JPDB](https://jpdb.io/) SRS account for highlighting unknown words.
 
-### Google Cloud Setup
+### Google Cloud Preparation
 
 In Google Cloud Console create new project and enable Cloud Vision API. Then create service
 account with access to your project and download its JSON key file (**never share this file with anyone**).
 This part of the setup is mostly covered by this [guide](https://cloud.google.com/vision/docs/detect-labels-image-client-libraries#before-you-begin),
 section `Before you begin`, skip last step with setting environment variable.
 
-### Setup
+### Installation
 
 1. Download ZIP of this project [here](https://github.com/kotcrab/ocr-reader/archive/refs/heads/master.zip), extract it.
 2. Rename `.env.local.sample` to `.env.local`.
@@ -94,10 +94,10 @@ You can also use the menu to download OCRed text. This is useful for creating JP
 
 In reader mode, you can:
 - Use your favorite pop-up dictionary as-if you were reading normal text.
-- Switch the text direction from vertical to horizontal (it's not autodetected for now).
 - Adjust font size of the overlaid text.
   - Overlaid text just need to roughly match actual image text, don't worry about getting it perfect.
 - Adjust page zoom.
+- Change text direction from vertical to horizontal (if auto-detection fails), change reading direction.
 - Analyze the text and highlight unknown words with JPDB.
 
 Reader settings are unfortunately not yet saved between sessions.

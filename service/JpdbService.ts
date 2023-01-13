@@ -8,6 +8,7 @@ import * as crypto from "crypto"
 import {TextAnalysisResult} from "../model/TextAnalysisResults"
 import ISymbol = google.cloud.vision.v1.ISymbol
 import IVertex = google.cloud.vision.v1.IVertex
+import {calculateBoundingRectangle} from "../util/OverlayUtil"
 
 const jsdom = require("jsdom")
 const {JSDOM} = jsdom
@@ -34,25 +35,24 @@ export class JpdbService {
   }
 
   async analyze(bookId: string, page: number): Promise<AnalysisResults> {
-    const ocr = await services.bookService.getBookOcrResults(bookId, page)
-    const ocrBlocks = ocr.annotations.pages?.[0].blocks || []
-    const pageSymbols = ocrBlocks.flatMap(block =>
-      block?.paragraphs?.flatMap(paragraph =>
-        paragraph.words?.flatMap(word =>
-          word.symbols?.flatMap(symbol => mapSymbol(symbol)) || []
-        ) || []
-      ) || []
-    )
+    const {annotations} = await services.bookService.getBookOcrAnnotations(bookId, page)
+    const ocrBlocks = annotations.pages?.[0].blocks || []
+    const pageSymbols = ocrBlocks
+      .flatMap(block => block.paragraphs)
+      .flatMap(paragraph => paragraph?.words)
+      .flatMap(words => words?.symbols || [])
+      .flatMap(symbol => mapSymbol(symbol))
       .filter(it => it.text && it.vertices)
-
     const pageText = pageSymbols.map(it => it.text).join("")
+
     const results = (await this.analyzeText(pageText)).map(it => {
       const symbols = pageSymbols.splice(0, it.fragment.length)
       const vertices = this.partitionSymbolsVertices(symbols)
+      const bounds = vertices.map(it => calculateBoundingRectangle(it))
       return {
         fragment: it.fragment,
         status: it.status,
-        vertices: vertices,
+        bounds: bounds,
       }
     })
       .filter(it => this.analysisStatuses.includes(it.status))

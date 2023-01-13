@@ -1,11 +1,10 @@
-import {google} from "@google-cloud/vision/build/protos/protos"
-import {calculateBoundingRectangle} from "../util/OverlayUtil"
+import {scaleRectangle} from "../util/OverlayUtil"
 import * as React from "react"
 import {TextOrientation} from "../model/TextOrientation"
-import IWord = google.cloud.vision.v1.IWord
+import {OcrLine} from "../model/PageOcrResults"
 
 interface Props {
-  words: IWord[],
+  lines: OcrLine[],
   scaleX: number,
   scaleY: number,
   showText: boolean,
@@ -13,48 +12,48 @@ interface Props {
   textOrientation: TextOrientation,
 }
 
-export default function SvgWordList({words, scaleX, scaleY, showText, fontSize, textOrientation}: Props) {
+export default function SvgWordList({lines, scaleX, scaleY, showText, fontSize, textOrientation}: Props) {
   const textFill = showText ? "rgba(0,0,0,1)" : "transparent"
-  return <>{
-    words.map((word, index) => {
-      const text = word?.symbols?.map(s => s.text || "").join("") || ""
-      const vert = word?.boundingBox?.vertices || []
-      const rect = calculateBoundingRectangle(vert, scaleX, scaleY)
 
-      switch (textOrientation) {
-        case TextOrientation.Vertical:
-          return <text
-            key={index}
-            x={rect.x + rect.width / 2} y={rect.y}
-            style={{
-              writingMode: "vertical-lr",
-              glyphOrientationVertical: "auto",
-              fill: textFill,
-            }}
-            fontSize={fontSize}
-            textLength={rect.height}
-            lengthAdjust="spacingAndGlyphs"
-          >
-            {text}
-          </text>
-        case TextOrientation.Horizontal:
-          return <text
-            key={index}
-            x={rect.x} y={rect.y + rect.height}
-            style={{
-              writingMode: "horizontal-tb",
-              glyphOrientationVertical: "auto",
-              fill: textFill,
-            }}
-            fontSize={fontSize}
-            textLength={rect.width}
-            lengthAdjust="spacingAndGlyphs"
-          >
-            {text}
-          </text>
-        default:
-          throw new Error("Unsupported text orientation")
-      }
-    })
-  }</>
+  return <>{
+    lines.flatMap((line, lineIndex) =>
+      line.words.flatMap((word, index) => {
+        const bounds = scaleRectangle(word.bounds, scaleX, scaleY)
+        const key = `w-${lineIndex}-${index}`
+        switch (textOrientation == TextOrientation.Auto ? line.orientation : textOrientation) {
+          case TextOrientation.Vertical:
+            return <text
+              key={key}
+              x={bounds.x + bounds.w / 2} y={bounds.y}
+              style={{
+                writingMode: "vertical-lr",
+                glyphOrientationVertical: "auto",
+                fill: textFill,
+              }}
+              fontSize={fontSize}
+              textLength={bounds.h}
+              lengthAdjust="spacingAndGlyphs"
+            >
+              {word.text}
+            </text>
+          case TextOrientation.Horizontal:
+            return <text
+              key={key}
+              x={bounds.x} y={bounds.y + bounds.h}
+              style={{
+                writingMode: "horizontal-tb",
+                glyphOrientationVertical: "auto",
+                fill: textFill,
+              }}
+              fontSize={fontSize}
+              textLength={bounds.w}
+              lengthAdjust="spacingAndGlyphs"
+            >
+              {word.text}
+            </text>
+          default:
+            throw new Error("Unsupported text orientation")
+        }
+      })
+    )}</>
 }
