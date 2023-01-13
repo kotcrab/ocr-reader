@@ -101,6 +101,22 @@ export default function ReaderMenu(
         </MenuGroup>
         <MenuDivider/>
 
+        <MenuOptionGroup
+          title='Overlay'
+          type='checkbox'
+          value={overlayValues}
+          onChange={e => {
+            onChangeShowText(e.includes(optionText))
+            onChangeShowParagraphs(e.includes(optionParagraphs))
+            onChangeShowAnalysis(e.includes(optionAnalysis))
+          }}
+        >
+          <MenuItemOption value={optionText}>Show text</MenuItemOption>
+          <MenuItemOption value={optionParagraphs}>Show paragraphs</MenuItemOption>
+          {hasAnalysis ? <MenuItemOption value={optionAnalysis}>Show analysis</MenuItemOption> : null}
+        </MenuOptionGroup>
+        <MenuDivider/>
+
         <MenuOptionGroup title='Text orientation' type='radio' value={textOrientation}>
           <MenuItemOption
             value={TextOrientation.Auto}
@@ -131,22 +147,6 @@ export default function ReaderMenu(
             onClick={() => onChangeReadingDirection(ReadingDirection.RightToLeft)}>
             Right to left
           </MenuItemOption>
-        </MenuOptionGroup>
-        <MenuDivider/>
-
-        <MenuOptionGroup
-          title='Overlay'
-          type='checkbox'
-          value={overlayValues}
-          onChange={e => {
-            onChangeShowText(e.includes(optionText))
-            onChangeShowParagraphs(e.includes(optionParagraphs))
-            onChangeShowAnalysis(e.includes(optionAnalysis))
-          }}
-        >
-          <MenuItemOption value={optionText}>Show text</MenuItemOption>
-          <MenuItemOption value={optionParagraphs}>Show paragraphs</MenuItemOption>
-          {hasAnalysis ? <MenuItemOption value={optionAnalysis}>Show analysis</MenuItemOption> : null}
         </MenuOptionGroup>
       </MenuList>
     </Portal>
