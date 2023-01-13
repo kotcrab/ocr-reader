@@ -65,7 +65,7 @@ function bookProgress(book: BookResponse) {
   if (book.pages === 0) {
     return "Book has no images"
   }
-  const progress = Math.round(book.currentPage * 100 / book.pages)
+  const progress = Math.round(book.currentPage * 100 / (book.pages - 1))
   const pageText = book.pages === 1 ? "page" : "pages"
   return `${book.pages} ${pageText} • ${progress}%`
 }
