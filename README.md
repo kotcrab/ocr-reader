@@ -8,9 +8,6 @@ Reader also integrates with [JPDB](https://jpdb.io/) to automatically highlight 
 Experimental text hooker page is also available, it can also highlight unknown words thanks to the
 JPDB integration.
 
-Please note that this app is in activate development. There are bugs, missing features and there
-might be breaking changes.
-
 ## Setup
 
 ### Requirements
