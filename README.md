@@ -76,7 +76,8 @@ data
 
 - Images can be scans, photos, screenshots etc. If it's readable OCR should handle it.
 - Names can be anything you want. Image names will be used for page sorting.
-- Only images are supported (JPG, PNG). PDFs are not supported.
+- Only images are supported (JPG, PNG).
+- PDFs are not supported, but you can convert PDFs to images using other tools (e.g. ImageMagick, pdfimages).
 
 **Warning**: images with EXIF rotation in metadata won't be handled correctly.
 Make sure all EXIF rotation data is removed and images are rotated correctly before continuing.
