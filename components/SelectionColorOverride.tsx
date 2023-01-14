@@ -5,7 +5,7 @@ export default function SelectionColorOverride() {
     __html: [
       "::selection {",
       "color: transparent;",
-      "background-color: rgba(255, 255, 255, .5);",
+      "background-color: rgba(130, 130, 130, .5);",
       "}",
     ].join("\n"),
   }}>
