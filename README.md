@@ -27,15 +27,13 @@ section `Before you begin`, skip last step with setting environment variable.
 ### Installation
 
 1. Download ZIP of this project [here](https://github.com/kotcrab/ocr-reader/archive/refs/heads/master.zip), extract it.
-2. Rename `.env.local.sample` to `.env.local`.
-   - This file may be hidden by default on Linux and macOS.
-3. If you have JSON key file for your Google Cloud account rename it to `gcp.json` and place it inside `data` folder.
-   - This file may be placed in any location but in that case you will need to change the path in `.env.local`.
-4. If you have JPDB account and want to use it for unknown words highlighting:
+2. If you have JSON key file for your Google Cloud account rename it to `gcp.json` and place it inside `data` folder.
+   - This file may be placed anywhere but in that case you will need to change the path in the `.env` file.
+3. If you have JPDB account and want to use it for unknown words highlighting:
    - Using your browser devtools get the SID cookie value from the JPDB page.
-   - Edit `.env.local` using any text editor.
+   - Edit `.env` file using any text editor. This file may be hidden by default on Linux and macOS.
    - Paste the SID value after `JPDB_SID=` (it should look like this `JPDB_SID=1234...`) and save the file.
-5. Run `build.bat`.
+4. Run `build.bat`.
    - On Linux or macOS run `npm install && npm run build` from your terminal.
    - Wait until build finishes, this might take a while.
 
@@ -45,7 +43,8 @@ Now any time you want to use the app just run `start.bat` (or run `npm run start
 
 To update to a different version:
   - Download new ZIP, extract it.
-  - Copy `data` folder and `.env.local` to the new version.
+  - Copy `data` folder and `.env` file to the new version.
+    - `.env` file may be hidden by default on Linux and macOS.
   - Run build (same as during the installation, see above).
 
 ## Usage
