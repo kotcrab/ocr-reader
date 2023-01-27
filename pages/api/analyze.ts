@@ -2,7 +2,7 @@ import type {NextApiRequest, NextApiResponse} from "next"
 import {services} from "../../service/Services"
 import {TextAnalysisResult} from "../../model/TextAnalysisResults"
 
-let lastRequest = Date.now()
+let lastRequest = 0
 const requestIntervalMs = 1000
 
 export default async function handler(

@@ -35,6 +35,20 @@ export default function TextHooker({jpdbEnabled}: Props) {
     [ReadyState.UNINSTANTIATED]: "Uninstantiated",
   }[readyState]
 
+  useEffect(() => {
+    function handlePaste(event: Event) {
+      const text = (event as ClipboardEvent).clipboardData?.getData("text")
+      if (text) {
+        setTextHistory((prev) => prev.concat(text))
+      }
+    }
+
+    window.addEventListener("paste", handlePaste)
+    return () => {
+      window.removeEventListener("paste", handlePaste)
+    }
+  }, [])
+
   useEffect(
     () => {
       bottomDivRef.current?.scrollIntoView()
@@ -52,7 +66,8 @@ export default function TextHooker({jpdbEnabled}: Props) {
             <Checkbox disabled={!jpdbEnabled} isChecked={analyze} onChange={(e) => setAnalyze(e.target.checked)}>
               Analyze with JPDB <Badge ml='1' colorScheme='red'>Experimental</Badge>
             </Checkbox>
-            <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({socketUrl})</Text>
+            <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({socketUrl}). You can also paste text directly
+              into this page.</Text>
             {textHistory.map((text, idx) => (
               <MemoizedAnalyzedText key={idx} text={text} analyze={analyze}/>
             ))}
