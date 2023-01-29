@@ -6,9 +6,9 @@ import {AnalysisResults} from "../model/AnalysisResults"
 import {WordStatus} from "../model/WordStatus"
 import * as crypto from "crypto"
 import {TextAnalysisResult} from "../model/TextAnalysisResults"
+import {calculateBoundingRectangle} from "../util/OverlayUtil"
 import ISymbol = google.cloud.vision.v1.ISymbol
 import IVertex = google.cloud.vision.v1.IVertex
-import {calculateBoundingRectangle} from "../util/OverlayUtil"
 
 const jsdom = require("jsdom")
 const {JSDOM} = jsdom
@@ -59,7 +59,7 @@ export class JpdbService {
     return {results: results}
   }
 
-  async analyzeText(text: string): Promise<TextAnalysisResult[]> {
+  async analyzeText(text: string, preserveNewLines: boolean = false): Promise<TextAnalysisResult[]> {
     if (!text) {
       return []
     }
@@ -74,12 +74,30 @@ export class JpdbService {
       return [{fragment: text, status: WordStatus.Missing}]
     }
     const parsedSentence = [...floatingSentence[0].children] as Element[]
+    let textPos = 0
     return parsedSentence.map(fragment => {
       const fragmentText = fragment.textContent || ""
+      let formattedFragmentText = ""
+      if (preserveNewLines) {
+        for (const char of fragmentText) {
+          if (text[textPos] == "\n") {
+            formattedFragmentText += "\n"
+            textPos++
+          }
+          formattedFragmentText += char
+          textPos++
+        }
+        if (text[textPos] == "\n") {
+          formattedFragmentText += "\n"
+          textPos++
+        }
+      } else {
+        formattedFragmentText = fragmentText
+      }
       const reference = fragment.querySelector("a")?.href.split("#")[1]
       const status = this.queryWordStatusFromReference(document, reference)
       return {
-        fragment: fragmentText,
+        fragment: formattedFragmentText,
         status: status,
       }
     })

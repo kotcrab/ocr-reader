@@ -12,9 +12,10 @@ JPDB integration.
 
 ### Requirements
 - [Node.js](https://nodejs.org/en/) (v18 LTS recommended).
-- [Google Cloud](https://cloud.google.com/) account is required to use OCR features.
-  - Must be either account with billing activated or a free trial account.
+- [Google Cloud](https://cloud.google.com/) account is required to OCR images.
+  - Must be either an account with billing activated or in a trial period.
   - 1000 images per month can be processed for free, then $1.50 for each 1000 images, see [details](https://cloud.google.com/vision/pricing).
+  - Account is not required if you import OCR data created by someone else or if you just want to use the text hooker.
 - Optionally, [JPDB](https://jpdb.io/) SRS account for highlighting unknown words.
 
 ### Google Cloud Preparation
@@ -79,6 +80,7 @@ data
 - PDFs are not supported, but you can convert PDFs to images using other tools (e.g. ImageMagick, pdfimages).
 
 **Warning**: images with EXIF rotation in metadata won't be handled correctly.
+This is mainly a concern when using photos.
 Make sure all EXIF rotation data is removed and images are rotated correctly before continuing.
 [XnView MP](https://www.xnview.com/en/) works well for removing EXIF and fixing rotation.
 
@@ -107,6 +109,8 @@ Text hooker page works with text extractors with support for WebSocket server, t
 
 Assuming your text extractor is configured correctly you should automatically see that
 WebSocket is connected after opening the text hooker page.
+
+You can also just paste text directly into the page even when the WebSocket is disconnected.
 
 If you have configured JPDB then click the `Analyze with JPDB (experimental)` checkbox to enable word highlighting.
 The page tries to rate limit and won't send more than 1 request per second to JPDB.

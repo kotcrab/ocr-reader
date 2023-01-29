@@ -15,7 +15,7 @@ export default async function handler(
   }
   if (req.method === "GET") {
     const text = req.query.text as string || ""
-    const results = await services.jpdbService.analyzeText(text)
+    const results = await services.jpdbService.analyzeText(text, true)
     lastRequest = Date.now()
     res.status(200).json(results)
   } else {

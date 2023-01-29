@@ -93,7 +93,7 @@ function AnalyzedText({text, analyze}: AnalyzedTextProps) {
       if (!analyze || analysis) {
         return
       }
-      const result = await fetch(analyzeTextUrl(text))
+      const result = await fetch(analyzeTextUrl(encodeURIComponent(text)))
       if (result.status == 429) {
         setRateLimited(true)
         return
@@ -112,12 +112,12 @@ function AnalyzedText({text, analyze}: AnalyzedTextProps) {
       <WarningTwoIcon/>
     </Tooltip> : null
 
-  const coloredText = analysis ?
-    <Text>
-      {analysis.map((it, index) =>
+  const coloredText = <Text style={{whiteSpace: "pre-wrap"}}>
+    {analysis ? analysis.map((it, index) =>
         <span key={index} style={{color: getColorForStatus(it.status)}}>{it.fragment}</span>)
-      }
-    </Text> : <Text>{text}</Text>
+      : text
+    }
+  </Text>
 
   return <HStack>
     {coloredText}
