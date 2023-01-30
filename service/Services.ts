@@ -8,7 +8,7 @@ class Services {
   readonly env = new AppEnv()
   readonly storageService = new StorageService(this.env.dataDirectory)
   readonly bookService = new BookService(this.storageService)
-  readonly jpdbService = new JpdbService(this.storageService, this.bookService, this.env.jpdbSid)
+  readonly jpdbService = new JpdbService(this.storageService, this.bookService)
 }
 
 const servicesRef = new GlobalRef("reader.services")

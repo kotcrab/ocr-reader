@@ -7,11 +7,13 @@ import {CachedJpdbResult} from "../model/CachedJpdbResult"
 import {ReaderSettings} from "../model/ReaderSettings"
 import {TextOrientation} from "../model/TextOrientation"
 import {ReadingDirection} from "../model/ReadingDirection"
+import {AppSettings} from "../model/AppSettings"
 import IAnnotateImageResponse = google.cloud.vision.v1.IAnnotateImageResponse
 
 export class StorageService {
   private readonly dataDir: string
   private readonly jpdbCacheDir: string
+  private readonly appSettingsFile: string
   private readonly allowedExtensions = [".png", ".jpg", ".jpeg"]
   private readonly ocrExtension = ".json"
 
@@ -23,6 +25,7 @@ export class StorageService {
     }
     this.jpdbCacheDir = path.join(dataDir, ".jpdb-cache")
     this.makeDirIfNeededSync(this.jpdbCacheDir)
+    this.appSettingsFile = path.join(this.dataDir, "settings.json")
   }
 
   async readBooks(): Promise<Book[]> {
@@ -205,5 +208,23 @@ export class StorageService {
 
   async writeJpdbCache(file: string, result: CachedJpdbResult) {
     await fs.promises.writeFile(path.join(this.jpdbCacheDir, file), JSON.stringify(result), "utf8")
+  }
+
+  async readAppSettings(): Promise<AppSettings> {
+    const defaultSettings: AppSettings = {
+      jpdbSid: "",
+    }
+    const fileExists = await fs.promises.stat(this.appSettingsFile).then(() => true, () => false)
+    if (!fileExists) {
+      return defaultSettings
+    }
+    const data = JSON.parse(await fs.promises.readFile(this.appSettingsFile, "utf8"))
+    return {
+      jpdbSid: data.jpdbSid || defaultSettings.jpdbSid,
+    }
+  }
+
+  async writeAppSettings(appSettings: AppSettings) {
+    await fs.promises.writeFile(this.appSettingsFile, JSON.stringify(appSettings), "utf8")
   }
 }

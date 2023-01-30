@@ -22,16 +22,21 @@ export class JpdbService {
 
   private readonly storageService: StorageService
   private readonly bookService: BookService
-  private readonly jpdbSid: string
+  private jpdbSid: string = ""
 
-  constructor(storageService: StorageService, bookService: BookService, jpdbSid: string) {
+  constructor(storageService: StorageService, bookService: BookService) {
     this.storageService = storageService
     this.bookService = bookService
-    this.jpdbSid = jpdbSid
   }
 
-  isEnabled() {
+  async isEnabled() {
+    await this.reloadSettings() // FIXME work around for initial load
     return this.jpdbSid.length > 0
+  }
+
+  async reloadSettings() {
+    const settings = await this.storageService.readAppSettings()
+    this.jpdbSid = settings.jpdbSid
   }
 
   async analyze(bookId: string, page: number): Promise<AnalysisResults> {

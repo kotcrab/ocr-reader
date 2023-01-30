@@ -5,13 +5,14 @@ Each page is run through OCR (optical character recognition) which allows for se
 and use of pop-up dictionaries such as [yomichan](https://github.com/FooSoft/yomichan).
 Reader also integrates with [JPDB](https://jpdb.io/) to automatically highlight unknown words.
 
-Experimental text hooker page is also available, it can also highlight unknown words thanks to the
+Text hooker page is also available, it can also highlight unknown words thanks to the
 JPDB integration.
 
 ## Setup
 
 ### Requirements
 - [Node.js](https://nodejs.org/en/) (v18 LTS recommended).
+  - There is no need to install "Tools for Native Modules".
 - [Google Cloud](https://cloud.google.com/) account is required to OCR images.
   - Must be either an account with billing activated or in a trial period.
   - 1000 images per month can be processed for free, then $1.50 for each 1000 images, see [details](https://cloud.google.com/vision/pricing).
@@ -29,29 +30,36 @@ section `Before you begin`, skip last step with setting environment variable.
 
 1. Download ZIP of this project [here](https://github.com/kotcrab/ocr-reader/archive/refs/heads/master.zip), extract it.
 2. If you have JSON key file for your Google Cloud account rename it to `gcp.json` and place it inside `data` folder.
-   - This file may be placed anywhere but in that case you will need to change the path in the `.env` file.
-3. If you have JPDB account and want to use it for unknown words highlighting:
-   - Using your browser devtools get the SID cookie value from the JPDB page.
-   - Edit `.env` file using any text editor. This file may be hidden by default on Linux and macOS.
-   - Paste the SID value after `JPDB_SID=` (it should look like this `JPDB_SID=1234...`) and save the file.
-4. Run `build.bat`.
+3. Run `build.bat`.
    - On Linux or macOS run `npm install && npm run build` from your terminal.
    - Wait until build finishes, this might take a while.
 
 Now any time you want to use the app just run `start.bat` (or run `npm run start` from terminal).
 
+### Advanced Configuration
+
+Default locations of the data directory and Google Cloud key file can be changed in the `.env` file (it may be
+hidden by default on Linux and macOS). If you do that don't forget to copy this file when updating to a different
+version.
+
 ### Updating
 
 To update to a different version:
   - Download new ZIP, extract it.
-  - Copy `data` folder and `.env` file to the new version.
-    - `.env` file may be hidden by default on Linux and macOS.
+  - Copy `data` folder to the new version.
   - Run build (same as during the installation, see above).
 
 ## Usage
 
 After starting the app you will see its URL in the terminal window, usually that will
 be http://localhost:3000. Open this address in your browser to access the app.
+
+### JPDB Configuration
+
+If you have a JPDB account and want to use it for unknown words highlighting:
+1. In app go to the "Settings" page.
+2. Using your browser devtools get the SID cookie value from the JPDB page.
+3. Paste the SID value into the "JPDB SID" field and save the settings.
 
 ### Reader
 
@@ -112,7 +120,7 @@ WebSocket is connected after opening the text hooker page.
 
 You can also just paste text directly into the page even when the WebSocket is disconnected.
 
-If you have configured JPDB then click the `Analyze with JPDB (experimental)` checkbox to enable word highlighting.
+If you have configured JPDB then click the `Analyze with JPDB (experimental)` checkbox to enable words highlighting.
 The page tries to rate limit and won't send more than 1 request per second to JPDB.
 
 ### Maintenance

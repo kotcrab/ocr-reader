@@ -166,7 +166,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     props: {
       title: book.title,
       ocr: ocr,
-      jpdbEnabled: services.jpdbService.isEnabled(),
+      jpdbEnabled: await services.jpdbService.isEnabled(),
       readerSettings: readerSettings,
     },
   }

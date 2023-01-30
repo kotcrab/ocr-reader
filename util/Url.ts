@@ -2,6 +2,10 @@ export function analyzeTextUrl(text: string): string {
   return `/api/analyze?text=${text}`
 }
 
+export function appSettingsUrl(): string {
+  return "/api/settings"
+}
+
 export function booksUrl(): string {
   return "/api/books"
 }

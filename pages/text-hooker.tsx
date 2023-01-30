@@ -144,7 +144,7 @@ function getColorForStatus(status: WordStatus) {
 export async function getServerSideProps() {
   return {
     props: {
-      jpdbEnabled: services.jpdbService.isEnabled(),
+      jpdbEnabled: await services.jpdbService.isEnabled(),
     },
   }
 }
