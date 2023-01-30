@@ -41,9 +41,9 @@ version.
 ### Updating
 
 To update to a different version:
-  - Download new release ZIP, extract it.
-  - Copy `data` folder to the new version.
-  - Start the application as usual.
+1. Download new release ZIP, extract it.
+2. Copy `data` folder to the new version.
+3. Start the application as usual.
 
 ## Usage
 
