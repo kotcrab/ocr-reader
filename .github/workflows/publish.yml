@@ -1,0 +1,41 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 18.x ]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run build
+      - name: Package release
+        run: |
+          mv ./.next/standalone ./ocr-reader
+          mv ./.next/static ./ocr-reader/.next
+          mv ./public ./ocr-reader
+          mv ./data ./ocr-reader
+          cp ./scripts/* ./ocr-reader
+          zip -r ./ocr-reader.zip ./ocr-reader
+      - name: Upload artifact to release
+        uses: svenstaro/upload-release-action@2.3.0
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          release_name: ocr-reader ${{ github.ref_name }}
+          file: ./ocr-reader.zip
+          asset_name: ocr-reader.zip
+          body: See [CHANGES](https://github.com/kotcrab/ocr-reader/blob/master/CHANGES.md) file before updating.
+          tag: ${{ github.ref }}

@@ -1,1 +1,0 @@
-call npm run start

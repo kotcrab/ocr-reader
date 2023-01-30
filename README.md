@@ -28,13 +28,10 @@ section `Before you begin`, skip last step with setting environment variable.
 
 ### Installation
 
-1. Download ZIP of this project [here](https://github.com/kotcrab/ocr-reader/archive/refs/heads/master.zip), extract it.
+1. Download release ZIP, extract it.
 2. If you have JSON key file for your Google Cloud account rename it to `gcp.json` and place it inside `data` folder.
-3. Run `build.bat`.
-   - On Linux or macOS run `npm install && npm run build` from your terminal.
-   - Wait until build finishes, this might take a while.
-
-Now any time you want to use the app just run `start.bat` (or run `npm run start` from terminal).
+3. Run the application with `start.bat`.
+   - On Linux or macOS execute `start.sh` from your terminal.
 
 ### Advanced Configuration
 
@@ -47,7 +44,7 @@ version.
 To update to a different version:
   - Download new ZIP, extract it.
   - Copy `data` folder to the new version.
-  - Run build (same as during the installation, see above).
+  - Start the application as usual.
 
 ## Usage
 
