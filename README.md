@@ -5,8 +5,7 @@ Each page is run through OCR (optical character recognition) which allows for se
 and use of pop-up dictionaries such as [yomichan](https://github.com/FooSoft/yomichan).
 Reader also integrates with [JPDB](https://jpdb.io/) to automatically highlight unknown words.
 
-Text hooker page is also available, it can also highlight unknown words thanks to the
-JPDB integration.
+There is also a text hooker page, it can also highlight unknown words thanks to the JPDB integration.
 
 ## Setup
 

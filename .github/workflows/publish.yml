@@ -37,5 +37,5 @@ jobs:
           release_name: ocr-reader ${{ github.ref_name }}
           file: ./ocr-reader.zip
           asset_name: ocr-reader.zip
-          body: See [CHANGES](https://github.com/kotcrab/ocr-reader/blob/master/CHANGES.md) file before updating.
+          body: See [CHANGES](https://github.com/kotcrab/ocr-reader/blob/master/CHANGES.md) file.
           tag: ${{ github.ref }}
