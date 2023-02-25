@@ -6,7 +6,7 @@ import {Book} from "../model/Book"
 import {RequestError} from "../util/RequestError"
 import {bookToBookResponse} from "../model/BookResponse"
 import {PromisePool} from "@supercharge/promise-pool"
-import {OcrLine, OcrWord, PageOcrResults} from "../model/PageOcrResults"
+import {OcrLine, OcrSymbol, PageOcrResults, toPackedOcrSymbol} from "../model/PageOcrResults"
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {calculateBoundingRectangle} from "../util/OverlayUtil"
 import {TextOrientation} from "../model/TextOrientation"
@@ -130,10 +130,15 @@ export class BookService {
     const lines = blocks
       .flatMap(block => block?.paragraphs)
       .flatMap(paragraphs => this.mapParagraphWords(paragraphs?.words || []))
+    const characterCount = lines
+      .flatMap(it => it.symbols)
+      .map(it => it[0].length)
+      .reduce((a, b) => a + b, 0)
     const dimensions = await sizeOf(path.join(book.baseDir, book.images[page]))
     return {
       lines: lines,
       paragraphsPoints: paragraphsPoints,
+      characterCount: characterCount,
       width: dimensions.width,
       height: dimensions.height,
       pages: book.images.length,
@@ -142,10 +147,10 @@ export class BookService {
 
   private mapParagraphWords(words: IWord[]) {
     const lines: OcrLine[] = []
-    let lineWords: OcrWord[] = []
+    let lineSymbols: OcrSymbol[] = []
 
     function commitLine() {
-      if (!lineWords.length) {
+      if (!lineSymbols.length) {
         return
       }
 
@@ -153,34 +158,34 @@ export class BookService {
       let maxX = -Number.MAX_VALUE
       let minY = Number.MAX_VALUE
       let maxY = -Number.MAX_VALUE
-      for (const word of lineWords) {
-        minX = Math.min(minX, word.bounds.x)
-        maxX = Math.max(maxX, word.bounds.x)
-        minY = Math.min(minY, word.bounds.y)
-        maxY = Math.max(maxY, word.bounds.y)
+      for (const symbol of lineSymbols) {
+        minX = Math.min(minX, symbol.bounds.x)
+        maxX = Math.max(maxX, symbol.bounds.x)
+        minY = Math.min(minY, symbol.bounds.y)
+        maxY = Math.max(maxY, symbol.bounds.y)
       }
       const deltaX = Math.abs(maxX - minX)
       const deltaY = Math.abs(maxY - minY)
 
       lines.push({
         orientation: deltaX > deltaY ? TextOrientation.Horizontal : TextOrientation.Vertical,
-        words: lineWords,
+        symbols: lineSymbols.map(it => toPackedOcrSymbol(it)),
       })
-      lineWords = []
+      lineSymbols = []
     }
 
     for (const word of words) {
-      const vertices = word?.boundingBox?.vertices || []
-      const symbols = word.symbols || []
-      const text = symbols.map(it => it.text || "").join("")
-      const lastSymbol = symbols.length > 0 && symbols[symbols.length - 1] || null
-      const detectedBreak = lastSymbol?.property?.detectedBreak
-      lineWords.push({
-        text: text,
-        bounds: calculateBoundingRectangle(vertices),
-      })
-      if (detectedBreak && detectedBreak.type != "SPACE") {
-        commitLine()
+      for (const symbol of word.symbols || []) {
+        const vertices = symbol?.boundingBox?.vertices || []
+        const text = symbol?.text || ""
+        const detectedBreak = symbol?.property?.detectedBreak
+        lineSymbols.push({
+          text: text,
+          bounds: calculateBoundingRectangle(vertices),
+        })
+        if (detectedBreak && detectedBreak.type != "SPACE") {
+          commitLine()
+        }
       }
     }
     commitLine()

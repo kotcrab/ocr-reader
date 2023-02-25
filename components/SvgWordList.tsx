@@ -1,7 +1,7 @@
 import {scaleRectangle} from "../util/OverlayUtil"
 import * as React from "react"
 import {TextOrientation} from "../model/TextOrientation"
-import {OcrLine} from "../model/PageOcrResults"
+import {fromPackedOcrSymbol, OcrLine} from "../model/PageOcrResults"
 
 interface Props {
   lines: OcrLine[],
@@ -17,8 +17,9 @@ export default function SvgWordList({lines, scaleX, scaleY, showText, fontSize, 
 
   return <>{
     lines.flatMap((line, lineIndex) =>
-      line.words.flatMap((word, index) => {
-        const bounds = scaleRectangle(word.bounds, scaleX, scaleY)
+      line.symbols.flatMap((packedSymbol, index) => {
+        const symbol = fromPackedOcrSymbol(packedSymbol)
+        const bounds = scaleRectangle(symbol.bounds, scaleX, scaleY)
         const key = `w-${lineIndex}-${index}`
         switch (textOrientation == TextOrientation.Auto ? line.orientation : textOrientation) {
           case TextOrientation.Vertical:
@@ -34,7 +35,7 @@ export default function SvgWordList({lines, scaleX, scaleY, showText, fontSize, 
               textLength={bounds.h}
               lengthAdjust="spacingAndGlyphs"
             >
-              {word.text}
+              {symbol.text}
             </text>
           case TextOrientation.Horizontal:
             return <text
@@ -49,7 +50,7 @@ export default function SvgWordList({lines, scaleX, scaleY, showText, fontSize, 
               textLength={bounds.w}
               lengthAdjust="spacingAndGlyphs"
             >
-              {word.text}
+              {symbol.text}
             </text>
           default:
             throw new Error("Unsupported text orientation")

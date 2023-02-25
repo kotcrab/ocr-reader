@@ -101,14 +101,10 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
     window.getSelection()?.removeAllRanges()
 
     if (newPage > charactersReadMaxPage) {
-      const pageCharacters = ocr.lines
-        .flatMap(line => line.words)
-        .flatMap(words => words.text.length)
-        .reduce((a, b) => a + b, 0)
-      setCharactersRead(it => it + pageCharacters)
+      setCharactersRead(it => it + ocr.characterCount)
       setCharactersReadMaxPage(newPage)
       setPagesRead(it => it + 1)
-      console.log(`Stats: add ${pageCharacters} characters, new max page: ${newPage}`)
+      console.log(`Stats: add ${ocr.characterCount} characters, new max page: ${newPage}`)
     }
 
     await router.push(readBookRoute(bookId, newPage))
