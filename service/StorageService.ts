@@ -128,6 +128,7 @@ export class StorageService {
   async readReaderSettings(book: Book): Promise<ReaderSettings> {
     const defaultSettings: ReaderSettings = {
       zoom: 40,
+      autoFontSize: true,
       fontSize: 17,
       showText: false,
       showParagraphs: false,
@@ -142,6 +143,7 @@ export class StorageService {
     const data = JSON.parse(await fs.promises.readFile(book.readerSettingsFile, "utf8"))
     return {
       zoom: data.zoom ?? defaultSettings.zoom,
+      autoFontSize: data.autoFontSize ?? defaultSettings.autoFontSize,
       fontSize: data.fontSize ?? defaultSettings.fontSize,
       showText: data.showText ?? defaultSettings.showText,
       showParagraphs: data.showParagraphs ?? defaultSettings.showParagraphs,

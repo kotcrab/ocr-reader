@@ -8,11 +8,12 @@ interface Props {
   scaleX: number,
   scaleY: number,
   showText: boolean,
+  autoFontSize: boolean,
   fontSize: number,
   textOrientation: TextOrientation,
 }
 
-export default function SvgWordList({lines, scaleX, scaleY, showText, fontSize, textOrientation}: Props) {
+export default function SvgWordList({lines, scaleX, scaleY, showText, autoFontSize, fontSize, textOrientation}: Props) {
   const textFill = showText ? "rgba(0,0,0,1)" : "transparent"
 
   return <>{
@@ -31,8 +32,8 @@ export default function SvgWordList({lines, scaleX, scaleY, showText, fontSize, 
                 glyphOrientationVertical: "auto",
                 fill: textFill,
               }}
-              fontSize={fontSize}
-              textLength={bounds.h}
+              fontSize={autoFontSize ? bounds.h : fontSize}
+              textLength={bounds.w / 2}
               lengthAdjust="spacingAndGlyphs"
             >
               {symbol.text}
@@ -46,7 +47,7 @@ export default function SvgWordList({lines, scaleX, scaleY, showText, fontSize, 
                 glyphOrientationVertical: "auto",
                 fill: textFill,
               }}
-              fontSize={fontSize}
+              fontSize={autoFontSize ? bounds.h : fontSize}
               textLength={bounds.w}
               lengthAdjust="spacingAndGlyphs"
             >

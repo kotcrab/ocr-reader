@@ -11,11 +11,14 @@ interface Props {
   analysis?: AnalysisResults,
   showParagraphs: boolean,
   showText: boolean,
+  autoFontSize: boolean,
   fontSize: number,
   textOrientation: TextOrientation,
 }
 
-export default function SvgOverlay({ocr, analysis, showParagraphs, showText, fontSize, textOrientation}: Props) {
+export default function SvgOverlay(
+  {ocr, analysis, showParagraphs, showText, autoFontSize, fontSize, textOrientation}: Props
+) {
   const sizeDiv = 1000
   const scaleX = ocr.width / sizeDiv
   const scaleY = ocr.height / sizeDiv
@@ -37,6 +40,7 @@ export default function SvgOverlay({ocr, analysis, showParagraphs, showText, fon
         lines={ocr.lines}
         scaleX={scaleX}
         scaleY={scaleY}
+        autoFontSize={autoFontSize}
         fontSize={fontSize}
         textOrientation={textOrientation}
       />

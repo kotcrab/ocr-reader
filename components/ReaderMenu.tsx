@@ -20,6 +20,7 @@ import {ReadingDirection} from "../model/ReadingDirection"
 const optionText = "text"
 const optionParagraphs = "paragraphs"
 const optionAnalysis = "analysis"
+const optionAutoFontSize = "auto"
 
 interface Props {
   showText: boolean,
@@ -29,6 +30,7 @@ interface Props {
   readingDirection: ReadingDirection,
   analysisEnabled: boolean,
   hasAnalysis: boolean,
+  autoFontSize: boolean,
   fontSize: number,
   onChangeShowText: (showText: boolean) => void,
   onChangeShowParagraphs: (showParagraphs: boolean) => void,
@@ -36,6 +38,7 @@ interface Props {
   onChangeTextOrientation: (textOrientation: TextOrientation) => void,
   onChangeReadingDirection: (readingDirection: ReadingDirection) => void,
   onAnalyze: () => void,
+  onAutoFontSizeChange: (autoFontSize: boolean) => void,
   onFontSizeChange: (newSize: number) => void,
   onFontSizeHover: (inside: boolean) => void,
 }
@@ -49,6 +52,7 @@ export default function ReaderMenu(
     readingDirection,
     analysisEnabled,
     hasAnalysis,
+    autoFontSize,
     fontSize,
     onChangeShowText,
     onChangeShowParagraphs,
@@ -56,6 +60,7 @@ export default function ReaderMenu(
     onChangeTextOrientation,
     onChangeReadingDirection,
     onAnalyze,
+    onAutoFontSizeChange,
     onFontSizeChange,
     onFontSizeHover,
   }: Props
@@ -96,8 +101,19 @@ export default function ReaderMenu(
         <MenuDivider/>
 
         <MenuGroup title='Font size'>
-          <MenuItem>
-            <FontSizeSelector fontSize={fontSize} onChange={onFontSizeChange} onHover={onFontSizeHover}/>
+          <MenuOptionGroup
+            type='checkbox'
+            value={autoFontSize ? [optionAutoFontSize] : []}
+            onChange={e => onAutoFontSizeChange(e.includes(optionAutoFontSize))}>
+            <MenuItemOption value={optionAutoFontSize}>Auto</MenuItemOption>
+          </MenuOptionGroup>
+          <MenuItem disabled={autoFontSize}>
+            <FontSizeSelector
+              fontSize={fontSize}
+              disabled={autoFontSize}
+              onChange={onFontSizeChange}
+              onHover={onFontSizeHover}
+            />
           </MenuItem>
         </MenuGroup>
         <MenuDivider/>

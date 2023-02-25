@@ -42,6 +42,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
   const {bookId, page} = getParams(router.query)
 
   const [zoom, setZoom] = useState(readerSettings.zoom)
+  const [autoFontSize, setAutoFontSize] = useState(readerSettings.autoFontSize)
   const [fontSize, setFontSize] = useState(readerSettings.fontSize)
   const [showText, setShowText] = useState(readerSettings.showText)
   const [showParagraphs, setShowParagraphs] = useState(readerSettings.showParagraphs)
@@ -61,6 +62,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
     const timer = setTimeout(async () => {
       const newReaderSettings: ReaderSettings = {
         zoom: zoom,
+        autoFontSize: autoFontSize,
         fontSize: fontSize,
         showText: showText,
         showParagraphs: showParagraphs,
@@ -77,7 +79,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
       })
     }, 300)
     return () => clearTimeout(timer)
-  }, [bookId, zoom, fontSize, showText, showParagraphs, showAnalysis, textOrientation, readingDirection])
+  }, [bookId, zoom, autoFontSize, fontSize, showText, showParagraphs, showAnalysis, textOrientation, readingDirection])
 
   async function analyze() {
     if (analysisStarted) {
@@ -153,6 +155,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
                   readingDirection={readingDirection}
                   analysisEnabled={jpdbEnabled && !analysisStarted}
                   hasAnalysis={analysis !== undefined}
+                  autoFontSize={autoFontSize}
                   fontSize={fontSize}
                   onChangeShowText={it => setShowText(it)}
                   onChangeShowParagraphs={it => setShowParagraphs(it)}
@@ -160,6 +163,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
                   onChangeTextOrientation={it => setTextOrientation(it)}
                   onChangeReadingDirection={it => setReadingDirection(it)}
                   onAnalyze={async () => await analyze()}
+                  onAutoFontSizeChange={it => setAutoFontSize(it)}
                   onFontSizeChange={it => setFontSize(it)}
                   onFontSizeHover={it => setFontSizeHover(it)}
                 />
@@ -174,6 +178,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
               analysis={showAnalysis ? analysis : undefined}
               showParagraphs={showParagraphs}
               showText={showText || fontSizeHover}
+              autoFontSize={autoFontSize}
               fontSize={fontSize}
               textOrientation={textOrientation}
             />
