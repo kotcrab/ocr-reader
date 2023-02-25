@@ -90,6 +90,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings}: 
   async function changePage(newPage: number) {
     setAnalysis(undefined)
     setAnalysisStarted(false)
+    window.getSelection()?.removeAllRanges()
     await router.push(readBookRoute(bookId, newPage))
   }
 

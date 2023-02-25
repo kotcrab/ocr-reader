@@ -19,7 +19,7 @@ import {services} from "../service/Services"
 import {Input} from "@chakra-ui/input"
 import {AppSettings} from "../model/AppSettings"
 import {appSettingsUrl, isValidWebSocketUrl} from "../util/Url"
-import RestoreDefaultValueButton from "../components/RestoreDefaultValueButton";
+import RestoreDefaultValueButton from "../components/RestoreDefaultValueButton"
 
 interface Props {
   appSettings: AppSettings,
