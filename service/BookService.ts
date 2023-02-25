@@ -79,11 +79,13 @@ export class BookService {
           await this.storageService.writeOcrFile(book, ocrName, ocrResult)
           console.log(`OCR results saved for ${image}`)
         })
-      if (errors.length !== 0) {
-        console.log("Errors occurred during OCR")
+      if (errors.length === 0) {
+        console.log("OCR completed")
+      } else {
+        console.log("Errors:")
         console.log(errors)
+        console.log("Errors occurred during OCR")
       }
-      console.log("OCR completed")
     } catch (e) {
       console.log("OCR failed")
       console.log(e)
