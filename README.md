@@ -32,18 +32,18 @@ section `Before you begin`, skip last step with setting environment variable.
 3. Run the application with `start.bat`.
    - On Linux or macOS execute `start.sh` from your terminal.
 
+### Updating
+
+To update to a different version:
+1. Download new release ZIP, extract it.
+2. Move `data` folder to the new version.
+3. Start the application as usual.
+
 ### Advanced Configuration
 
 Default locations of the data directory and Google Cloud key file can be changed in the `.env` file (it may be
 hidden by default on Linux and macOS). If you do that don't forget to copy this file when updating to a different
 version.
-
-### Updating
-
-To update to a different version:
-1. Download new release ZIP, extract it.
-2. Copy `data` folder to the new version.
-3. Start the application as usual.
 
 ## Usage
 

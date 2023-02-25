@@ -11,15 +11,15 @@ import {TextAnalysisResult} from "../model/TextAnalysisResults"
 
 interface Props {
   jpdbEnabled: boolean,
+  webSocketUrl: string,
 }
 
-export default function TextHooker({jpdbEnabled}: Props) {
+export default function TextHooker({jpdbEnabled, webSocketUrl}: Props) {
   const bottomDivRef = useRef<HTMLDivElement>(null)
   const [analyze, setAnalyze] = useState(false)
-  const [socketUrl, setSocketUrl] = useState("ws://127.0.0.1:9001")
   const [textHistory, setTextHistory] = useState<string[]>([])
 
-  const {lastJsonMessage, readyState} = useWebSocket(socketUrl)
+  const {lastJsonMessage, readyState} = useWebSocket(webSocketUrl)
 
   useEffect(() => {
     if (lastJsonMessage !== null && (lastJsonMessage as any).sentence) {
@@ -66,7 +66,7 @@ export default function TextHooker({jpdbEnabled}: Props) {
             <Checkbox disabled={!jpdbEnabled} isChecked={analyze} onChange={(e) => setAnalyze(e.target.checked)}>
               Analyze with JPDB <Badge ml='1' colorScheme='red'>Experimental</Badge>
             </Checkbox>
-            <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({socketUrl}). You can also paste text directly
+            <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({webSocketUrl}). You can also paste text directly
               into this page.</Text>
             {textHistory.map((text, idx) => (
               <MemoizedAnalyzedText key={idx} text={text} analyze={analyze}/>
@@ -142,9 +142,11 @@ function getColorForStatus(status: WordStatus) {
 }
 
 export async function getServerSideProps() {
+  const appSettings = await services.storageService.readAppSettings()
   return {
     props: {
       jpdbEnabled: await services.jpdbService.isEnabled(),
+      webSocketUrl: appSettings.textHookerWebSocketUrl,
     },
   }
 }

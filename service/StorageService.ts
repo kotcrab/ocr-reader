@@ -211,9 +211,7 @@ export class StorageService {
   }
 
   async readAppSettings(): Promise<AppSettings> {
-    const defaultSettings: AppSettings = {
-      jpdbSid: "",
-    }
+    const defaultSettings = this.defaultAppSettings()
     const fileExists = await fs.promises.stat(this.appSettingsFile).then(() => true, () => false)
     if (!fileExists) {
       return defaultSettings
@@ -221,6 +219,14 @@ export class StorageService {
     const data = JSON.parse(await fs.promises.readFile(this.appSettingsFile, "utf8"))
     return {
       jpdbSid: data.jpdbSid || defaultSettings.jpdbSid,
+      textHookerWebSocketUrl: data.textHookerWebSocketUrl || defaultSettings.textHookerWebSocketUrl,
+    }
+  }
+
+  defaultAppSettings(): AppSettings {
+    return {
+      jpdbSid: "",
+      textHookerWebSocketUrl: "ws://127.0.0.1:9001",
     }
   }
 

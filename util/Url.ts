@@ -33,3 +33,13 @@ export function bookPageUrl(bookId: string, page: number): string {
 export function bookAnalyzePageUrl(bookId: string, page: number): string {
   return `/api/books/${bookId}/pages/${page}?analyze=true`
 }
+
+export function isValidWebSocketUrl(value: string) {
+  let url
+  try {
+    url = new URL(value)
+  } catch (_) {
+    return false
+  }
+  return url.protocol === "ws:" || url.protocol === "wss:"
+}
