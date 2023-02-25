@@ -10,19 +10,23 @@ import ZoomSelector from "../../../components/ZoomSelector"
 import SelectionColorOverride from "../../../components/SelectionColorOverride"
 import PageSwitcher from "../../../components/PageSwitcher"
 import {readBookRoute} from "../../../util/Route"
-import {bookAnalyzePageUrl, bookPageUrl, bookReaderSettingsUrl, bookUrl} from "../../../util/Url"
+import {bookAnalyzePageUrl, bookPageUrl, bookReaderSettingsUrl} from "../../../util/Url"
 import SvgOverlay from "../../../components/SvgOverlay"
 import {AnalysisResults} from "../../../model/AnalysisResults"
 import {ParsedUrlQuery} from "querystring"
 import ReaderMenu from "../../../components/ReaderMenu"
 import ExitButton from "../../../components/ExitButton"
 import {ReaderSettings} from "../../../model/ReaderSettings"
+import ReadingTimer from "../../../components/ReadingTimer"
+import {AppSettings} from "../../../model/AppSettings"
+import {ReadingTimerUnitType} from "../../../model/ReadingTimerUnitType"
 
 interface Props {
   title: string,
   ocr: PageOcrResults,
   jpdbEnabled: boolean,
   readerSettings: ReaderSettings,
+  appSettings: AppSettings,
 }
 
 function getParams(params: ParsedUrlQuery) {
@@ -33,7 +37,7 @@ function getParams(params: ParsedUrlQuery) {
   }
 }
 
-export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings}: Props) {
+export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, appSettings}: Props) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
@@ -48,6 +52,10 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings}: 
   const [fontSizeHover, setFontSizeHover] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResults | undefined>(undefined)
   const [analysisStarted, setAnalysisStarted] = useState(false)
+
+  const [charactersRead, setCharactersRead] = useState(0)
+  const [charactersReadMaxPage, setCharactersReadMaxPage] = useState(page)
+  const [pagesRead, setPagesRead] = useState(0)
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -91,7 +99,24 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings}: 
     setAnalysis(undefined)
     setAnalysisStarted(false)
     window.getSelection()?.removeAllRanges()
+
+    if (newPage > charactersReadMaxPage) {
+      const pageCharacters = ocr.lines
+        .flatMap(line => line.words)
+        .flatMap(words => words.text.length)
+        .reduce((a, b) => a + b, 0)
+      setCharactersRead(it => it + pageCharacters)
+      setCharactersReadMaxPage(newPage)
+      setPagesRead(it => it + 1)
+      console.log(`Stats: add ${pageCharacters} characters, new max page: ${newPage}`)
+    }
+
     await router.push(readBookRoute(bookId, newPage))
+  }
+
+  function onReadingTimerReset() {
+    setCharactersRead(0)
+    setPagesRead(0)
   }
 
   const zoomPx = Math.round(ocr.width * zoom / 100) + "px"
@@ -118,6 +143,12 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings}: 
                 <Box pr={4}>
                   <ZoomSelector zoom={zoom} onChange={v => setZoom(v)}/>
                 </Box>
+                {appSettings.readingTimerEnabled ?
+                  <ReadingTimer
+                    charactersRead={charactersRead}
+                    unitsRead={pagesRead}
+                    unitType={ReadingTimerUnitType.Pages}
+                    onReset={onReadingTimerReset}/> : null}
                 <ReaderMenu
                   showText={showText}
                   showParagraphs={showParagraphs}
@@ -163,12 +194,14 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const ocr = await services.bookService.getBookOcrResults(bookId, pageIndex)
   const book = await services.bookService.updateBookProgress(bookId, pageIndex)
   const readerSettings = await services.storageService.readReaderSettings(book)
+  const appSettings = await services.storageService.readAppSettings()
   return {
     props: {
       title: book.title,
       ocr: ocr,
       jpdbEnabled: await services.jpdbService.isEnabled(),
       readerSettings: readerSettings,
+      appSettings: appSettings,
     },
   }
 }

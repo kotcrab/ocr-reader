@@ -4,6 +4,7 @@ import {
   AlertIcon,
   Box,
   Button,
+  Checkbox,
   Container,
   Flex,
   FormControl,
@@ -13,7 +14,7 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
-import React from "react"
+import React, {useState} from "react"
 import NavBar from "../components/NavBar"
 import {services} from "../service/Services"
 import {Input} from "@chakra-ui/input"
@@ -27,11 +28,13 @@ interface Props {
 }
 
 export default function TextHooker({appSettings, defaultAppSettings}: Props) {
-  const [jpdbSid, setJpdbSid] = React.useState(appSettings.jpdbSid)
-  const [textHookerWebSocketUrl, setTextHookerWebSocketUrl] = React.useState(appSettings.textHookerWebSocketUrl)
-  const [settingsSaved, setSettingsSaved] = React.useState(false)
-  const [settingsInvalid, setSettingsInvalid] = React.useState(false)
-  const [settingsInvalidMessage, setSettingsInvalidMessage] = React.useState("")
+  const [readingTimerEnabled, setReadingTimerEnabled] = useState(appSettings.readingTimerEnabled)
+  const [jpdbSid, setJpdbSid] = useState(appSettings.jpdbSid)
+  const [textHookerWebSocketUrl, setTextHookerWebSocketUrl] = useState(appSettings.textHookerWebSocketUrl)
+
+  const [settingsSaved, setSettingsSaved] = useState(false)
+  const [settingsInvalid, setSettingsInvalid] = useState(false)
+  const [settingsInvalidMessage, setSettingsInvalidMessage] = useState("")
 
   async function saveSettings() {
     if (!isValidWebSocketUrl(textHookerWebSocketUrl)) {
@@ -41,6 +44,7 @@ export default function TextHooker({appSettings, defaultAppSettings}: Props) {
       return
     }
     const newAppSettings: AppSettings = {
+      readingTimerEnabled: readingTimerEnabled,
       jpdbSid: jpdbSid,
       textHookerWebSocketUrl: textHookerWebSocketUrl,
     }
@@ -72,6 +76,13 @@ export default function TextHooker({appSettings, defaultAppSettings}: Props) {
                 {settingsInvalidMessage}
               </Alert> : null}
               <Text fontSize="2xl">Settings</Text>
+              <Text fontSize="xl">General</Text>
+              <VStack alignSelf="start">
+                <Checkbox isChecked={readingTimerEnabled}
+                          onChange={event => setReadingTimerEnabled(event.target.checked)}>
+                  Enable reading timer
+                </Checkbox>
+              </VStack>
               <Text fontSize="xl">Integrations</Text>
               <FormControl>
                 <FormLabel>JPDB SID</FormLabel>

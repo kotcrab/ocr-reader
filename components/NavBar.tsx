@@ -4,7 +4,11 @@ import React from "react"
 import {useRouter} from "next/router"
 import {homeRoute, settingsRoute, textHookerRoute} from "../util/Route"
 
-export default function NavBar() {
+interface Props {
+  extraEndElement?: JSX.Element
+}
+
+export default function NavBar({extraEndElement}: Props) {
   const router = useRouter()
 
   return <Flex pb={4}>
@@ -18,6 +22,7 @@ export default function NavBar() {
       Settings
     </Button>
     <Spacer/>
+    {extraEndElement}
     <ColorModeSwitcher/>
   </Flex>
 }

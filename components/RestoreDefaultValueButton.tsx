@@ -1,6 +1,7 @@
 import {IconButton, Tooltip} from "@chakra-ui/react"
 import {MdSettingsBackupRestore} from "react-icons/md"
 import React from "react"
+import {TOOLTIP_OPEN_DELAY} from "../util/Util"
 
 interface Props {
   onClick: () => void,
@@ -9,7 +10,7 @@ interface Props {
 const restoreDefault = "Restore default"
 
 export default function RestoreDefaultValueButton({onClick}: Props) {
-  return <Tooltip label={restoreDefault} openDelay={500}>
+  return <Tooltip label={restoreDefault} openDelay={TOOLTIP_OPEN_DELAY}>
     <IconButton
       fontSize="xl"
       variant="ghost"

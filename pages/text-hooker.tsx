@@ -8,6 +8,8 @@ import {WarningTwoIcon} from "@chakra-ui/icons"
 import {analyzeTextUrl} from "../util/Url"
 import {WordStatus} from "../model/WordStatus"
 import {TextAnalysisResult} from "../model/TextAnalysisResults"
+import ReadingTimer from "../components/ReadingTimer"
+import {ReadingTimerUnitType} from "../model/ReadingTimerUnitType"
 
 interface Props {
   jpdbEnabled: boolean,
@@ -18,12 +20,17 @@ export default function TextHooker({jpdbEnabled, webSocketUrl}: Props) {
   const bottomDivRef = useRef<HTMLDivElement>(null)
   const [analyze, setAnalyze] = useState(false)
   const [textHistory, setTextHistory] = useState<string[]>([])
+  const [charactersRead, setCharactersRead] = useState(0)
+  const [entriesRead, setEntriesRead] = useState(0)
 
   const {lastJsonMessage, readyState} = useWebSocket(webSocketUrl)
 
   useEffect(() => {
     if (lastJsonMessage !== null && (lastJsonMessage as any).sentence) {
-      setTextHistory((prev) => prev.concat((lastJsonMessage as any).sentence as string))
+      const text = (lastJsonMessage as any).sentence as string
+      setTextHistory((prev) => prev.concat(text))
+      setCharactersRead(it => it + text.length)
+      setEntriesRead(it => it + 1)
     }
   }, [lastJsonMessage, setTextHistory])
 
@@ -40,6 +47,8 @@ export default function TextHooker({jpdbEnabled, webSocketUrl}: Props) {
       const text = (event as ClipboardEvent).clipboardData?.getData("text")
       if (text) {
         setTextHistory((prev) => prev.concat(text))
+        setCharactersRead(it => it + text.length)
+        setEntriesRead(it => it + 1)
       }
     }
 
@@ -56,12 +65,23 @@ export default function TextHooker({jpdbEnabled, webSocketUrl}: Props) {
     [textHistory]
   )
 
+  function onReadingTimerReset() {
+    setCharactersRead(0)
+    setEntriesRead(0)
+  }
+
   return (
     <>
       <PageHead title="Text hooker"/>
       <main>
         <Flex p={4} align="stretch" direction="column">
-          <NavBar/>
+          <NavBar extraEndElement={
+            <ReadingTimer
+              charactersRead={charactersRead}
+              unitsRead={entriesRead}
+              unitType={ReadingTimerUnitType.Entries}
+              onReset={onReadingTimerReset}/>
+          }/>
           <VStack alignItems="start" spacing={2}>
             <Checkbox disabled={!jpdbEnabled} isChecked={analyze} onChange={(e) => setAnalyze(e.target.checked)}>
               Analyze with JPDB <Badge ml='1' colorScheme='red'>Experimental</Badge>

@@ -93,10 +93,10 @@ export class StorageService {
     }
     const data = JSON.parse(await fs.promises.readFile(infoFile, "utf8"))
     return {
-      id: data.id || defaultInfo.id,
-      description: data.description || defaultInfo.description,
-      archived: data.archived || defaultInfo.archived,
-      currentPage: data.currentPage || defaultInfo.currentPage,
+      id: data.id ?? defaultInfo.id,
+      description: data.description ?? defaultInfo.description,
+      archived: data.archived ?? defaultInfo.archived,
+      currentPage: data.currentPage ?? defaultInfo.currentPage,
     }
   }
 
@@ -141,13 +141,13 @@ export class StorageService {
     }
     const data = JSON.parse(await fs.promises.readFile(book.readerSettingsFile, "utf8"))
     return {
-      zoom: data.zoom || defaultSettings.zoom,
-      fontSize: data.fontSize || defaultSettings.fontSize,
-      showText: data.showText || defaultSettings.showText,
-      showParagraphs: data.showParagraphs || defaultSettings.showParagraphs,
-      showAnalysis: data.showAnalysis || defaultSettings.showAnalysis,
-      textOrientation: data.textOrientation || defaultSettings.textOrientation,
-      readingDirection: data.readingDirection || defaultSettings.readingDirection,
+      zoom: data.zoom ?? defaultSettings.zoom,
+      fontSize: data.fontSize ?? defaultSettings.fontSize,
+      showText: data.showText ?? defaultSettings.showText,
+      showParagraphs: data.showParagraphs ?? defaultSettings.showParagraphs,
+      showAnalysis: data.showAnalysis ?? defaultSettings.showAnalysis,
+      textOrientation: data.textOrientation ?? defaultSettings.textOrientation,
+      readingDirection: data.readingDirection ?? defaultSettings.readingDirection,
     }
   }
 
@@ -218,13 +218,15 @@ export class StorageService {
     }
     const data = JSON.parse(await fs.promises.readFile(this.appSettingsFile, "utf8"))
     return {
-      jpdbSid: data.jpdbSid || defaultSettings.jpdbSid,
-      textHookerWebSocketUrl: data.textHookerWebSocketUrl || defaultSettings.textHookerWebSocketUrl,
+      readingTimerEnabled: data.readingTimerEnabled ?? defaultSettings.readingTimerEnabled,
+      jpdbSid: data.jpdbSid ?? defaultSettings.jpdbSid,
+      textHookerWebSocketUrl: data.textHookerWebSocketUrl ?? defaultSettings.textHookerWebSocketUrl,
     }
   }
 
   defaultAppSettings(): AppSettings {
     return {
+      readingTimerEnabled: true,
       jpdbSid: "",
       textHookerWebSocketUrl: "ws://127.0.0.1:9001",
     }
