@@ -84,6 +84,7 @@ export default function ReaderMenu(
     <MenuButton
       as={IconButton}
       aria-label='Options'
+      fontSize="lg"
       icon={<HamburgerIcon/>}
       variant='ghost'
     />
