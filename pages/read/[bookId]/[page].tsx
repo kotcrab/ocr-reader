@@ -114,6 +114,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
 
   function onReadingTimerReset() {
     setCharactersRead(0)
+    setCharactersReadMaxPage(page)
     setPagesRead(0)
   }
 
