@@ -1,4 +1,4 @@
-import {calculateBoundingRectangle, scaleRectangle} from "../util/OverlayUtil"
+import {scaleRectangle} from "../util/OverlayUtil"
 import * as React from "react"
 import {AnalysisResults} from "../model/AnalysisResults"
 import {WordStatus} from "../model/WordStatus"

@@ -1,5 +1,5 @@
 import SvgPolygonList from "./SvgPolygonList"
-import SvgWordList from "./SvgWordList"
+import SvgParagraph from "./SvgParagraph"
 import * as React from "react"
 import {PageOcrResults} from "../model/PageOcrResults"
 import {AnalysisResults} from "../model/AnalysisResults"
@@ -22,7 +22,7 @@ export default function SvgOverlay(
   const sizeDiv = 1000
   const scaleX = ocr.width / sizeDiv
   const scaleY = ocr.height / sizeDiv
-
+  const paragraphPoints = ocr.paragraphs.map(it => it.points)
   return (
     <svg width="100%"
          height="100%"
@@ -33,17 +33,20 @@ export default function SvgOverlay(
            bottom: "0px",
            userSelect: "text",
          }}>
-      {!showParagraphs || <SvgPolygonList polygons={ocr.paragraphsPoints} scaleX={scaleX} scaleY={scaleY}/>}
+      {!showParagraphs || <SvgPolygonList polygons={paragraphPoints} scaleX={scaleX} scaleY={scaleY}/>}
       {analysis && <SvgAnalysisOverlay analysis={analysis} scaleX={scaleX} scaleY={scaleY}/>}
-      <SvgWordList
-        showText={showText}
-        lines={ocr.lines}
-        scaleX={scaleX}
-        scaleY={scaleY}
-        autoFontSize={autoFontSize}
-        fontSize={fontSize}
-        textOrientation={textOrientation}
-      />
+      {ocr.paragraphs.map(paragraph =>
+        <SvgParagraph
+          key={paragraph.id}
+          showText={showText}
+          lines={paragraph.lines}
+          scaleX={scaleX}
+          scaleY={scaleY}
+          autoFontSize={autoFontSize}
+          fontSize={fontSize}
+          textOrientation={textOrientation}
+        />
+      )}
     </svg>
   )
 }

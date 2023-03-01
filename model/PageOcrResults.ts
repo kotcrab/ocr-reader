@@ -2,12 +2,18 @@ import {TextOrientation} from "./TextOrientation"
 import {Rectangle} from "./Rectangle"
 
 export interface PageOcrResults {
-  readonly lines: OcrLine[],
-  readonly paragraphsPoints: number[][],
+  readonly paragraphs: OcrParagraph[],
   readonly characterCount: number,
   readonly width: number,
   readonly height: number,
   readonly pages: number,
+}
+
+export interface OcrParagraph {
+  readonly id: number,
+  readonly lines: OcrLine[],
+  readonly points: number[],
+  readonly confidence: number,
 }
 
 export interface OcrLine {
@@ -15,15 +21,12 @@ export interface OcrLine {
   readonly symbols: PackedOcrSymbol[],
 }
 
-export interface OcrWord {
-  readonly text: string,
-  readonly bounds: Rectangle,
-}
-
 export interface OcrSymbol {
   readonly text: string,
   readonly bounds: Rectangle
 }
+
+type PackedOcrSymbol = [string, number, number, number, number]
 
 export function toPackedOcrSymbol(ocrSymbol: OcrSymbol): PackedOcrSymbol {
   return [ocrSymbol.text, ocrSymbol.bounds.x, ocrSymbol.bounds.y, ocrSymbol.bounds.w, ocrSymbol.bounds.h]
@@ -40,5 +43,3 @@ export function fromPackedOcrSymbol(packedOcrSymbol: PackedOcrSymbol): OcrSymbol
     },
   }
 }
-
-type PackedOcrSymbol = [string, number, number, number, number]

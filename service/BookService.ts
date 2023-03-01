@@ -6,11 +6,12 @@ import {Book} from "../model/Book"
 import {RequestError} from "../util/RequestError"
 import {bookToBookResponse} from "../model/BookResponse"
 import {PromisePool} from "@supercharge/promise-pool"
-import {OcrLine, OcrSymbol, PageOcrResults, toPackedOcrSymbol} from "../model/PageOcrResults"
+import {OcrLine, OcrParagraph, OcrSymbol, PageOcrResults, toPackedOcrSymbol} from "../model/PageOcrResults"
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {calculateBoundingRectangle} from "../util/OverlayUtil"
 import {TextOrientation} from "../model/TextOrientation"
 import IWord = google.cloud.vision.v1.IWord
+import IVertex = google.cloud.vision.v1.IVertex
 
 const {promisify} = require("util")
 const sizeOf = promisify(require("image-size"))
@@ -122,22 +123,21 @@ export class BookService {
   async getBookOcrResults(bookId: string, page: number): Promise<PageOcrResults> {
     const {book, annotations} = await this.getBookOcrAnnotations(bookId, page)
     const blocks = annotations.pages?.[0].blocks || []
-    const paragraphsPoints = blocks
+    const paragraphs = blocks
       .flatMap(block => block?.paragraphs)
-      .flatMap(paragraph => paragraph?.boundingBox)
-      .map(boundingBox => boundingBox?.vertices)
-      .map(vertices => vertices?.flatMap(vertex => [vertex.x || 0, vertex.y || 0]) || [])
-    const lines = blocks
-      .flatMap(block => block?.paragraphs)
-      .flatMap(paragraphs => this.mapParagraphWords(paragraphs?.words || []))
-    const characterCount = lines
+      .map((paragraph, index) => {
+        return this.mapParagraph(
+          index, paragraph?.words || [], paragraph?.boundingBox?.vertices || [], paragraph?.confidence || 0
+        )
+      })
+    const characterCount = paragraphs
+      .flatMap(it => it.lines)
       .flatMap(it => it.symbols)
       .map(it => it[0].length)
       .reduce((a, b) => a + b, 0)
     const dimensions = await sizeOf(path.join(book.baseDir, book.images[page]))
     return {
-      lines: lines,
-      paragraphsPoints: paragraphsPoints,
+      paragraphs: paragraphs,
       characterCount: characterCount,
       width: dimensions.width,
       height: dimensions.height,
@@ -145,7 +145,7 @@ export class BookService {
     }
   }
 
-  private mapParagraphWords(words: IWord[]) {
+  private mapParagraph(index: number, words: IWord[], vertices: IVertex[], confidence: number): OcrParagraph {
     const lines: OcrLine[] = []
     let lineSymbols: OcrSymbol[] = []
 
@@ -189,7 +189,14 @@ export class BookService {
       }
     }
     commitLine()
-    return lines
+
+    const points = vertices?.flatMap(vertex => [vertex.x || 0, vertex.y || 0]) || []
+    return {
+      id: index,
+      lines: lines,
+      points: points,
+      confidence: confidence,
+    }
   }
 
   async getBookOcrAnnotations(bookId: string, page: number) {

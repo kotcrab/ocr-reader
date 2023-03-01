@@ -13,7 +13,7 @@ interface Props {
   textOrientation: TextOrientation,
 }
 
-export default function SvgWordList({lines, scaleX, scaleY, showText, autoFontSize, fontSize, textOrientation}: Props) {
+export default function SvgParagraph({lines, scaleX, scaleY, showText, autoFontSize, fontSize, textOrientation}: Props) {
   const textFill = showText ? "rgba(0,0,0,1)" : "transparent"
 
   return <>{
@@ -21,7 +21,7 @@ export default function SvgWordList({lines, scaleX, scaleY, showText, autoFontSi
       line.symbols.flatMap((packedSymbol, index) => {
         const symbol = fromPackedOcrSymbol(packedSymbol)
         const bounds = scaleRectangle(symbol.bounds, scaleX, scaleY)
-        const key = `w-${lineIndex}-${index}`
+        const key = `s-${lineIndex}-${index}`
         switch (textOrientation == TextOrientation.Auto ? line.orientation : textOrientation) {
           case TextOrientation.Vertical:
             return <text
