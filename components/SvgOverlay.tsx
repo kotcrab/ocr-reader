@@ -12,17 +12,20 @@ interface Props {
   showParagraphs: boolean,
   showText: boolean,
   autoFontSize: boolean,
-  fontSize: number,
   textOrientation: TextOrientation,
+  fontSize: number,
+  minimumConfidence: number,
 }
 
 export default function SvgOverlay(
-  {ocr, analysis, showParagraphs, showText, autoFontSize, fontSize, textOrientation}: Props
+  {ocr, analysis, showParagraphs, showText, autoFontSize, textOrientation, fontSize, minimumConfidence}: Props
 ) {
   const sizeDiv = 1000
   const scaleX = ocr.width / sizeDiv
   const scaleY = ocr.height / sizeDiv
-  const paragraphPoints = ocr.paragraphs.map(it => it.points)
+  const filteredParagraphs = ocr.paragraphs
+    .filter(it => it.confidence > minimumConfidence / 100)
+  const paragraphPoints = filteredParagraphs.map(it => it.points)
   return (
     <svg width="100%"
          height="100%"
@@ -35,7 +38,7 @@ export default function SvgOverlay(
          }}>
       {!showParagraphs || <SvgPolygonList polygons={paragraphPoints} scaleX={scaleX} scaleY={scaleY}/>}
       {analysis && <SvgAnalysisOverlay analysis={analysis} scaleX={scaleX} scaleY={scaleY}/>}
-      {ocr.paragraphs.map(paragraph =>
+      {filteredParagraphs.map(paragraph =>
         <SvgParagraph
           key={paragraph.id}
           showText={showText}

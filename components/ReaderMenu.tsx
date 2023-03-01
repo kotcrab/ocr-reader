@@ -16,6 +16,7 @@ import {TextOrientation} from "../model/TextOrientation"
 import FontSizeSelector from "./FontSizeSelector"
 import {useHotkeys} from "react-hotkeys-hook"
 import {ReadingDirection} from "../model/ReadingDirection"
+import MinimumConfidenceSelector from "./MinimumConfidenceSelector"
 
 const optionText = "text"
 const optionParagraphs = "paragraphs"
@@ -32,6 +33,7 @@ interface Props {
   hasAnalysis: boolean,
   autoFontSize: boolean,
   fontSize: number,
+  minimumConfidence: number,
   onChangeShowText: (showText: boolean) => void,
   onChangeShowParagraphs: (showParagraphs: boolean) => void,
   onChangeShowAnalysis: (showAnalysis: boolean) => void,
@@ -41,6 +43,8 @@ interface Props {
   onAutoFontSizeChange: (autoFontSize: boolean) => void,
   onFontSizeChange: (newSize: number) => void,
   onFontSizeHover: (inside: boolean) => void,
+  onMinimumConfidenceChange: (newSize: number) => void,
+  onMinimumConfidenceHover: (inside: boolean) => void,
 }
 
 export default function ReaderMenu(
@@ -54,6 +58,7 @@ export default function ReaderMenu(
     hasAnalysis,
     autoFontSize,
     fontSize,
+    minimumConfidence,
     onChangeShowText,
     onChangeShowParagraphs,
     onChangeShowAnalysis,
@@ -63,6 +68,8 @@ export default function ReaderMenu(
     onAutoFontSizeChange,
     onFontSizeChange,
     onFontSizeHover,
+    onMinimumConfidenceChange,
+    onMinimumConfidenceHover,
   }: Props
 ) {
   useHotkeys("a", () => {
@@ -113,6 +120,16 @@ export default function ReaderMenu(
               disabled={autoFontSize}
               onChange={onFontSizeChange}
               onHover={onFontSizeHover}
+            />
+          </MenuItem>
+        </MenuGroup>
+        <MenuDivider/>
+        <MenuGroup title='Minimum confidence'>
+          <MenuItem>
+            <MinimumConfidenceSelector
+              minimumConfidence={minimumConfidence}
+              onChange={onMinimumConfidenceChange}
+              onHover={onMinimumConfidenceHover}
             />
           </MenuItem>
         </MenuGroup>

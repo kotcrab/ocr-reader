@@ -1,18 +1,17 @@
-import {Slider, SliderFilledTrack, SliderThumb, SliderTrack, Tooltip} from "@chakra-ui/react"
+import {Slider, SliderFilledTrack, SliderMark, SliderThumb, SliderTrack, Tooltip} from "@chakra-ui/react"
 import * as React from "react"
 import {useState} from "react"
 
-const minValue = 5
-const maxValue = 50
+const minValue = 0
+const maxValue = 95
 
 interface Props {
-  fontSize: number,
-  disabled: boolean,
-  onChange: (fontSize: number) => void,
+  minimumConfidence: number,
+  onChange: (minimumConfidence: number) => void,
   onHover: (inside: boolean) => void,
 }
 
-export default function FontSizeSelector({fontSize, disabled, onChange, onHover}: Props) {
+export default function MinimumConfidenceSelector({minimumConfidence, onChange, onHover}: Props) {
   const [showTooltip, setShowTooltip] = useState(false)
   return (
     <Slider
@@ -20,8 +19,7 @@ export default function FontSizeSelector({fontSize, disabled, onChange, onHover}
       min={minValue}
       max={maxValue}
       colorScheme='blue'
-      value={fontSize}
-      isDisabled={disabled}
+      value={minimumConfidence}
       onChange={(v) => onChange(v)}
       onMouseEnter={() => {
         setShowTooltip(true)
@@ -41,7 +39,7 @@ export default function FontSizeSelector({fontSize, disabled, onChange, onHover}
         color='white'
         placement='top'
         isOpen={showTooltip}
-        label={fontSize}
+        label={minimumConfidence + "%"}
       >
         <SliderThumb/>
       </Tooltip>

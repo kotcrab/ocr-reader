@@ -44,6 +44,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
   const [zoom, setZoom] = useState(readerSettings.zoom)
   const [autoFontSize, setAutoFontSize] = useState(readerSettings.autoFontSize)
   const [fontSize, setFontSize] = useState(readerSettings.fontSize)
+  const [minimumConfidence, setMinimumConfidence] = useState(readerSettings.minimumConfidence)
   const [showText, setShowText] = useState(readerSettings.showText)
   const [showParagraphs, setShowParagraphs] = useState(readerSettings.showParagraphs)
   const [showAnalysis, setShowAnalysis] = useState(readerSettings.showAnalysis)
@@ -51,6 +52,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
   const [readingDirection, setReadingDirection] = useState(readerSettings.readingDirection)
 
   const [fontSizeHover, setFontSizeHover] = useState(false)
+  const [minimumConfidenceHover, setMinimumConfidenceHover] = useState(false)
   const [analysis, setAnalysis] = useState<AnalysisResults | undefined>(undefined)
   const [analysisStarted, setAnalysisStarted] = useState(false)
 
@@ -64,6 +66,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
         zoom: zoom,
         autoFontSize: autoFontSize,
         fontSize: fontSize,
+        minimumConfidence: minimumConfidence,
         showText: showText,
         showParagraphs: showParagraphs,
         showAnalysis: showAnalysis,
@@ -79,7 +82,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
       })
     }, 300)
     return () => clearTimeout(timer)
-  }, [bookId, zoom, autoFontSize, fontSize, showText, showParagraphs, showAnalysis, textOrientation, readingDirection])
+  }, [bookId, zoom, autoFontSize, fontSize, minimumConfidence, showText, showParagraphs, showAnalysis, textOrientation, readingDirection])
 
   async function analyze() {
     if (analysisStarted) {
@@ -158,6 +161,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
                   hasAnalysis={analysis !== undefined}
                   autoFontSize={autoFontSize}
                   fontSize={fontSize}
+                  minimumConfidence={minimumConfidence}
                   onChangeShowText={it => setShowText(it)}
                   onChangeShowParagraphs={it => setShowParagraphs(it)}
                   onChangeShowAnalysis={it => setShowAnalysis(it)}
@@ -167,6 +171,8 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
                   onAutoFontSizeChange={it => setAutoFontSize(it)}
                   onFontSizeChange={it => setFontSize(it)}
                   onFontSizeHover={it => setFontSizeHover(it)}
+                  onMinimumConfidenceChange={it => setMinimumConfidence(it)}
+                  onMinimumConfidenceHover={it => setMinimumConfidenceHover(it)}
                 />
                 <ColorModeSwitcher/>
               </HStack>
@@ -177,11 +183,12 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
             <SvgOverlay
               ocr={ocr}
               analysis={showAnalysis ? analysis : undefined}
-              showParagraphs={showParagraphs}
+              showParagraphs={showParagraphs || minimumConfidenceHover}
               showText={showText || fontSizeHover}
               autoFontSize={autoFontSize}
-              fontSize={fontSize}
               textOrientation={textOrientation}
+              fontSize={fontSize}
+              minimumConfidence={minimumConfidence}
             />
           </div>
         </Flex>

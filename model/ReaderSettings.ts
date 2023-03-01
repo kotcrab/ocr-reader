@@ -5,6 +5,7 @@ export interface ReaderSettings {
   zoom: number,
   autoFontSize: boolean,
   fontSize: number,
+  minimumConfidence: number,
   showText: boolean,
   showParagraphs: boolean,
   showAnalysis: boolean,

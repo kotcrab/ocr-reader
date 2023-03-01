@@ -1,5 +1,6 @@
 #### Version 1.2
 - Fixed bug where resetting the timer did not reset page read mark
+- Minimum OCR confidence can now be changed on the fly in the reader settings
 
 #### Version 1.1
 - Improved overlay now supports automatic font sizing and better text direction detection
