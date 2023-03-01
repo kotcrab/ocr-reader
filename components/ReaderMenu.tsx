@@ -107,6 +107,33 @@ export default function ReaderMenu(
         </MenuItem>
         <MenuDivider/>
 
+        <MenuOptionGroup
+          title='Overlay'
+          type='checkbox'
+          value={overlayValues}
+          onChange={e => {
+            onChangeShowText(e.includes(optionText))
+            onChangeShowParagraphs(e.includes(optionParagraphs))
+            onChangeShowAnalysis(e.includes(optionAnalysis))
+          }}
+        >
+          <MenuItemOption value={optionText}>Show text</MenuItemOption>
+          <MenuItemOption value={optionParagraphs}>Show paragraphs</MenuItemOption>
+          {hasAnalysis ? <MenuItemOption value={optionAnalysis}>Show analysis</MenuItemOption> : null}
+        </MenuOptionGroup>
+        <MenuDivider/>
+
+        <MenuGroup title='Minimum confidence'>
+          <MenuItem>
+            <MinimumConfidenceSelector
+              minimumConfidence={minimumConfidence}
+              onChange={onMinimumConfidenceChange}
+              onHover={onMinimumConfidenceHover}
+            />
+          </MenuItem>
+        </MenuGroup>
+        <MenuDivider/>
+
         <MenuGroup title='Font size'>
           <MenuOptionGroup
             type='checkbox'
@@ -123,32 +150,6 @@ export default function ReaderMenu(
             />
           </MenuItem>
         </MenuGroup>
-        <MenuDivider/>
-        <MenuGroup title='Minimum confidence'>
-          <MenuItem>
-            <MinimumConfidenceSelector
-              minimumConfidence={minimumConfidence}
-              onChange={onMinimumConfidenceChange}
-              onHover={onMinimumConfidenceHover}
-            />
-          </MenuItem>
-        </MenuGroup>
-        <MenuDivider/>
-
-        <MenuOptionGroup
-          title='Overlay'
-          type='checkbox'
-          value={overlayValues}
-          onChange={e => {
-            onChangeShowText(e.includes(optionText))
-            onChangeShowParagraphs(e.includes(optionParagraphs))
-            onChangeShowAnalysis(e.includes(optionAnalysis))
-          }}
-        >
-          <MenuItemOption value={optionText}>Show text</MenuItemOption>
-          <MenuItemOption value={optionParagraphs}>Show paragraphs</MenuItemOption>
-          {hasAnalysis ? <MenuItemOption value={optionAnalysis}>Show analysis</MenuItemOption> : null}
-        </MenuOptionGroup>
         <MenuDivider/>
 
         <MenuOptionGroup title='Text orientation' type='radio' value={textOrientation}>
