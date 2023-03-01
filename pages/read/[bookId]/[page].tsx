@@ -195,8 +195,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const pageIndex = page - 1
   const ocr = await services.bookService.getBookOcrResults(bookId, pageIndex)
   const book = await services.bookService.updateBookProgress(bookId, pageIndex)
-  const readerSettings = await services.storageService.readReaderSettings(book)
-  const appSettings = await services.storageService.readAppSettings()
+  const readerSettings = await services.settingsService.getReaderSettings(book)
+  const appSettings = await services.settingsService.getAppSettings()
   return {
     props: {
       title: book.title,

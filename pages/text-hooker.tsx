@@ -162,7 +162,7 @@ function getColorForStatus(status: WordStatus) {
 }
 
 export async function getServerSideProps() {
-  const appSettings = await services.storageService.readAppSettings()
+  const appSettings = await services.settingsService.getAppSettings()
   return {
     props: {
       jpdbEnabled: await services.jpdbService.isEnabled(),

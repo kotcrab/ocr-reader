@@ -116,8 +116,8 @@ export default function TextHooker({appSettings, defaultAppSettings}: Props) {
 }
 
 export async function getServerSideProps() {
-  const appSettings = await services.storageService.readAppSettings()
-  const defaultAppSettings = await services.storageService.defaultAppSettings()
+  const appSettings = await services.settingsService.getAppSettings()
+  const defaultAppSettings = await services.settingsService.getDefaultAppSettings()
   return {
     props: {
       appSettings: appSettings,

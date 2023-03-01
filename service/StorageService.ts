@@ -7,13 +7,12 @@ import {CachedJpdbResult} from "../model/CachedJpdbResult"
 import {ReaderSettings} from "../model/ReaderSettings"
 import {TextOrientation} from "../model/TextOrientation"
 import {ReadingDirection} from "../model/ReadingDirection"
-import {AppSettings} from "../model/AppSettings"
 import IAnnotateImageResponse = google.cloud.vision.v1.IAnnotateImageResponse
 
 export class StorageService {
   private readonly dataDir: string
   private readonly jpdbCacheDir: string
-  private readonly appSettingsFile: string
+  readonly appSettingsFile: string
   private readonly allowedExtensions = [".png", ".jpg", ".jpeg"]
   private readonly ocrExtension = ".json"
 
@@ -125,38 +124,6 @@ export class StorageService {
       .sort()
   }
 
-  async readReaderSettings(book: Book): Promise<ReaderSettings> {
-    const defaultSettings: ReaderSettings = {
-      zoom: 40,
-      autoFontSize: true,
-      fontSize: 17,
-      showText: false,
-      showParagraphs: false,
-      showAnalysis: true,
-      textOrientation: TextOrientation.Auto,
-      readingDirection: ReadingDirection.RightToLeft,
-    }
-    const fileExists = await fs.promises.stat(book.readerSettingsFile).then(() => true, () => false)
-    if (!fileExists) {
-      return defaultSettings
-    }
-    const data = JSON.parse(await fs.promises.readFile(book.readerSettingsFile, "utf8"))
-    return {
-      zoom: data.zoom ?? defaultSettings.zoom,
-      autoFontSize: data.autoFontSize ?? defaultSettings.autoFontSize,
-      fontSize: data.fontSize ?? defaultSettings.fontSize,
-      showText: data.showText ?? defaultSettings.showText,
-      showParagraphs: data.showParagraphs ?? defaultSettings.showParagraphs,
-      showAnalysis: data.showAnalysis ?? defaultSettings.showAnalysis,
-      textOrientation: data.textOrientation ?? defaultSettings.textOrientation,
-      readingDirection: data.readingDirection ?? defaultSettings.readingDirection,
-    }
-  }
-
-  async writeReaderSettings(book: Book, readerSettings: ReaderSettings) {
-    await fs.promises.writeFile(book.readerSettingsFile, JSON.stringify(readerSettings), "utf8")
-  }
-
   async readOcrFile(book: Book, ocrName: string): Promise<IAnnotateImageResponse> {
     return JSON.parse(await fs.promises.readFile(path.join(book.ocrDir, ocrName), "utf8"))
   }
@@ -210,31 +177,5 @@ export class StorageService {
 
   async writeJpdbCache(file: string, result: CachedJpdbResult) {
     await fs.promises.writeFile(path.join(this.jpdbCacheDir, file), JSON.stringify(result), "utf8")
-  }
-
-  async readAppSettings(): Promise<AppSettings> {
-    const defaultSettings = this.defaultAppSettings()
-    const fileExists = await fs.promises.stat(this.appSettingsFile).then(() => true, () => false)
-    if (!fileExists) {
-      return defaultSettings
-    }
-    const data = JSON.parse(await fs.promises.readFile(this.appSettingsFile, "utf8"))
-    return {
-      readingTimerEnabled: data.readingTimerEnabled ?? defaultSettings.readingTimerEnabled,
-      jpdbSid: data.jpdbSid ?? defaultSettings.jpdbSid,
-      textHookerWebSocketUrl: data.textHookerWebSocketUrl ?? defaultSettings.textHookerWebSocketUrl,
-    }
-  }
-
-  defaultAppSettings(): AppSettings {
-    return {
-      readingTimerEnabled: true,
-      jpdbSid: "",
-      textHookerWebSocketUrl: "ws://127.0.0.1:9001",
-    }
-  }
-
-  async writeAppSettings(appSettings: AppSettings) {
-    await fs.promises.writeFile(this.appSettingsFile, JSON.stringify(appSettings), "utf8")
   }
 }

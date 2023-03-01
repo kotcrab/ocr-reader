@@ -199,9 +199,10 @@ export class BookService {
     if (!book.ocrFiles.includes(ocrName)) {
       throw new RequestError("No OCR results for this page exist")
     }
+    const ocrResult = await this.storageService.readOcrFile(book, ocrName)
     return {
       book: book,
-      annotations: (await this.storageService.readOcrFile(book, ocrName)).fullTextAnnotation || {},
+      annotations: ocrResult.fullTextAnnotation || {},
     }
   }
 

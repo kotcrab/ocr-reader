@@ -17,8 +17,7 @@ export default async function handler(
   const body = req.body as Body
 
   if (body.appSettings) {
-    await services.storageService.writeAppSettings(body.appSettings)
-    services.jpdbService.reloadSettings()
+    await services.settingsService.updateAppSettings(body.appSettings)
     res.status(200).end()
   } else {
     res.status(400).end()

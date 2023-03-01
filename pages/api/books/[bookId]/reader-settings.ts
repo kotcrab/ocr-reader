@@ -26,7 +26,7 @@ export default async function handler(
 
   if (body.readerSettings) {
     const book = await services.bookService.getBookById(bookId)
-    await services.storageService.writeReaderSettings(book, body.readerSettings)
+    await services.settingsService.updateReaderSettings(book, body.readerSettings)
     res.status(200).end()
   } else {
     res.status(400).end()

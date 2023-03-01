@@ -7,6 +7,7 @@ import {WordStatus} from "../model/WordStatus"
 import * as crypto from "crypto"
 import {TextAnalysisResult} from "../model/TextAnalysisResults"
 import {calculateBoundingRectangle} from "../util/OverlayUtil"
+import {SettingsService} from "./SettingsService"
 import ISymbol = google.cloud.vision.v1.ISymbol
 import IVertex = google.cloud.vision.v1.IVertex
 
@@ -22,21 +23,16 @@ export class JpdbService {
 
   private readonly storageService: StorageService
   private readonly bookService: BookService
-  private jpdbSid: string = ""
+  private readonly settingsService: SettingsService
 
-  constructor(storageService: StorageService, bookService: BookService) {
+  constructor(storageService: StorageService, bookService: BookService, settingsService: SettingsService) {
     this.storageService = storageService
     this.bookService = bookService
+    this.settingsService = settingsService
   }
 
   async isEnabled() {
-    await this.reloadSettings() // FIXME work around for initial load
-    return this.jpdbSid.length > 0
-  }
-
-  async reloadSettings() {
-    const settings = await this.storageService.readAppSettings()
-    this.jpdbSid = settings.jpdbSid
+    return (await this.getJpdbSid()).length > 0
   }
 
   async analyze(bookId: string, page: number): Promise<AnalysisResults> {
@@ -178,10 +174,14 @@ export class JpdbService {
     console.log("Sending request to JPDB")
     const response = await fetch("https://jpdb.io/search?q=" + text, {
       headers: {
-        cookie: "sid=" + this.jpdbSid,
+        cookie: "sid=" + await this.getJpdbSid(),
       },
     })
     return await response.text()
+  }
+
+  private async getJpdbSid() {
+    return (await this.settingsService.getAppSettings()).jpdbSid
   }
 }
 
