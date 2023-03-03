@@ -10,7 +10,7 @@ import ZoomSelector from "../../../components/ZoomSelector"
 import SelectionColorOverride from "../../../components/SelectionColorOverride"
 import PageSwitcher from "../../../components/PageSwitcher"
 import {readBookRoute} from "../../../util/Route"
-import {bookAnalyzePageUrl, bookPageUrl, bookReaderSettingsUrl} from "../../../util/Url"
+import {bookAnalyzePageUrl, bookPageUrl} from "../../../util/Url"
 import SvgOverlay from "../../../components/SvgOverlay"
 import {AnalysisResults} from "../../../model/AnalysisResults"
 import {ParsedUrlQuery} from "querystring"
@@ -20,6 +20,7 @@ import {ReaderSettings} from "../../../model/ReaderSettings"
 import ReadingTimer from "../../../components/ReadingTimer"
 import {AppSettings} from "../../../model/AppSettings"
 import {ReadingTimerUnitType} from "../../../model/ReadingTimerUnitType"
+import {Api} from "../../../util/Api"
 
 interface Props {
   title: string,
@@ -62,7 +63,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      const newReaderSettings: ReaderSettings = {
+      await Api.updateReaderSettings(bookId, {
         zoom: zoom,
         autoFontSize: autoFontSize,
         fontSize: fontSize,
@@ -72,13 +73,6 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
         showAnalysis: showAnalysis,
         textOrientation: textOrientation,
         readingDirection: readingDirection,
-      }
-      await fetch(bookReaderSettingsUrl(bookId), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({readerSettings: newReaderSettings}),
       })
     }, 300)
     return () => clearTimeout(timer)

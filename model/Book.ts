@@ -15,6 +15,17 @@ export interface Book {
 export interface BookInfo {
   id: string,
   description: string,
+  notes: string,
+  source: string,
   archived: boolean,
+  pinned: boolean,
   currentPage: number,
+}
+
+export interface BookInfoUpdate {
+  description?: string,
+  notes?: string,
+  source?: string,
+  archived?: boolean,
+  pinned?: boolean,
 }

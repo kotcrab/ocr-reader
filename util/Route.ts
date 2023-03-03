@@ -2,6 +2,10 @@ export function homeRoute(): string {
   return "/"
 }
 
+export function homeArchiveRoute(): string {
+  return "/?archived"
+}
+
 export function textHookerRoute(): string {
   return "/text-hooker"
 }

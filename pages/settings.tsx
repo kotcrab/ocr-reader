@@ -19,8 +19,9 @@ import NavBar from "../components/NavBar"
 import {services} from "../service/Services"
 import {Input} from "@chakra-ui/input"
 import {AppSettings} from "../model/AppSettings"
-import {appSettingsUrl, isValidWebSocketUrl} from "../util/Url"
+import {isValidWebSocketUrl} from "../util/Url"
 import RestoreDefaultValueButton from "../components/RestoreDefaultValueButton"
+import {Api} from "../util/Api"
 
 interface Props {
   appSettings: AppSettings,
@@ -43,17 +44,10 @@ export default function TextHooker({appSettings, defaultAppSettings}: Props) {
       setSettingsInvalidMessage("WebSocket URL is not valid")
       return
     }
-    const newAppSettings: AppSettings = {
+    await Api.updateAppSettings({
       readingTimerEnabled: readingTimerEnabled,
       jpdbSid: jpdbSid,
       textHookerWebSocketUrl: textHookerWebSocketUrl,
-    }
-    await fetch(appSettingsUrl(), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({appSettings: newAppSettings}),
     })
     setSettingsSaved(true)
     setSettingsInvalid(false)

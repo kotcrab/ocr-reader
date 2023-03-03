@@ -6,34 +6,63 @@ import {services} from "../service/Services"
 import {BookResponse} from "../model/BookResponse"
 import SearchBar from "../components/SearchBar"
 import {useRouter} from "next/router"
-import {booksUrl, bookTextDumpUrl, bookUrl} from "../util/Url"
-import {readBookRoute} from "../util/Route"
+import {homeArchiveRoute, homeRoute, readBookRoute} from "../util/Route"
 import NavBar from "../components/NavBar"
+import BookEditModal from "../components/BookEditModal"
+import HomeMenu from "../components/HomeMenu"
+import {ParsedUrlQuery} from "querystring"
+import {GetServerSidePropsContext} from "next"
+import {Api} from "../util/Api"
+import {BookInfoUpdate} from "../model/Book"
 
 interface Props {
   books: BookResponse[],
 }
 
+function getParams(params: ParsedUrlQuery) {
+  return {
+    viewArchived: "archived" in params,
+  }
+}
+
 export default function Home({books}: Props) {
   const router = useRouter()
+  const {viewArchived} = getParams(router.query)
 
   const rescanBooks = async () => {
-    await fetch(booksUrl(), {method: "POST"})
+    await Api.rescanBooks()
     await router.replace(router.asPath)
   }
 
+  const toggleViewArchived = async () => {
+    viewArchived ? await router.push(homeRoute()) : await router.push(homeArchiveRoute())
+  }
+
+  const noBooks = viewArchived ? <NoArchivedBooks/> : <NoBooks/>
   return (
     <>
       <PageHead/>
       <main>
         <Flex p={4} direction="column">
-          <NavBar/>
+          <NavBar extraEndElement={
+            <HomeMenu
+              viewArchived={viewArchived}
+              onToggleViewArchived={toggleViewArchived}
+              onRescanBooks={rescanBooks}
+            />
+          }/>
           <Container maxW='6xl'>
             <VStack align="stretch" spacing={4}>
-              {books.length === 0 ? <NoBooks/> : <BookList books={books}/>}
-              <Button colorScheme='blue' variant='ghost' alignSelf="center" onClick={rescanBooks}>
-                Rescan books
-              </Button>
+              {books.length === 0 ? noBooks :
+                <BookList books={books} viewArchived={viewArchived}/>}
+              {!viewArchived ?
+                <Button colorScheme='blue' variant='ghost' alignSelf="center" onClick={rescanBooks}>
+                  Rescan books
+                </Button> : null}
+              {viewArchived ?
+                <Button colorScheme='blue' variant='ghost' alignSelf="center" onClick={toggleViewArchived}>
+                  Go back
+                </Button> : null}
             </VStack>
           </Container>
         </Flex>
@@ -48,7 +77,18 @@ function NoBooks() {
   </Text>
 }
 
-function BookList({books}: Props) {
+function NoArchivedBooks() {
+  return <Text align="center" color="gray.500">
+    You don&apos;t have any archived books yet. To archive a book use the book menu on the home screen.
+  </Text>
+}
+
+interface BookListProps {
+  books: BookResponse[],
+  viewArchived: boolean,
+}
+
+function BookList({books, viewArchived}: BookListProps) {
   const [filter, setFilter] = useState("")
   const filteredBooks = books
     .filter(book => {
@@ -61,6 +101,7 @@ function BookList({books}: Props) {
   return (
     <>
       <SearchBar onChange={it => setFilter(it.toLowerCase())}/>
+      {viewArchived ? <Text alignSelf="center" color="gray.500">Viewing archived books</Text> : null}
       {filteredBooks.map(it => <BookItem key={it.id} book={it}/>)}
     </>
   )
@@ -74,20 +115,11 @@ function BookItem({book}: BookItemProps) {
   const router = useRouter()
 
   const onRunOcr = async (id: string) => {
-    await fetch(bookUrl(id), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ocr: true}),
-    })
-    alert("OCR started, please follow progress in the terminal for now, refresh this page when completed.")
-  }
-  const onEdit = async (id: string) => {
+    await Api.ocrBook(id)
+    alert("OCR started, please follow progress in the terminal window for now, refresh this page when completed.")
   }
   const onDownloadText = async (id: string, removeLineBreaks: boolean) => {
-    const res = await fetch(bookTextDumpUrl(id, removeLineBreaks))
-    const blob = await res.blob()
+    const blob = await Api.dumpBookText(id, removeLineBreaks)
     const url = window.URL.createObjectURL(new Blob([blob]))
     const link = document.createElement("a")
     link.href = url
@@ -102,15 +134,16 @@ function BookItem({book}: BookItemProps) {
     book={book}
     onRead={id => router.push(readBookRoute(id, book.currentPage + 1))}
     onRunOcr={onRunOcr}
-    onEdit={onEdit}
     onDownloadText={onDownloadText}
   />
 }
 
-export async function getServerSideProps() {
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const {viewArchived} = getParams(context.query)
+
   return {
     props: {
-      books: await services.bookService.getBooks(),
+      books: await services.bookService.getBooks(viewArchived),
     },
   }
 }

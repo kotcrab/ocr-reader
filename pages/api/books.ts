@@ -7,7 +7,7 @@ export default async function handler(
   res: NextApiResponse<BookResponse[]>
 ) {
   if (req.method === "GET") {
-    res.status(200).json(await services.bookService.getBooks())
+    res.status(200).json(await services.bookService.getAllBooks())
   } else if (req.method === "POST") {
     await services.bookService.scanBooks()
     res.status(200).end()

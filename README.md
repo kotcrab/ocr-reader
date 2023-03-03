@@ -22,7 +22,7 @@ There is also a text hooker page, it can also highlight unknown words thanks to 
 
 In Google Cloud Console create new project and enable Cloud Vision API. Then create service
 account with access to your project and download its JSON key file (**never share this file with anyone**).
-This part of the setup is mostly covered by this [guide](https://cloud.google.com/vision/docs/detect-labels-image-client-libraries#before-you-begin),
+This part of the setup is covered by this [guide](https://cloud.google.com/vision/docs/detect-labels-image-client-libraries#before-you-begin),
 section `Before you begin`, skip last step with setting environment variable.
 
 ### Installation

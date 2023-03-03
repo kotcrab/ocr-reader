@@ -2,7 +2,7 @@ import {StorageService} from "./StorageService"
 import vision from "@google-cloud/vision"
 import path from "path"
 import {emptyOcrJob} from "../model/OcrJob"
-import {Book} from "../model/Book"
+import {Book, BookInfoUpdate} from "../model/Book"
 import {RequestError} from "../util/RequestError"
 import {bookToBookResponse} from "../model/BookResponse"
 import {PromisePool} from "@supercharge/promise-pool"
@@ -27,9 +27,16 @@ export class BookService {
     this.storageService = storageService
   }
 
-  async getBooks() {
+  async getBooks(archived: Boolean) {
+    const books = await this.getAllBooks()
+    return books.filter(it => it.archived === archived)
+  }
+
+  async getAllBooks() {
     await this.initialScanBooksIfNeeded()
-    return this.books.map(it => bookToBookResponse(it))
+    return this.books
+      .map(it => bookToBookResponse(it))
+      .sort((a, b) => Number(b.pinned) - Number(a.pinned))
   }
 
   async initialScanBooksIfNeeded() {
@@ -217,6 +224,27 @@ export class BookService {
     const book = await this.getBookById(bookId)
     this.checkBookPageInRange(book, currentPage)
     book.info.currentPage = currentPage
+    await this.storageService.writeBook(book)
+    return book
+  }
+
+  async updateBookInfo(bookId: string, data: BookInfoUpdate): Promise<Book> {
+    const book = await this.getBookById(bookId)
+    if (data.description !== undefined) {
+      book.info.description = data.description
+    }
+    if (data.notes !== undefined) {
+      book.info.notes = data.notes
+    }
+    if (data.source !== undefined) {
+      book.info.source = data.source
+    }
+    if (data.archived !== undefined) {
+      book.info.archived = data.archived
+    }
+    if (data.pinned !== undefined) {
+      book.info.pinned = data.pinned
+    }
     await this.storageService.writeBook(book)
     return book
   }

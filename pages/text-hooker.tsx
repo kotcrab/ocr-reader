@@ -10,20 +10,21 @@ import {WordStatus} from "../model/WordStatus"
 import {TextAnalysisResult} from "../model/TextAnalysisResults"
 import ReadingTimer from "../components/ReadingTimer"
 import {ReadingTimerUnitType} from "../model/ReadingTimerUnitType"
+import {AppSettings} from "../model/AppSettings"
 
 interface Props {
   jpdbEnabled: boolean,
-  webSocketUrl: string,
+  appSettings: AppSettings,
 }
 
-export default function TextHooker({jpdbEnabled, webSocketUrl}: Props) {
+export default function TextHooker({jpdbEnabled, appSettings}: Props) {
   const bottomDivRef = useRef<HTMLDivElement>(null)
   const [analyze, setAnalyze] = useState(false)
   const [textHistory, setTextHistory] = useState<string[]>([])
   const [charactersRead, setCharactersRead] = useState(0)
   const [entriesRead, setEntriesRead] = useState(0)
 
-  const {lastJsonMessage, readyState} = useWebSocket(webSocketUrl)
+  const {lastJsonMessage, readyState} = useWebSocket(appSettings.textHookerWebSocketUrl)
 
   useEffect(() => {
     if (lastJsonMessage !== null && (lastJsonMessage as any).sentence) {
@@ -76,18 +77,19 @@ export default function TextHooker({jpdbEnabled, webSocketUrl}: Props) {
       <main>
         <Flex p={4} align="stretch" direction="column">
           <NavBar extraEndElement={
+            appSettings.readingTimerEnabled ?
             <ReadingTimer
               charactersRead={charactersRead}
               unitsRead={entriesRead}
               unitType={ReadingTimerUnitType.Entries}
-              onReset={onReadingTimerReset}/>
+              onReset={onReadingTimerReset}/> : undefined
           }/>
           <VStack alignItems="start" spacing={2}>
             <Checkbox disabled={!jpdbEnabled} isChecked={analyze} onChange={(e) => setAnalyze(e.target.checked)}>
               Analyze with JPDB <Badge ml='1' colorScheme='red'>Experimental</Badge>
             </Checkbox>
-            <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({webSocketUrl}). You can also paste text directly
-              into this page.</Text>
+            <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({appSettings.textHookerWebSocketUrl}). You
+              can also paste text directly into this page.</Text>
             {textHistory.map((text, idx) => (
               <MemoizedAnalyzedText key={idx} text={text} analyze={analyze}/>
             ))}
@@ -162,11 +164,10 @@ function getColorForStatus(status: WordStatus) {
 }
 
 export async function getServerSideProps() {
-  const appSettings = await services.settingsService.getAppSettings()
   return {
     props: {
       jpdbEnabled: await services.jpdbService.isEnabled(),
-      webSocketUrl: appSettings.textHookerWebSocketUrl,
+      appSettings: await services.settingsService.getAppSettings(),
     },
   }
 }

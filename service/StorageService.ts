@@ -4,9 +4,6 @@ import * as crypto from "crypto"
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {Book, BookInfo} from "../model/Book"
 import {CachedJpdbResult} from "../model/CachedJpdbResult"
-import {ReaderSettings} from "../model/ReaderSettings"
-import {TextOrientation} from "../model/TextOrientation"
-import {ReadingDirection} from "../model/ReadingDirection"
 import IAnnotateImageResponse = google.cloud.vision.v1.IAnnotateImageResponse
 
 export class StorageService {
@@ -82,7 +79,10 @@ export class StorageService {
     const defaultInfo: BookInfo = {
       id: crypto.randomBytes(6).toString("hex"),
       description: "",
+      notes: "",
+      source: "",
       archived: false,
+      pinned: false,
       currentPage: 0,
     }
     const fileExists = await fs.promises.stat(infoFile).then(() => true, () => false)
@@ -94,7 +94,10 @@ export class StorageService {
     return {
       id: data.id ?? defaultInfo.id,
       description: data.description ?? defaultInfo.description,
+      notes: data.note ?? defaultInfo.notes,
+      source: data.source ?? defaultInfo.source,
       archived: data.archived ?? defaultInfo.archived,
+      pinned: data.pinned ?? defaultInfo.pinned,
       currentPage: data.currentPage ?? defaultInfo.currentPage,
     }
   }

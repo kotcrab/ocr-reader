@@ -1,4 +1,4 @@
-import {Slider, SliderFilledTrack, SliderMark, SliderThumb, SliderTrack, Tooltip} from "@chakra-ui/react"
+import {Slider, SliderFilledTrack, SliderThumb, SliderTrack, Tooltip} from "@chakra-ui/react"
 import * as React from "react"
 import {useState} from "react"
 
