@@ -29,6 +29,7 @@ jobs:
           mv ./public ./ocr-reader
           mv ./data ./ocr-reader
           cp ./scripts/* ./ocr-reader
+          cp ./README.md ./ocr-reader
           zip -r ./ocr-reader.zip ./ocr-reader
       - name: Upload artifact to release
         uses: svenstaro/upload-release-action@2.3.0
