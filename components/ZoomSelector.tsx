@@ -12,8 +12,8 @@ const minZoom = 5
 const maxZoom = 300
 
 export default function ZoomSelector({zoom, onChange}: Props) {
-  useHotkeys("[", () => onChange(zoom - 5), {enabled: zoom > minZoom}, [zoom])
-  useHotkeys("]", () => onChange(zoom + 5), {enabled: zoom < maxZoom}, [zoom])
+  useHotkeys("[", () => onChange(zoom - 5), {enabled: zoom > minZoom}, [zoom, onChange])
+  useHotkeys("]", () => onChange(zoom + 5), {enabled: zoom < maxZoom}, [zoom, onChange])
 
   return (
     <HStack>

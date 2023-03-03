@@ -29,8 +29,8 @@ interface PageSwitcherProps {
 }
 
 function LeftToRightPageSwitcher({page, pages, onChange}: PageSwitcherProps) {
-  useHotkeys("left", () => onChange(page - 1), {enabled: page > 1}, [page])
-  useHotkeys("right", () => onChange(page + 1), {enabled: page < pages}, [page])
+  useHotkeys("left", () => onChange(page - 1), {enabled: page > 1}, [page, onChange])
+  useHotkeys("right", () => onChange(page + 1), {enabled: page < pages}, [page, onChange])
 
   return (
     <HStack spacing={elementSpacing}>
@@ -42,8 +42,8 @@ function LeftToRightPageSwitcher({page, pages, onChange}: PageSwitcherProps) {
 }
 
 function RightToLeftPageSwitcher({page, pages, onChange}: PageSwitcherProps) {
-  useHotkeys("left", () => onChange(page + 1), {enabled: page < pages}, [page])
-  useHotkeys("right", () => onChange(page - 1), {enabled: page > 1}, [page])
+  useHotkeys("left", () => onChange(page + 1), {enabled: page < pages}, [page, onChange])
+  useHotkeys("right", () => onChange(page - 1), {enabled: page > 1}, [page, onChange])
 
   return (
     <HStack spacing={elementSpacing}>

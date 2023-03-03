@@ -78,9 +78,9 @@ export default function ReaderMenu(
     } else if (hasAnalysis) {
       onChangeShowAnalysis(!showAnalysis)
     }
-  }, [analysisEnabled, hasAnalysis, showAnalysis])
-  useHotkeys("s", () => onChangeShowText(!showText), [showText])
-  useHotkeys("d", () => onChangeShowParagraphs(!showParagraphs), [showParagraphs])
+  }, [analysisEnabled, hasAnalysis, showAnalysis, onAnalyze, onChangeShowAnalysis])
+  useHotkeys("s", () => onChangeShowText(!showText), [showText, onChangeShowText])
+  useHotkeys("d", () => onChangeShowParagraphs(!showParagraphs), [showParagraphs, onChangeShowParagraphs])
 
   const overlayValues = []
   if (showText) {
