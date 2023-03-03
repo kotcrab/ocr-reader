@@ -97,11 +97,15 @@ You can also use the menu to download OCRed text. This is useful for creating JP
 
 In reader mode, you can:
 - Use your favorite pop-up dictionary as-if you were reading normal text.
-- Adjust font size of the overlaid text.
-  - Overlaid text just need to roughly match actual image text, don't worry about getting it perfect.
 - Adjust page zoom.
-- Change text direction from vertical to horizontal (if auto-detection fails), change reading direction.
 - Analyze the text and highlight unknown words with JPDB.
+- Use the reading timer to track elapsed time and reading speed.
+- Change minimum OCR confidence level.
+- Change reading direction (right to left by default).
+- Adjust the overlay:
+  - Those options are meant for finding issues with OCR, most of the time there's no need to use them.
+  - Show overlaid text and highlight detected paragraphs.
+  - Override font size and text direction detection.
 
 ### Text hooker
 
