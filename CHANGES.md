@@ -4,6 +4,7 @@
 - Minimum OCR confidence can now be changed on the fly in the reader settings
 - Fixed issue where hotkeys stopped working after doing dictionary lookup
 - Fixed bug where resetting the timer did not reset page read mark
+- Fixed bug where current page mark could exceed total page count if images were removed from the book
 
 #### Version 1.1
 

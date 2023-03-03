@@ -60,6 +60,8 @@ export class StorageService {
 
     const images = this.getImages(files)
     const ocrFiles = await this.getOcrFiles(ocrDir)
+    const info = await this.readBookInfo(infoFile)
+    info.currentPage = Math.max(0, Math.min(info.currentPage, images.length - 1))
     return {
       title: title,
       author: author,
@@ -68,7 +70,7 @@ export class StorageService {
       ocrDir: ocrDir,
       infoFile: infoFile,
       readerSettingsFile: readerFile,
-      info: await this.readBookInfo(infoFile),
+      info: info,
       images: images,
       ocrFiles: ocrFiles,
       ocrDone: this.isBookOcrDone(images, ocrFiles),
