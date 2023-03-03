@@ -1,6 +1,6 @@
 # ocr-reader
 
-OCR Reader is an app for organizing and reading scans of printed books in Japanese.
+OCR Reader is an app for organizing and reading scans of physical Japanese books and manga.
 Each page is run through OCR (optical character recognition) which allows for selecting text
 and use of pop-up dictionaries such as [yomichan](https://github.com/FooSoft/yomichan).
 Reader also integrates with [JPDB](https://jpdb.io/) to automatically highlight unknown words.
@@ -20,15 +20,22 @@ There is also a text hooker page, it can also highlight unknown words thanks to 
 
 ### Google Cloud Preparation
 
-In Google Cloud Console create new project and enable Cloud Vision API. Then create service
-account with access to your project and download its JSON key file (**never share this file with anyone**).
-This part of the setup is covered by this [guide](https://cloud.google.com/vision/docs/detect-labels-image-client-libraries#before-you-begin),
-section `Before you begin`, skip last step with setting environment variable.
+In Google Cloud Console you will need to create a new project and enable Cloud Vision API. Then create service
+account and download its JSON key file (**never share this file with anyone**).
+
+1. Create a new project in the GCP console.
+2. Go to the [Cloud Vision API](https://console.cloud.google.com/apis/library/vision.googleapis.com) and press "Enable".
+3. Go to the [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) and press "Create service account".
+   - Enter some name for the account and press "Create and continue" then press "Done".
+   - Click on the newly created account and go to the "Keys" tab.
+   - Press "Add key" then "Create new key".
+   - JSON should be selected, press "Create".
+   - JSON file will be downloaded automatically, you will need this file in the next steps.
 
 ### Installation
 
 1. Download [release ZIP](https://github.com/kotcrab/ocr-reader/releases/latest/download/ocr-reader.zip), extract it.
-2. If you have JSON key file for your Google Cloud account rename it to `gcp.json` and place it inside `data` folder.
+2. If you have JSON key file for your Google Cloud account rename it to `gcp.json` and place it inside the `data` folder.
 3. Run the application with `start.bat`.
    - On Linux or macOS execute `start.sh` from your terminal.
 
@@ -103,9 +110,9 @@ In reader mode, you can:
 - Change minimum OCR confidence level.
 - Change reading direction (right to left by default).
 - Adjust the overlay:
-  - Those options are meant for finding issues with OCR, most of the time there's no need to use them.
+  - Those options are meant for finding issues with the OCR, most of the time there's no need to use them.
   - Show overlaid text and highlight detected paragraphs.
-  - Override font size and text direction detection.
+  - Override font size and detected text direction.
 
 ### Text hooker
 
