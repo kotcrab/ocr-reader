@@ -7,6 +7,8 @@ Reader also integrates with [JPDB](https://jpdb.io/) to automatically highlight 
 
 There is also a text hooker page, it can also highlight unknown words thanks to the JPDB integration.
 
+<img src="https://user-images.githubusercontent.com/4594081/224509444-e65b09c7-b1ce-428a-aa33-27e6f943d8f2.png" width="70%" height="70%" />
+
 ## Setup
 
 ### Requirements
@@ -79,7 +81,7 @@ data
 │           001.jpg
 │           002.jpg
 │           ....jpg
-└───Title 1
+└───Title 3
         001.jpg
         002.jpg
         ....jpg
