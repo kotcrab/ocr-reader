@@ -5,6 +5,8 @@ import {PageOcrResults} from "../model/PageOcrResults"
 import {AnalysisResults} from "../model/AnalysisResults"
 import SvgAnalysisOverlay from "./SvgAnalysisOverlay"
 import {TextOrientation} from "../model/TextOrientation"
+import {useEffect, useState} from "react"
+import {isChromiumBased} from "../util/Util"
 
 interface Props {
   ocr: PageOcrResults,
@@ -26,6 +28,10 @@ export default function SvgOverlay(
   const filteredParagraphs = ocr.paragraphs
     .filter(it => it.confidence > minimumConfidence / 100)
   const paragraphPoints = filteredParagraphs.map(it => it.points)
+
+  const [chromiumBased, setChromiumBased] = useState(false)
+  useEffect(() => setChromiumBased(isChromiumBased()), [])
+
   return (
     <svg width="100%"
          height="100%"
@@ -48,6 +54,7 @@ export default function SvgOverlay(
           autoFontSize={autoFontSize}
           fontSize={fontSize}
           textOrientation={textOrientation}
+          chromiumBased={chromiumBased}
         />
       )}
     </svg>

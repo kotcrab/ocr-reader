@@ -1,3 +1,7 @@
+#### Version 1.2.1
+
+- Improved sizing of overlaid vertical text
+
 #### Version 1.2
 
 - Improved home screen now supports editing books description, notes and source. You can also pin and archive books.

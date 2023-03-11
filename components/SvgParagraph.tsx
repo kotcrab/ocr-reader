@@ -11,9 +11,21 @@ interface Props {
   autoFontSize: boolean,
   fontSize: number,
   textOrientation: TextOrientation,
+  chromiumBased: boolean,
 }
 
-export default function SvgParagraph({lines, scaleX, scaleY, showText, autoFontSize, fontSize, textOrientation}: Props) {
+export default function SvgParagraph(
+  {
+    lines,
+    scaleX,
+    scaleY,
+    showText,
+    autoFontSize,
+    fontSize,
+    textOrientation,
+    chromiumBased,
+  }: Props
+) {
   const textFill = showText ? "rgba(0,0,0,1)" : "transparent"
 
   return <>{
@@ -24,6 +36,8 @@ export default function SvgParagraph({lines, scaleX, scaleY, showText, autoFontS
         const key = `s-${lineIndex}-${index}`
         switch (textOrientation == TextOrientation.Auto ? line.orientation : textOrientation) {
           case TextOrientation.Vertical:
+            const w = chromiumBased ? bounds.h : bounds.w
+            const h = chromiumBased ? bounds.w : bounds.h
             return <text
               key={key}
               x={bounds.x + bounds.w / 2} y={bounds.y}
@@ -32,8 +46,8 @@ export default function SvgParagraph({lines, scaleX, scaleY, showText, autoFontS
                 glyphOrientationVertical: "auto",
                 fill: textFill,
               }}
-              fontSize={autoFontSize ? bounds.h : fontSize}
-              textLength={bounds.w / 2}
+              fontSize={autoFontSize ? h : fontSize}
+              textLength={w}
               lengthAdjust="spacingAndGlyphs"
             >
               {symbol.text}
