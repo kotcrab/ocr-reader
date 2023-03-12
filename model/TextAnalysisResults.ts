@@ -1,6 +1,6 @@
-import {WordStatus} from "./WordStatus"
+import {JpdbCardState} from "./JpdbCardState"
 
 export interface TextAnalysisResult {
   readonly fragment: string,
-  readonly status: WordStatus,
+  readonly state: JpdbCardState,
 }

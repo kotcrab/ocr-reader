@@ -1,15 +1,17 @@
 import SvgPolygonList from "./SvgPolygonList"
 import SvgParagraph from "./SvgParagraph"
 import * as React from "react"
+import {useEffect, useState} from "react"
 import {PageOcrResults} from "../model/PageOcrResults"
 import {AnalysisResults} from "../model/AnalysisResults"
 import SvgAnalysisOverlay from "./SvgAnalysisOverlay"
 import {TextOrientation} from "../model/TextOrientation"
-import {useEffect, useState} from "react"
 import {isChromiumBased} from "../util/Util"
+import {Dimensions} from "../model/Dimensions"
 
 interface Props {
   ocr: PageOcrResults,
+  pageDimensions: Dimensions,
   analysis?: AnalysisResults,
   showParagraphs: boolean,
   showText: boolean,
@@ -20,11 +22,20 @@ interface Props {
 }
 
 export default function SvgOverlay(
-  {ocr, analysis, showParagraphs, showText, autoFontSize, textOrientation, fontSize, minimumConfidence}: Props
-) {
+  {
+    ocr,
+    pageDimensions,
+    analysis,
+    showParagraphs,
+    showText,
+    autoFontSize,
+    textOrientation,
+    fontSize,
+    minimumConfidence,
+  }: Props) {
   const sizeDiv = 1000
-  const scaleX = ocr.width / sizeDiv
-  const scaleY = ocr.height / sizeDiv
+  const scaleX = pageDimensions.w / sizeDiv
+  const scaleY = pageDimensions.h / sizeDiv
   const filteredParagraphs = ocr.paragraphs
     .filter(it => it.confidence > minimumConfidence / 100)
   const paragraphPoints = filteredParagraphs.map(it => it.points)

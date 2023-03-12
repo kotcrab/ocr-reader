@@ -1,16 +1,15 @@
 import PageHead from "../components/PageHead"
-import {Badge, Checkbox, Flex, HStack, Text, Tooltip, VStack} from "@chakra-ui/react"
+import {Checkbox, Flex, Text, VStack} from "@chakra-ui/react"
 import React, {useEffect, useRef, useState} from "react"
 import NavBar from "../components/NavBar"
 import useWebSocket, {ReadyState} from "react-use-websocket"
 import {services} from "../service/Services"
-import {WarningTwoIcon} from "@chakra-ui/icons"
 import {analyzeTextUrl} from "../util/Url"
-import {WordStatus} from "../model/WordStatus"
 import {TextAnalysisResult} from "../model/TextAnalysisResults"
 import ReadingTimer from "../components/ReadingTimer"
-import {ReadingTimerUnitType} from "../model/ReadingTimerUnitType"
+import {ReadingUnitType} from "../model/ReadingUnitType"
 import {AppSettings} from "../model/AppSettings"
+import {JpdbCardState} from "../model/JpdbCardState"
 
 interface Props {
   jpdbEnabled: boolean,
@@ -92,12 +91,12 @@ export default function TextHooker({jpdbEnabled, appSettings}: Props) {
             <ReadingTimer
               charactersRead={charactersRead}
               unitsRead={entriesRead}
-              unitType={ReadingTimerUnitType.Entries}
+              unitType={ReadingUnitType.Entries}
               onReset={onReadingTimerReset}/> : undefined
           }/>
           <VStack alignItems="start" spacing={2}>
             <Checkbox disabled={!jpdbEnabled} isChecked={analyze} onChange={(e) => setAnalyze(e.target.checked)}>
-              Analyze with JPDB <Badge ml='1' colorScheme='red'>Experimental</Badge>
+              Analyze with JPDB
             </Checkbox>
             <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({appSettings.textHookerWebSocketUrl}). You
               can also paste text directly into this page.</Text>
@@ -119,7 +118,6 @@ interface AnalyzedTextProps {
 
 function AnalyzedText({text, analyze}: AnalyzedTextProps) {
   const [analysis, setAnalysis] = useState<TextAnalysisResult[] | undefined>(undefined)
-  const [rateLimited, setRateLimited] = useState(false)
 
   useEffect(() => {
     async function analyzeMessage() {
@@ -127,10 +125,6 @@ function AnalyzedText({text, analyze}: AnalyzedTextProps) {
         return
       }
       const result = await fetch(analyzeTextUrl(encodeURIComponent(text)))
-      if (result.status == 429) {
-        setRateLimited(true)
-        return
-      }
       if (result.ok) {
         setAnalysis(await result.json())
       }
@@ -140,34 +134,25 @@ function AnalyzedText({text, analyze}: AnalyzedTextProps) {
       .catch(console.error)
   }, [analyze, analysis, text])
 
-  const rateLimitedIcon = rateLimited ?
-    <Tooltip label='Analysis skipped due to rate limiting'>
-      <WarningTwoIcon/>
-    </Tooltip> : null
 
-  const coloredText = <Text style={{whiteSpace: "pre-wrap"}}>
+  return <Text style={{whiteSpace: "pre-wrap"}}>
     {analysis ? analysis.map((it, index) =>
-        <span key={index} style={{color: getColorForStatus(it.status)}}>{it.fragment}</span>)
+        <span key={index} style={{color: getColorForState(it.state)}}>{it.fragment}</span>)
       : text
     }
   </Text>
-
-  return <HStack>
-    {coloredText}
-    {rateLimitedIcon}
-  </HStack>
 }
 
 const MemoizedAnalyzedText = React.memo(AnalyzedText, () => true)
 
-function getColorForStatus(status: WordStatus) {
-  switch (status) {
-    case WordStatus.Learning:
+function getColorForState(state: JpdbCardState) {
+  switch (state) {
+    case JpdbCardState.Learning:
       return "#68D391"
-    case WordStatus.Locked:
-    case WordStatus.NotInDeck:
+    case JpdbCardState.Locked:
+    case JpdbCardState.NotInDeck:
       return "#8999a2"
-    case WordStatus.New:
+    case JpdbCardState.New:
       return "#63b3ed"
     default:
       return undefined

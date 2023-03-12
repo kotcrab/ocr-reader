@@ -2,22 +2,20 @@ import {TextOrientation} from "./TextOrientation"
 import {Rectangle} from "./Rectangle"
 
 export interface PageOcrResults {
-  readonly paragraphs: OcrParagraph[],
+  readonly paragraphs: readonly OcrParagraph[],
   readonly characterCount: number,
-  readonly width: number,
-  readonly height: number,
 }
 
 export interface OcrParagraph {
   readonly id: number,
-  readonly lines: OcrLine[],
-  readonly points: number[],
+  readonly lines: readonly OcrLine[],
+  readonly points: readonly number[],
   readonly confidence: number,
 }
 
 export interface OcrLine {
   readonly orientation: TextOrientation,
-  readonly symbols: PackedOcrSymbol[],
+  readonly symbols: readonly PackedOcrSymbol[],
 }
 
 export interface OcrSymbol {

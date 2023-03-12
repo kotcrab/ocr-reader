@@ -1,7 +1,7 @@
 import {scaleRectangle} from "../util/OverlayUtil"
 import * as React from "react"
 import {AnalysisResults} from "../model/AnalysisResults"
-import {WordStatus} from "../model/WordStatus"
+import {JpdbCardState} from "../model/JpdbCardState"
 
 interface Props {
   analysis: AnalysisResults,
@@ -14,29 +14,33 @@ export default function SvgAnalysisOverlay({analysis, scaleX, scaleY}: Props) {
     analysis.results.flatMap((result, resultIndex) =>
       result.bounds.flatMap((rectangle, index) => {
         const bounds = scaleRectangle(rectangle, scaleX, scaleY)
+        const color = getColorForState(result.state)
+        if (!color) {
+          return null
+        }
         return <rect
           key={`a-${resultIndex}-${index}`}
           x={bounds.x}
           y={bounds.y}
           width={bounds.w}
           height={bounds.h}
-          style={{fill: getColorForStatus(result.status)}}
+          style={{fill: color}}
         />
       })
     )
   }</>
 }
 
-function getColorForStatus(status: WordStatus) {
-  switch (status) {
-    case WordStatus.Learning:
+function getColorForState(state: JpdbCardState) {
+  switch (state) {
+    case JpdbCardState.Learning:
       return "rgba(74,231,129,0.15)"
-    case WordStatus.Locked:
-    case WordStatus.NotInDeck:
+    case JpdbCardState.Locked:
+    case JpdbCardState.NotInDeck:
       return "rgba(84,65,67,0.15)"
-    case WordStatus.New:
+    case JpdbCardState.New:
       return "rgba(32,48,145,0.15)"
     default:
-      return "rgba(255,0,255,0.15)"
+      return null
   }
 }

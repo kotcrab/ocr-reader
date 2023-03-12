@@ -2,7 +2,7 @@ import {pointsToPolygonPoints} from "../util/OverlayUtil"
 import * as React from "react"
 
 interface Props {
-  polygons: number[][],
+  polygons: (readonly number[])[],
   scaleX: number,
   scaleY: number,
 }

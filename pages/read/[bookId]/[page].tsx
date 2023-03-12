@@ -19,13 +19,15 @@ import ExitButton from "../../../components/ExitButton"
 import {ReaderSettings} from "../../../model/ReaderSettings"
 import ReadingTimer from "../../../components/ReadingTimer"
 import {AppSettings} from "../../../model/AppSettings"
-import {ReadingTimerUnitType} from "../../../model/ReadingTimerUnitType"
+import {ReadingUnitType} from "../../../model/ReadingUnitType"
 import {Api} from "../../../util/Api"
+import {Dimensions} from "../../../model/Dimensions"
 
 interface Props {
   title: string,
   pages: number,
   ocr: PageOcrResults,
+  pageDimensions: Dimensions,
   jpdbEnabled: boolean,
   readerSettings: ReaderSettings,
   appSettings: AppSettings,
@@ -39,7 +41,16 @@ function getParams(params: ParsedUrlQuery) {
   }
 }
 
-export default function ReadBookPage({title, pages, ocr, jpdbEnabled, readerSettings, appSettings}: Props) {
+export default function ReadBookPage(
+  {
+    title,
+    pages,
+    ocr,
+    pageDimensions,
+    jpdbEnabled,
+    readerSettings,
+    appSettings,
+  }: Props) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
@@ -116,7 +127,7 @@ export default function ReadBookPage({title, pages, ocr, jpdbEnabled, readerSett
     setPagesRead(0)
   }
 
-  const zoomPx = Math.round(ocr.width * zoom / 100) + "px"
+  const zoomPx = Math.round(pageDimensions.w * zoom / 100) + "px"
   return (
     <>
       <PageHead title={`${title} - ${defaultPageTitle}`}/>
@@ -144,7 +155,7 @@ export default function ReadBookPage({title, pages, ocr, jpdbEnabled, readerSett
                   <ReadingTimer
                     charactersRead={charactersRead}
                     unitsRead={pagesRead}
-                    unitType={ReadingTimerUnitType.Pages}
+                    unitType={ReadingUnitType.Pages}
                     onReset={onReadingTimerReset}/> : null}
                 <ReaderMenu
                   showText={showText}
@@ -177,6 +188,7 @@ export default function ReadBookPage({title, pages, ocr, jpdbEnabled, readerSett
             <Image alt="Page" width="100%" src={bookPageUrl(bookId, page - 1)}/>
             <SvgOverlay
               ocr={ocr}
+              pageDimensions={pageDimensions}
               analysis={showAnalysis ? analysis : undefined}
               showParagraphs={showParagraphs || minimumConfidenceHover}
               showText={showText || fontSizeHover}
@@ -196,6 +208,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {bookId, page} = getParams(context.query)
   const pageIndex = page - 1
   const ocr = await services.bookService.getBookOcrResults(bookId, pageIndex)
+  const pageDimensions = await services.bookService.getBookPageDimensions(bookId, pageIndex)
   const book = await services.bookService.updateBookProgress(bookId, pageIndex)
   const readerSettings = await services.settingsService.getReaderSettings(book)
   const appSettings = await services.settingsService.getAppSettings()
@@ -204,6 +217,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       title: book.title,
       pages: book.images.length,
       ocr: ocr,
+      pageDimensions: pageDimensions,
       jpdbEnabled: await services.jpdbService.isEnabled(),
       readerSettings: readerSettings,
       appSettings: appSettings,

@@ -4,7 +4,7 @@ import {TextOrientation} from "../model/TextOrientation"
 import {fromPackedOcrSymbol, OcrLine} from "../model/PageOcrResults"
 
 interface Props {
-  lines: OcrLine[],
+  lines: readonly OcrLine[],
   scaleX: number,
   scaleY: number,
   showText: boolean,
