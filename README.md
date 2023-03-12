@@ -118,11 +118,15 @@ In reader mode, you can:
 
 ### Text hooker
 
-Text hooker page works with text extractors with support for WebSocket server, those are:
+Text hooker page works with text extractors and tools with support for WebSocket server, those are:
 - [Textractor](https://github.com/Artikash/Textractor)
   - [TextractorSender](https://github.com/KamWithK/TextractorSender) extension required.
 - [Agent](https://github.com/0xDC00/agent)
   - Server must be manually enabled in settings.
+- [mpv_websocket](https://github.com/kuroahna/mpv_websocket)
+  - You must either edit the Lua script to use port 9001 or configure OCR Reader to use port 6677.
+
+Other apps might work too but are not tested.
 
 Assuming your text extractor is configured correctly you should automatically see that
 WebSocket is connected after opening the text hooker page.

@@ -1,3 +1,7 @@
+#### Version 1.2.2
+
+- Text hooker page should be now compatible with more tools
+
 #### Version 1.2.1
 
 - Improved sizing of overlaid vertical text

@@ -24,16 +24,27 @@ export default function TextHooker({jpdbEnabled, appSettings}: Props) {
   const [charactersRead, setCharactersRead] = useState(0)
   const [entriesRead, setEntriesRead] = useState(0)
 
-  const {lastJsonMessage, readyState} = useWebSocket(appSettings.textHookerWebSocketUrl)
+  const {lastMessage, readyState} = useWebSocket(appSettings.textHookerWebSocketUrl)
 
   useEffect(() => {
-    if (lastJsonMessage !== null && (lastJsonMessage as any).sentence) {
-      const text = (lastJsonMessage as any).sentence as string
+    if (!lastMessage) {
+      return
+    }
+    let text = ""
+    try {
+      const lastJsonMessage = JSON.parse(lastMessage.data)
+      if (lastJsonMessage.sentence) {
+        text = lastJsonMessage.sentence
+      }
+    } catch (e) {
+      text = lastMessage.data
+    }
+    if (text) {
       setTextHistory((prev) => prev.concat(text))
       setCharactersRead(it => it + text.length)
       setEntriesRead(it => it + 1)
     }
-  }, [lastJsonMessage, setTextHistory])
+  }, [lastMessage, setTextHistory])
 
   const connectionStatus = {
     [ReadyState.CONNECTING]: "Connecting",
