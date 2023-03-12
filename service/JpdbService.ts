@@ -1,43 +1,41 @@
 import {BookService} from "./BookService"
-import {services} from "./Services"
 import {google} from "@google-cloud/vision/build/protos/protos"
-import {StorageService} from "./StorageService"
 import {AnalysisResults} from "../model/AnalysisResults"
-import {WordStatus} from "../model/WordStatus"
 import * as crypto from "crypto"
 import {TextAnalysisResult} from "../model/TextAnalysisResults"
 import {calculateBoundingRectangle} from "../util/OverlayUtil"
 import {SettingsService} from "./SettingsService"
+import {JpdbCache} from "./JpdbCache"
+import {RateLimiter} from "limiter"
+import {JPDB_TOKEN_API_FIELDS, unpackJpdbToken} from "../model/JpdbToken"
+import {JPDB_VOCABULARY_API_FIELDS, unpackJpdbVocabulary} from "../model/JpdbVocabulary"
+import {JpdbPackedParseResult, JpdbParseResult} from "../model/JpdbParseResult"
+import {JpdbCardState} from "../model/JpdbCardState"
 import ISymbol = google.cloud.vision.v1.ISymbol
 import IVertex = google.cloud.vision.v1.IVertex
 
-const jsdom = require("jsdom")
-const {JSDOM} = jsdom
 
 export class JpdbService {
-  private readonly queriedStatuses = [
-    WordStatus.New, WordStatus.Known, WordStatus.Due, WordStatus.Suspended, WordStatus.Locked,
-    WordStatus.Learning, WordStatus.Failed, WordStatus.Blacklisted,
-  ]
-  private readonly analysisStatuses = [WordStatus.New, WordStatus.Locked, WordStatus.Learning, WordStatus.NotInDeck]
-
-  private readonly storageService: StorageService
   private readonly bookService: BookService
   private readonly settingsService: SettingsService
+  private readonly jpdbCache: JpdbCache
 
-  constructor(storageService: StorageService, bookService: BookService, settingsService: SettingsService) {
-    this.storageService = storageService
+  private readonly rateLimiter = new RateLimiter({tokensPerInterval: 1, interval: 250})
+
+  constructor(bookService: BookService, settingsService: SettingsService, jpdbCache: JpdbCache) {
     this.bookService = bookService
     this.settingsService = settingsService
+    this.jpdbCache = jpdbCache
   }
 
   async isEnabled() {
-    return (await this.getJpdbSid()).length > 0
+    return (await this.getJpdbApiKey()).length > 0
   }
 
   async analyze(bookId: string, page: number): Promise<AnalysisResults> {
-    const {annotations} = await services.bookService.getBookOcrAnnotations(bookId, page)
+    const {annotations} = await this.bookService.getBookOcrAnnotations(bookId, page)
     const ocrBlocks = annotations.pages?.[0].blocks || []
+    // TODO should separate paragraphs instead of joining everything
     const pageSymbols = ocrBlocks
       .flatMap(block => block.paragraphs)
       .flatMap(paragraph => paragraph?.words)
@@ -52,95 +50,11 @@ export class JpdbService {
       const bounds = vertices.map(it => calculateBoundingRectangle(it))
       return {
         fragment: it.fragment,
-        status: it.status,
+        state: it.state,
         bounds: bounds,
       }
     })
-      .filter(it => this.analysisStatuses.includes(it.status))
     return {results: results}
-  }
-
-  async analyzeText(text: string, preserveNewLines: boolean = false): Promise<TextAnalysisResult[]> {
-    if (!text) {
-      return []
-    }
-    const html = await this.getOrFetchJpdbHtmlFor(text)
-    const document = new JSDOM(html).window.document
-
-    const ruby = [...document.getElementsByTagName("rt")] as Element[]
-    ruby.forEach(it => it.remove())
-
-    const floatingSentence = document.getElementsByClassName("floating-sentence")
-    if (floatingSentence.length === 0) {
-      return [{fragment: text, status: WordStatus.Missing}]
-    }
-    const parsedSentence = [...floatingSentence[0].children] as Element[]
-    let textPos = 0
-    return parsedSentence.map(fragment => {
-      const fragmentText = fragment.textContent || ""
-      let formattedFragmentText = ""
-      if (preserveNewLines) {
-        for (const char of fragmentText) {
-          if (text[textPos] == "\n") {
-            formattedFragmentText += "\n"
-            textPos++
-          }
-          formattedFragmentText += char
-          textPos++
-        }
-        if (text[textPos] == "\n") {
-          formattedFragmentText += "\n"
-          textPos++
-        }
-      } else {
-        formattedFragmentText = fragmentText
-      }
-      const reference = fragment.querySelector("a")?.href.split("#")[1]
-      const status = this.queryWordStatusFromReference(document, reference)
-      return {
-        fragment: formattedFragmentText,
-        status: status,
-      }
-    })
-  }
-
-  private queryWordStatusFromReference(
-    document: Document,
-    reference: string | undefined,
-  ): WordStatus {
-    if (!reference) {
-      return WordStatus.Missing
-    }
-    const referenceDiv = document.getElementById(reference)
-    for (const queriedStatus of this.queriedStatuses) {
-      if (referenceDiv?.querySelector(this.jpdbStatusSelectorFor(queriedStatus))) {
-        return queriedStatus
-      }
-    }
-    return WordStatus.NotInDeck
-  }
-
-  private jpdbStatusSelectorFor(status: WordStatus) {
-    switch (status) {
-      case WordStatus.New:
-        return "div.tag.new"
-      case WordStatus.Known:
-        return "div.tag.known"
-      case WordStatus.Due:
-        return "div.tag.overdue"
-      case WordStatus.Suspended:
-        return "div.tag.suspended"
-      case WordStatus.Failed:
-        return "div.tag.failed"
-      case WordStatus.Blacklisted:
-        return "div.tag.blacklisted"
-      case WordStatus.Learning:
-        return "div.tag.learning"
-      case WordStatus.Locked:
-        return "div.tag.locked"
-      default:
-        throw new Error(`No selector for word status: ${status}`)
-    }
   }
 
   private partitionSymbolsVertices(symbols: MappedSymbol[]): IVertex[][] {
@@ -151,37 +65,88 @@ export class JpdbService {
         vertices.push([])
       }
     }
+    if (vertices[vertices.length - 1].length == 0) {
+      vertices.pop()
+    }
     return vertices
   }
 
-  private async getOrFetchJpdbHtmlFor(text: string): Promise<string> {
-    const cacheFile = crypto.createHash("sha256").update(text).digest("hex") + ".json"
-    const cache = await this.storageService.readJpdbCache(cacheFile)
-    if (!cache || Date.now() > cache.expireAt) {
-      console.log(`JPDB cache miss for ${cacheFile}`)
-      const html = await this.fetchJpdbHtmlFor(text)
-      const expireAt = new Date()
-      expireAt.setDate(expireAt.getDate() + 1)
-      await this.storageService.writeJpdbCache(cacheFile, {expireAt: expireAt.getTime(), html: html})
-      return html
-    } else {
-      console.log(`JPDB cache hit for ${cacheFile}`)
-      return cache.html
+  async analyzeText(text: string): Promise<TextAnalysisResult[]> {
+    if (!text) {
+      return []
+    }
+    const parseResult = await this.parseText(text)
+    const tokens = parseResult.tokens
+
+    const fragments: TextAnalysisResult[] = []
+    let currentPosition = 0
+    let currentToken = 0
+    while (currentPosition < text.length) {
+      if (currentToken < tokens.length && tokens[currentToken].position == currentPosition) {
+        const token = tokens[currentToken]
+        const end = currentPosition + token.length
+        fragments.push({
+            fragment: text.slice(currentPosition, end),
+            state: parseResult.vocabulary[token.vocabularyIndex].cardState[0],
+          }
+        )
+        currentPosition = end
+        currentToken++
+      } else {
+        const end = currentToken < tokens.length ? tokens[currentToken].position : text.length
+        fragments.push({
+            fragment: text.slice(currentPosition, end),
+            state: JpdbCardState.Unparsed,
+          }
+        )
+        currentPosition = end
+      }
+    }
+    return fragments
+  }
+
+  private async parseText(text: string): Promise<JpdbParseResult> {
+    const cacheKey = this.getTextCacheKey(text)
+    const cachedResult = this.jpdbCache.retrieveItemValue(cacheKey)
+    if (cachedResult) {
+      console.log(`JPDB cache hit for ${cacheKey}`)
+      return cachedResult
+    }
+    console.log(`JPDB cache miss for ${cacheKey}`)
+    const parseResult = await this.fetchParseText(text)
+    this.jpdbCache.storeExpiringItem(cacheKey, parseResult, 60 * 5)
+    return parseResult
+  }
+
+  private async fetchParseText(text: string): Promise<JpdbParseResult> {
+    await this.rateLimiter.removeTokens(1)
+    const response = await fetch("https://jpdb.io/api/v1/parse", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + await this.getJpdbApiKey(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+          text: text,
+          token_fields: JPDB_TOKEN_API_FIELDS,
+          vocabulary_fields: JPDB_VOCABULARY_API_FIELDS,
+        }
+      ),
+    })
+    const parseResult = await response.json() as JpdbPackedParseResult
+    return {
+      tokens: parseResult.tokens.map(it => unpackJpdbToken(it))
+        .sort((a, b) => a.position - b.position),
+      vocabulary: parseResult.vocabulary.map(it => unpackJpdbVocabulary(it)),
     }
   }
 
-  private async fetchJpdbHtmlFor(text: string): Promise<string> {
-    console.log("Sending request to JPDB")
-    const response = await fetch("https://jpdb.io/search?q=" + text, {
-      headers: {
-        cookie: "sid=" + await this.getJpdbSid(),
-      },
-    })
-    return await response.text()
+  private getTextCacheKey(text: string): string {
+    return crypto.createHash("sha256").update(text).digest("hex")
   }
 
-  private async getJpdbSid() {
-    return (await this.settingsService.getAppSettings()).jpdbSid
+  private async getJpdbApiKey() {
+    return (await this.settingsService.getAppSettings()).jpdbApiKey
   }
 }
 

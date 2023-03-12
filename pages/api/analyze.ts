@@ -2,21 +2,13 @@ import type {NextApiRequest, NextApiResponse} from "next"
 import {services} from "../../service/Services"
 import {TextAnalysisResult} from "../../model/TextAnalysisResults"
 
-let lastRequest = 0
-const requestIntervalMs = 1000
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<TextAnalysisResult[]>
 ) {
-  if (Date.now() - lastRequest < requestIntervalMs) {
-    res.status(429).end()
-    return
-  }
   if (req.method === "GET") {
     const text = req.query.text as string || ""
-    const results = await services.jpdbService.analyzeText(text, true)
-    lastRequest = Date.now()
+    const results = await services.jpdbService.analyzeText(text)
     res.status(200).json(results)
   } else {
     res.status(400).end()

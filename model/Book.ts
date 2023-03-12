@@ -7,8 +7,8 @@ export interface Book {
   readonly infoFile: string,
   readonly readerSettingsFile: string,
   readonly info: BookInfo,
-  readonly images: string[],
-  readonly ocrFiles: string[],
+  readonly images: readonly string[],
+  readonly ocrFiles: readonly string[],
   readonly ocrDone: boolean,
 }
 

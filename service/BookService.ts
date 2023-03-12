@@ -10,6 +10,7 @@ import {OcrLine, OcrParagraph, OcrSymbol, PageOcrResults, toPackedOcrSymbol} fro
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {calculateBoundingRectangle} from "../util/OverlayUtil"
 import {TextOrientation} from "../model/TextOrientation"
+import {Dimensions} from "../model/Dimensions"
 import IWord = google.cloud.vision.v1.IWord
 import IVertex = google.cloud.vision.v1.IVertex
 
@@ -20,7 +21,7 @@ export class BookService {
   private readonly storageService: StorageService
   private readonly visionClient = new vision.ImageAnnotatorClient()
 
-  private books: Book[] = []
+  private books: Map<string, Book> = new Map()
   private ocrJob = emptyOcrJob()
 
   constructor(storageService: StorageService) {
@@ -34,14 +35,14 @@ export class BookService {
 
   async getAllBooks() {
     await this.initialScanBooksIfNeeded()
-    return this.books
+    return Array.from(this.books.values())
       .map(it => bookToBookResponse(it))
       .sort((a, b) => Number(b.pinned) - Number(a.pinned))
   }
 
   async initialScanBooksIfNeeded() {
     try {
-      if (this.books.length === 0) {
+      if (this.books.size === 0) {
         await this.scanBooks()
       }
     } catch (e) {
@@ -54,14 +55,14 @@ export class BookService {
       console.log("Ignoring book scan request while OCR is running")
       return
     }
-    this.books = await this.storageService.readBooks()
+    this.books = new Map((await this.storageService.readBooks())
+      .map(it => [it.info.id, it]))
   }
 
   async ocrBook(bookId: string) {
     if (this.ocrJob.running) {
       throw new RequestError("OCR is already running")
     }
-    await this.initialScanBooksIfNeeded()
     this.ocrJob.running = true
     try {
       const book = await this.getBookById(bookId)
@@ -71,7 +72,7 @@ export class BookService {
 
       const {errors} = await PromisePool
         .withConcurrency(8)
-        .for(book.images)
+        .for([...book.images])
         .onTaskFinished((item, pool) => {
           console.log(`OCR progress: ${pool.processedPercentage().toFixed(2)}%`)
         })
@@ -127,8 +128,18 @@ export class BookService {
     return path.join(book.baseDir, book.images[page])
   }
 
+  async getBookPageDimensions(bookId: string, page: number): Promise<Dimensions> {
+    const book = await this.getBookById(bookId)
+    this.checkBookPageInRange(book, page)
+    const dimensions = await sizeOf(path.join(book.baseDir, book.images[page]))
+    return {
+      w: dimensions.width,
+      h: dimensions.height,
+    }
+  }
+
   async getBookOcrResults(bookId: string, page: number): Promise<PageOcrResults> {
-    const {book, annotations} = await this.getBookOcrAnnotations(bookId, page)
+    const {annotations} = await this.getBookOcrAnnotations(bookId, page)
     const blocks = annotations.pages?.[0].blocks || []
     const paragraphs = blocks
       .flatMap(block => block?.paragraphs)
@@ -142,12 +153,9 @@ export class BookService {
       .flatMap(it => it.symbols)
       .map(it => it[0].length)
       .reduce((a, b) => a + b, 0)
-    const dimensions = await sizeOf(path.join(book.baseDir, book.images[page]))
     return {
       paragraphs: paragraphs,
       characterCount: characterCount,
-      width: dimensions.width,
-      height: dimensions.height,
     }
   }
 
@@ -256,7 +264,7 @@ export class BookService {
 
   async getBookById(bookId: string): Promise<Book> {
     await this.initialScanBooksIfNeeded()
-    const book = this.books.find(it => it.info.id === bookId)
+    const book = this.books.get(bookId)
     if (!book) {
       throw new RequestError(`No such book with ID ${bookId}`)
     }

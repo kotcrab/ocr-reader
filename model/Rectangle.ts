@@ -1,6 +1,6 @@
 export interface Rectangle {
-  x: number,
-  y: number,
-  w: number,
-  h: number,
+  readonly x: number,
+  readonly y: number,
+  readonly w: number,
+  readonly h: number,
 }

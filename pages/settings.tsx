@@ -28,9 +28,9 @@ interface Props {
   defaultAppSettings: AppSettings,
 }
 
-export default function TextHooker({appSettings, defaultAppSettings}: Props) {
+export default function Settings({appSettings, defaultAppSettings}: Props) {
   const [readingTimerEnabled, setReadingTimerEnabled] = useState(appSettings.readingTimerEnabled)
-  const [jpdbSid, setJpdbSid] = useState(appSettings.jpdbSid)
+  const [jpdbApiKey, setJpdbApiKey] = useState(appSettings.jpdbApiKey)
   const [textHookerWebSocketUrl, setTextHookerWebSocketUrl] = useState(appSettings.textHookerWebSocketUrl)
 
   const [settingsSaved, setSettingsSaved] = useState(false)
@@ -46,7 +46,7 @@ export default function TextHooker({appSettings, defaultAppSettings}: Props) {
     }
     await Api.updateAppSettings({
       readingTimerEnabled: readingTimerEnabled,
-      jpdbSid: jpdbSid,
+      jpdbApiKey: jpdbApiKey,
       textHookerWebSocketUrl: textHookerWebSocketUrl,
     })
     setSettingsSaved(true)
@@ -79,12 +79,12 @@ export default function TextHooker({appSettings, defaultAppSettings}: Props) {
               </VStack>
               <Text fontSize="xl">Integrations</Text>
               <FormControl>
-                <FormLabel>JPDB SID</FormLabel>
+                <FormLabel>JPDB API key</FormLabel>
                 <HStack>
-                  <Input value={jpdbSid} onChange={event => setJpdbSid(event.target.value)}/>
-                  <RestoreDefaultValueButton onClick={() => setJpdbSid(defaultAppSettings.jpdbSid)}/>
+                  <Input value={jpdbApiKey} onChange={event => setJpdbApiKey(event.target.value)}/>
+                  <RestoreDefaultValueButton onClick={() => setJpdbApiKey(defaultAppSettings.jpdbApiKey)}/>
                 </HStack>
-                <FormHelperText>Value of the JPDB SID cookie, used for words highlighting.</FormHelperText>
+                <FormHelperText>Value of the JPDB API key, used for text parsing and words highlighting.</FormHelperText>
               </FormControl>
               <FormControl>
                 <FormLabel>Text hooker WebSocket URL</FormLabel>

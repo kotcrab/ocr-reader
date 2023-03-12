@@ -1,12 +1,12 @@
-import {WordStatus} from "./WordStatus"
 import {Rectangle} from "./Rectangle"
+import {JpdbCardState} from "./JpdbCardState"
 
 export interface AnalysisResults {
-  readonly results: AnalysisResult[],
+  readonly results: readonly AnalysisResult[],
 }
 
 export interface AnalysisResult {
   readonly fragment: string,
-  readonly status: WordStatus,
-  readonly bounds: Rectangle[],
+  readonly state: JpdbCardState,
+  readonly bounds: readonly Rectangle[],
 }

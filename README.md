@@ -3,7 +3,8 @@
 OCR Reader is an app for organizing and reading scans of physical Japanese books and manga.
 Each page is run through OCR (optical character recognition) which allows for selecting text
 and use of pop-up dictionaries such as [yomichan](https://github.com/FooSoft/yomichan).
-Reader also integrates with [JPDB](https://jpdb.io/) to automatically highlight unknown words.
+Reader also integrates with [JPDB](https://jpdb.io/) to automatically parse the text and
+highlight unknown words.
 
 There is also a text hooker page, it can also highlight unknown words thanks to the JPDB integration.
 
@@ -18,7 +19,7 @@ There is also a text hooker page, it can also highlight unknown words thanks to 
   - Must be either an account with billing activated or in a trial period.
   - 1000 images per month can be processed for free, then $1.50 for each 1000 images, see [details](https://cloud.google.com/vision/pricing).
   - Account is not required if you import OCR data created by someone else or if you just want to use the text hooker.
-- Optionally, [JPDB](https://jpdb.io/) SRS account for highlighting unknown words.
+- Optionally, [JPDB](https://jpdb.io/) SRS account for text parsing and highlighting unknown words.
 
 ### Google Cloud Preparation
 
@@ -32,7 +33,7 @@ account and download its JSON key file (**never share this file with anyone**).
    - Click on the newly created account and go to the "Keys" tab.
    - Press "Add key" then "Create new key".
    - JSON should be selected, press "Create".
-   - JSON file will be downloaded automatically, you will need this file in the next steps.
+   - JSON key file will be downloaded automatically, you will need it in the next steps.
 
 ### Installation
 
@@ -61,10 +62,11 @@ be http://localhost:3000. Open this address in your browser to access the app.
 
 ### JPDB Configuration
 
-If you have a JPDB account and want to use it for unknown words highlighting:
-1. In app go to the "Settings" page.
-2. Using your browser devtools get the SID cookie value from the JPDB page.
-3. Paste the SID value into the "JPDB SID" field and save the settings.
+If you have a JPDB account and want to use it for parsing text and words highlighting:
+1. Go to the [JPDB settings](https://jpdb.io/settings) page.
+2. Scroll to the bottom and copy your API key.
+3. In OCR Reader go to the "Settings" page.
+4. Paste your API key into the "JPDB API key" field and save the settings.
 
 ### Reader
 
@@ -118,13 +120,14 @@ In reader mode, you can:
 
 ### Text hooker
 
-Text hooker page works with text extractors and tools with support for WebSocket server, those are:
+Text hooker page works with text extractors and apps with support for WebSocket server, those are:
 - [Textractor](https://github.com/Artikash/Textractor)
   - [TextractorSender](https://github.com/KamWithK/TextractorSender) extension required.
 - [Agent](https://github.com/0xDC00/agent)
   - Server must be manually enabled in settings.
-- [mpv_websocket](https://github.com/kuroahna/mpv_websocket)
-  - You must either edit the Lua script to use port 9001 or configure OCR Reader to use port 6677.
+- [mpv](https://mpv.io/)
+  - [mpv_websocket](https://github.com/kuroahna/mpv_websocket) plugin required. You must either edit the Lua script
+    to use port 9001 or configure OCR Reader to use port 6677.
 
 Other apps might work too but are not tested.
 
@@ -133,10 +136,4 @@ WebSocket is connected after opening the text hooker page.
 
 You can also just paste text directly into the page even when the WebSocket is disconnected.
 
-If you have configured JPDB then click the `Analyze with JPDB (experimental)` checkbox to enable words highlighting.
-The page tries to rate limit and won't send more than 1 request per second to JPDB.
-
-### Maintenance
-
-JPDB results are cached in `data/.jpdb-cache`, currently it's not automatically cleared. You can safely delete
-it when app is not running.
+If you have configured JPDB then click the `Analyze with JPDB` checkbox to enable words highlighting.

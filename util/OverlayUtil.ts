@@ -32,7 +32,7 @@ export function calculateBoundingRectangle(vertices: IVertex[]): Rectangle {
   }
 }
 
-export function pointsToPolygonPoints(points: number[], scaleX: number, scaleY: number): string {
+export function pointsToPolygonPoints(points: readonly number[], scaleX: number, scaleY: number): string {
   let polygon = ""
   for (let i = 0; i < points.length; i += 2) {
     polygon += `${points[i] / scaleX},${points[i + 1] / scaleY},`

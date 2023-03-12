@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react"
 import {MdPause, MdPlayArrow, MdSettingsBackupRestore, MdTimer} from "react-icons/md"
 import {TOOLTIP_OPEN_DELAY} from "../util/Util"
-import {ReadingTimerUnitType} from "../model/ReadingTimerUnitType"
+import {ReadingUnitType} from "../model/ReadingUnitType"
 
 const SECOND = 1000
 const MINUTE = SECOND * 60
@@ -24,7 +24,7 @@ const HOUR = MINUTE * 60
 interface Props {
   charactersRead: number
   unitsRead: number
-  unitType: ReadingTimerUnitType,
+  unitType: ReadingUnitType,
   onReset: () => void
 }
 
@@ -131,11 +131,11 @@ function getTimerText(time: number) {
     .join(":")
 }
 
-function getUnitName(units: number, type: ReadingTimerUnitType) {
+function getUnitName(units: number, type: ReadingUnitType) {
   switch (type) {
-    case ReadingTimerUnitType.Pages:
+    case ReadingUnitType.Pages:
       return units === 1 ? "page" : "pages"
-    case ReadingTimerUnitType.Entries:
+    case ReadingUnitType.Entries:
       return units === 1 ? "entry" : "entries"
   }
   throw new Error("Unhandled timer unit name")

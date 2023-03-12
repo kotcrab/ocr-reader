@@ -19,7 +19,7 @@ export class SettingsService {
   getDefaultAppSettings(): AppSettings {
     return {
       readingTimerEnabled: true,
-      jpdbSid: "",
+      jpdbApiKey: "",
       textHookerWebSocketUrl: "ws://127.0.0.1:9001",
     }
   }
@@ -45,7 +45,7 @@ export class SettingsService {
     const data = JSON.parse(await fs.promises.readFile(this.appSettingsFile, "utf8"))
     return {
       readingTimerEnabled: data.readingTimerEnabled ?? defaultSettings.readingTimerEnabled,
-      jpdbSid: data.jpdbSid ?? defaultSettings.jpdbSid,
+      jpdbApiKey: data.jpdbApiKey ?? defaultSettings.jpdbApiKey,
       textHookerWebSocketUrl: data.textHookerWebSocketUrl ?? defaultSettings.textHookerWebSocketUrl,
     }
   }
