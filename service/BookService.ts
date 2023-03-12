@@ -148,7 +148,6 @@ export class BookService {
       characterCount: characterCount,
       width: dimensions.width,
       height: dimensions.height,
-      pages: book.images.length,
     }
   }
 

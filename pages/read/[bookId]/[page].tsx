@@ -24,6 +24,7 @@ import {Api} from "../../../util/Api"
 
 interface Props {
   title: string,
+  pages: number,
   ocr: PageOcrResults,
   jpdbEnabled: boolean,
   readerSettings: ReaderSettings,
@@ -38,7 +39,7 @@ function getParams(params: ParsedUrlQuery) {
   }
 }
 
-export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, appSettings}: Props) {
+export default function ReadBookPage({title, pages, ocr, jpdbEnabled, readerSettings, appSettings}: Props) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
@@ -129,7 +130,7 @@ export default function ReadBookPage({title, ocr, jpdbEnabled, readerSettings, a
             <GridItem justifySelf="center">
               <PageSwitcher
                 page={page}
-                pages={ocr.pages}
+                pages={pages}
                 readingDirection={readingDirection}
                 onChange={(newPage) => changePage(newPage)}
               />
@@ -201,6 +202,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   return {
     props: {
       title: book.title,
+      pages: book.images.length,
       ocr: ocr,
       jpdbEnabled: await services.jpdbService.isEnabled(),
       readerSettings: readerSettings,

@@ -6,7 +6,6 @@ export interface PageOcrResults {
   readonly characterCount: number,
   readonly width: number,
   readonly height: number,
-  readonly pages: number,
 }
 
 export interface OcrParagraph {
