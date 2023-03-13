@@ -40,3 +40,7 @@ export function fromPackedOcrSymbol(packedOcrSymbol: PackedOcrSymbol): OcrSymbol
     },
   }
 }
+
+export function textFromPackedOcrSymbol(packedOcrSymbol: PackedOcrSymbol): string {
+  return packedOcrSymbol[0]
+}

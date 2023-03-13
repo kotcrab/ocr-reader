@@ -32,6 +32,27 @@ export function calculateBoundingRectangle(vertices: IVertex[]): Rectangle {
   }
 }
 
+export function unionRectangles(rectangles: Rectangle[]): Rectangle {
+  let minX = Number.MAX_VALUE
+  let maxX = -Number.MAX_VALUE
+  let minY = Number.MAX_VALUE
+  let maxY = -Number.MAX_VALUE
+
+  for (const r of rectangles) {
+    minX = Math.min(minX, r.x)
+    maxX = Math.max(maxX, r.x + r.w)
+    minY = Math.min(minY, r.y)
+    maxY = Math.max(maxY, r.y + r.h)
+  }
+
+  return {
+    x: minX,
+    y: minY,
+    w: maxX - minX,
+    h: maxY - minY,
+  }
+}
+
 export function pointsToPolygonPoints(points: readonly number[], scaleX: number, scaleY: number): string {
   let polygon = ""
   for (let i = 0; i < points.length; i += 2) {

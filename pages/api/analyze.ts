@@ -4,7 +4,7 @@ import {TextAnalysisResult} from "../../model/TextAnalysisResults"
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<TextAnalysisResult[]>
+  res: NextApiResponse<TextAnalysisResult>
 ) {
   if (req.method === "GET") {
     const text = req.query.text as string || ""

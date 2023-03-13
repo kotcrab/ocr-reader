@@ -25,7 +25,7 @@ export default async function handler(
   if (ocr) {
     res.status(200).json(await services.bookService.getBookOcrResults(bookId, page))
   } else if (analyze) {
-    res.status(200).json(await services.jpdbService.analyze(bookId, page))
+    res.status(200).json(await services.jpdbService.analyzeBookPage(bookId, page))
   } else {
     const imagePath = await services.bookService.getBookImage(bookId, page)
     const stat = await fs.promises.stat(imagePath)

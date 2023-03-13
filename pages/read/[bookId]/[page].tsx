@@ -12,7 +12,6 @@ import PageSwitcher from "../../../components/PageSwitcher"
 import {readBookRoute} from "../../../util/Route"
 import {bookAnalyzePageUrl, bookPageUrl} from "../../../util/Url"
 import SvgOverlay from "../../../components/SvgOverlay"
-import {AnalysisResults} from "../../../model/AnalysisResults"
 import {ParsedUrlQuery} from "querystring"
 import ReaderMenu from "../../../components/ReaderMenu"
 import ExitButton from "../../../components/ExitButton"
@@ -22,6 +21,7 @@ import {AppSettings} from "../../../model/AppSettings"
 import {ReadingUnitType} from "../../../model/ReadingUnitType"
 import {Api} from "../../../util/Api"
 import {Dimensions} from "../../../model/Dimensions"
+import {ImageAnalysisResult} from "../../../model/ImageAnalysisResults"
 
 interface Props {
   title: string,
@@ -66,7 +66,7 @@ export default function ReadBookPage(
 
   const [fontSizeHover, setFontSizeHover] = useState(false)
   const [minimumConfidenceHover, setMinimumConfidenceHover] = useState(false)
-  const [analysis, setAnalysis] = useState<AnalysisResults | undefined>(undefined)
+  const [analysis, setAnalysis] = useState<ImageAnalysisResult | undefined>(undefined)
   const [analysisStarted, setAnalysisStarted] = useState(false)
 
   const [charactersRead, setCharactersRead] = useState(0)

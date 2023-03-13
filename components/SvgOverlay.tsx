@@ -3,16 +3,16 @@ import SvgParagraph from "./SvgParagraph"
 import * as React from "react"
 import {useEffect, useState} from "react"
 import {PageOcrResults} from "../model/PageOcrResults"
-import {AnalysisResults} from "../model/AnalysisResults"
 import SvgAnalysisOverlay from "./SvgAnalysisOverlay"
 import {TextOrientation} from "../model/TextOrientation"
 import {isChromiumBased} from "../util/Util"
 import {Dimensions} from "../model/Dimensions"
+import {ImageAnalysisResult} from "../model/ImageAnalysisResults"
 
 interface Props {
   ocr: PageOcrResults,
   pageDimensions: Dimensions,
-  analysis?: AnalysisResults,
+  analysis?: ImageAnalysisResult,
   showParagraphs: boolean,
   showText: boolean,
   autoFontSize: boolean,
