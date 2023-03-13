@@ -10,6 +10,7 @@ import ReadingTimer from "../components/ReadingTimer"
 import {ReadingUnitType} from "../model/ReadingUnitType"
 import {AppSettings} from "../model/AppSettings"
 import {JpdbCardState} from "../model/JpdbCardState"
+import {getJpdbVocabularyCardStates} from "../model/JpdbVocabulary"
 
 interface Props {
   jpdbEnabled: boolean,
@@ -87,8 +88,7 @@ export default function TextHooker({jpdbEnabled, appSettings}: Props) {
       <main>
         <Flex p={4} align="stretch" direction="column">
           <NavBar extraEndElement={
-            appSettings.readingTimerEnabled ?
-            <ReadingTimer
+            appSettings.readingTimerEnabled ? <ReadingTimer
               charactersRead={charactersRead}
               unitsRead={entriesRead}
               unitType={ReadingUnitType.Entries}
@@ -117,7 +117,7 @@ interface AnalyzedTextProps {
 }
 
 function AnalyzedText({text, analyze}: AnalyzedTextProps) {
-  const [analysis, setAnalysis] = useState<TextAnalysisResult[] | undefined>(undefined)
+  const [analysis, setAnalysis] = useState<TextAnalysisResult | undefined>(undefined)
 
   useEffect(() => {
     async function analyzeMessage() {
@@ -136,8 +136,10 @@ function AnalyzedText({text, analyze}: AnalyzedTextProps) {
 
 
   return <Text style={{whiteSpace: "pre-wrap"}}>
-    {analysis ? analysis.map((it, index) =>
-        <span key={index} style={{color: getColorForState(it.state)}}>{it.fragment}</span>)
+    {analysis ? analysis.tokens.map((it, index) => {
+        const color = getColorForState(getJpdbVocabularyCardStates(analysis.vocabulary, it.vocabularyIndex))
+        return <span key={index} style={{color: color}}>{it.text}</span>
+      })
       : text
     }
   </Text>
@@ -145,8 +147,8 @@ function AnalyzedText({text, analyze}: AnalyzedTextProps) {
 
 const MemoizedAnalyzedText = React.memo(AnalyzedText, () => true)
 
-function getColorForState(state: JpdbCardState) {
-  switch (state) {
+function getColorForState(states: JpdbCardState[]) {
+  switch (states[0]) {
     case JpdbCardState.Learning:
       return "#68D391"
     case JpdbCardState.Locked:

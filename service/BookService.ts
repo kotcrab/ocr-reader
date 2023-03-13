@@ -213,7 +213,7 @@ export class BookService {
     }
   }
 
-  async getBookOcrAnnotations(bookId: string, page: number) {
+  private async getBookOcrAnnotations(bookId: string, page: number) {
     const book = await this.getBookById(bookId)
     this.checkBookPageInRange(book, page)
     const ocrName = this.storageService.getOcrName(book.images[page])

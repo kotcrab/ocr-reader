@@ -1,18 +1,16 @@
 import {BookService} from "./BookService"
-import {google} from "@google-cloud/vision/build/protos/protos"
-import {AnalysisResults} from "../model/AnalysisResults"
 import * as crypto from "crypto"
-import {TextAnalysisResult} from "../model/TextAnalysisResults"
-import {calculateBoundingRectangle} from "../util/OverlayUtil"
+import {TextAnalysisResult, TextAnalysisToken} from "../model/TextAnalysisResults"
 import {SettingsService} from "./SettingsService"
 import {JpdbCache} from "./JpdbCache"
 import {RateLimiter} from "limiter"
 import {JPDB_TOKEN_API_FIELDS, unpackJpdbToken} from "../model/JpdbToken"
 import {JPDB_VOCABULARY_API_FIELDS, unpackJpdbVocabulary} from "../model/JpdbVocabulary"
 import {JpdbPackedParseResult, JpdbParseResult} from "../model/JpdbParseResult"
-import {JpdbCardState} from "../model/JpdbCardState"
-import ISymbol = google.cloud.vision.v1.ISymbol
-import IVertex = google.cloud.vision.v1.IVertex
+import {fromPackedOcrSymbol, OcrParagraph, textFromPackedOcrSymbol} from "../model/PageOcrResults"
+import {ImageAnalysisFragment, ImageAnalysisParagraph, ImageAnalysisResult} from "../model/ImageAnalysisResults"
+import {Rectangle} from "../model/Rectangle"
+import {unionRectangles} from "../util/OverlayUtil"
 
 
 export class JpdbService {
@@ -32,53 +30,67 @@ export class JpdbService {
     return (await this.getJpdbApiKey()).length > 0
   }
 
-  async analyze(bookId: string, page: number): Promise<AnalysisResults> {
-    const {annotations} = await this.bookService.getBookOcrAnnotations(bookId, page)
-    const ocrBlocks = annotations.pages?.[0].blocks || []
-    // TODO should separate paragraphs instead of joining everything
-    const pageSymbols = ocrBlocks
-      .flatMap(block => block.paragraphs)
-      .flatMap(paragraph => paragraph?.words)
-      .flatMap(words => words?.symbols || [])
-      .flatMap(symbol => mapSymbol(symbol))
-      .filter(it => it.text && it.vertices)
-    const pageText = pageSymbols.map(it => it.text).join("")
+  async analyzeBookPage(bookId: string, page: number): Promise<ImageAnalysisResult> {
+    const {paragraphs} = await this.bookService.getBookOcrResults(bookId, page)
 
-    const results = (await this.analyzeText(pageText)).map(it => {
-      const symbols = pageSymbols.splice(0, it.fragment.length)
-      const vertices = this.partitionSymbolsVertices(symbols)
-      const bounds = vertices.map(it => calculateBoundingRectangle(it))
-      return {
-        fragment: it.fragment,
-        state: it.state,
-        bounds: bounds,
+    const pageText = paragraphs
+      .map(it =>
+        it.lines
+          .flatMap(it => it.symbols)
+          .map(it => textFromPackedOcrSymbol(it))
+          .filter(it => it != "\n")
+          .join("")
+      )
+      .join("\n")
+
+    const {tokens, vocabulary} = await this.analyzeText(pageText)
+
+    const imageParagraphs: ImageAnalysisParagraph[] = []
+    let pendingImageFragments: ImageAnalysisFragment[] = []
+
+    function commitPendingImageFragments() {
+      if (pendingImageFragments.length == 0) {
+        return
+      }
+      imageParagraphs.push({
+        confidence: boundsStream.currentParagraphConfidence(),
+        fragments: pendingImageFragments,
+      })
+      pendingImageFragments = []
+    }
+
+    const boundsStream = new OcrBoundsStream(paragraphs)
+    tokens.forEach(token => {
+      if (token.text == "\n") {
+        commitPendingImageFragments()
+        boundsStream.nextParagraph()
+      } else {
+        const bounds = boundsStream.nextBounds(token.text.length)
+        pendingImageFragments.push({
+          vocabularyIndex: token.vocabularyIndex,
+          bounds: bounds,
+        })
       }
     })
-    return {results: results}
+    commitPendingImageFragments()
+
+    return {
+      paragraphs: imageParagraphs,
+      vocabulary: vocabulary,
+    }
   }
 
-  private partitionSymbolsVertices(symbols: MappedSymbol[]): IVertex[][] {
-    const vertices: IVertex[][] = [[]]
-    for (const symbol of symbols) {
-      vertices[vertices.length - 1].push(...symbol.vertices)
-      if (symbol.detectedBreak) {
-        vertices.push([])
-      }
-    }
-    if (vertices[vertices.length - 1].length == 0) {
-      vertices.pop()
-    }
-    return vertices
-  }
-
-  async analyzeText(text: string): Promise<TextAnalysisResult[]> {
+  async analyzeText(text: string): Promise<TextAnalysisResult> {
     if (!text) {
-      return []
+      return {
+        tokens: [],
+        vocabulary: [],
+      }
     }
     const parseResult = await this.parseText(text)
     const tokens = parseResult.tokens
 
-    const fragments: TextAnalysisResult[] = []
+    const fragments: TextAnalysisToken[] = []
     let currentPosition = 0
     let currentToken = 0
     while (currentPosition < text.length) {
@@ -86,8 +98,8 @@ export class JpdbService {
         const token = tokens[currentToken]
         const end = currentPosition + token.length
         fragments.push({
-            fragment: text.slice(currentPosition, end),
-            state: parseResult.vocabulary[token.vocabularyIndex].cardState[0],
+            text: text.slice(currentPosition, end),
+            vocabularyIndex: token.vocabularyIndex,
           }
         )
         currentPosition = end
@@ -95,14 +107,27 @@ export class JpdbService {
       } else {
         const end = currentToken < tokens.length ? tokens[currentToken].position : text.length
         fragments.push({
-            fragment: text.slice(currentPosition, end),
-            state: JpdbCardState.Unparsed,
+            text: text.slice(currentPosition, end),
+            vocabularyIndex: -1,
           }
         )
         currentPosition = end
       }
     }
-    return fragments
+    const normalizedFragments: TextAnalysisToken[] = fragments
+      .flatMap(it => {
+        if (it.text.includes("\n")) {
+          const parts = it.text.split(/(\n)/g)
+          return parts.map(part => ({text: part, vocabularyIndex: it.vocabularyIndex}))
+        } else {
+          return it
+        }
+      })
+      .filter(it => !!it.text)
+    return {
+      tokens: normalizedFragments,
+      vocabulary: parseResult.vocabulary,
+    }
   }
 
   private async parseText(text: string): Promise<JpdbParseResult> {
@@ -150,16 +175,51 @@ export class JpdbService {
   }
 }
 
-function mapSymbol(symbol: ISymbol): MappedSymbol {
-  return {
-    text: symbol.text || "",
-    vertices: symbol.boundingBox?.vertices || [],
-    detectedBreak: !!symbol.property?.detectedBreak,
-  }
-}
+class OcrBoundsStream {
+  private readonly paragraphs: readonly OcrParagraph[]
+  private paragraphIndex = 0
+  private lineIndex = 0
+  private symbolIndex = 0
 
-interface MappedSymbol {
-  text: string,
-  vertices: IVertex[],
-  detectedBreak: boolean,
+  constructor(paragraphs: readonly OcrParagraph[]) {
+    this.paragraphs = paragraphs
+  }
+
+  nextBounds(length: number): Rectangle[] {
+    const bounds: Rectangle[] = []
+    let pendingBounds: Rectangle[] = []
+
+    function commitPendingBounds() {
+      if (pendingBounds.length == 0) {
+        return
+      }
+      bounds.push(unionRectangles(pendingBounds))
+      pendingBounds = []
+    }
+
+    const paragraph = this.paragraphs[this.paragraphIndex]
+    for (let i = 0; i < length; i++) {
+      const line = paragraph.lines[this.lineIndex]
+      const symbol = fromPackedOcrSymbol(line.symbols[this.symbolIndex])
+      pendingBounds.push(symbol.bounds)
+      this.symbolIndex++
+      if (this.symbolIndex >= line.symbols.length) {
+        this.lineIndex++
+        this.symbolIndex = 0
+        commitPendingBounds()
+      }
+    }
+    commitPendingBounds()
+    return bounds
+  }
+
+  currentParagraphConfidence(): number {
+    return this.paragraphs[this.paragraphIndex].confidence
+  }
+
+  nextParagraph() {
+    this.paragraphIndex++
+    this.lineIndex = 0
+    this.symbolIndex = 0
+  }
 }
