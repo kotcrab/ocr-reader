@@ -29,8 +29,8 @@ interface Props {
   ocr: OcrPage,
   pageDimensions: Dimensions,
   jpdbEnabled: boolean,
+  readingTimerEnabled: boolean,
   readerSettings: ReaderSettings,
-  appSettings: AppSettings,
 }
 
 function getParams(params: ParsedUrlQuery) {
@@ -48,8 +48,8 @@ export default function ReadBookPage(
     ocr,
     pageDimensions,
     jpdbEnabled,
+    readingTimerEnabled,
     readerSettings,
-    appSettings,
   }: Props) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
@@ -151,7 +151,7 @@ export default function ReadBookPage(
                 <Box pr={4}>
                   <ZoomSelector zoom={zoom} onChange={v => setZoom(v)}/>
                 </Box>
-                {appSettings.readingTimerEnabled ?
+                {readingTimerEnabled ?
                   <ReadingTimer
                     charactersRead={charactersRead}
                     unitsRead={pagesRead}
@@ -220,8 +220,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       ocr: ocr,
       pageDimensions: pageDimensions,
       jpdbEnabled: await services.jpdbService.isEnabled(),
+      readingTimerEnabled: appSettings.readingTimerEnabled,
       readerSettings: readerSettings,
-      appSettings: appSettings,
     },
   }
 }
