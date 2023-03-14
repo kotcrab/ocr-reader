@@ -1,37 +1,43 @@
-import {scaleRectangle} from "../util/OverlayUtil"
+import {effectiveTextOrientation, scaleRectangle} from "../util/OverlayUtil"
 import * as React from "react"
-import {JpdbCardState} from "../model/JpdbCardState"
-import {ImageAnalysis} from "../model/ImageAnalysis"
-import {getJpdbVocabularyCardStates} from "../model/JpdbVocabulary"
 import {useContext} from "react"
+import {JpdbCardState} from "../model/JpdbCardState"
+import {ImageAnalysisParagraph} from "../model/ImageAnalysis"
+import {getJpdbVocabularyCardStates, JpdbVocabulary} from "../model/JpdbVocabulary"
 import {SvgOverlayContext} from "../util/SvgOverlayContext"
+import SvgSymbol from "./SvgSymbol"
 
 interface Props {
-  analysis: ImageAnalysis,
+  paragraphs: readonly ImageAnalysisParagraph[],
+  vocabulary: readonly JpdbVocabulary[],
+  showAnalysis: boolean,
 }
 
-export default function SvgAnalysis({analysis}: Props) {
-  const {scaleX, scaleY} = useContext(SvgOverlayContext)
+export default function SvgAnalysis({paragraphs, vocabulary, showAnalysis}: Props) {
+  const {scaleX, scaleY, textOrientation} = useContext(SvgOverlayContext)
 
   return <>{
-    analysis.paragraphs.flatMap((paragraph, paragraphIndex) =>
-      paragraph.fragments.flatMap((fragment, fragmentIndex) =>
-        fragment.bounds.flatMap((rectangle, index) => {
-          const bounds = scaleRectangle(rectangle, scaleX, scaleY)
-          const color = getColorForState(getJpdbVocabularyCardStates(analysis.vocabulary, fragment.vocabularyIndex))
-          if (!color) {
-            return null
-          }
-          return <rect
-            key={`a-${paragraphIndex}-${fragmentIndex}-${index}`}
+    paragraphs.flatMap(paragraph =>
+      paragraph.fragments.flatMap((fragment, fragmentIndex) => {
+        const bounds = scaleRectangle(fragment.bounds, scaleX, scaleY)
+        const color = getColorForState(getJpdbVocabularyCardStates(vocabulary, fragment.vocabularyIndex))
+        return <g key={`ag-${paragraph.id}-${fragmentIndex}`}>
+          {color && showAnalysis ? <rect
             x={bounds.x}
             y={bounds.y}
             width={bounds.w}
             height={bounds.h}
             style={{fill: color}}
-          />
-        })
-      )
+          /> : null}
+          {fragment.symbols.map((symbol, symbolIndex) =>
+            <SvgSymbol
+              key={`as-${paragraph.id}-${fragmentIndex}-${symbolIndex}`}
+              packedSymbol={symbol}
+              textOrientation={effectiveTextOrientation(textOrientation, fragment.orientation)}
+            />
+          )}
+        </g>
+      })
     )
   }</>
 }

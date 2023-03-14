@@ -3,6 +3,7 @@
   - If you are using this integration you will need to go the settings and enter your JPDB API key.
     SID cookie is no longer used.
   - The `data/.jpdb-cache` directory is no longer used and should be deleted. Cache is now in memory.
+  - Confidence selector now also works on analysis result
 
 #### Version 1.2.2
 

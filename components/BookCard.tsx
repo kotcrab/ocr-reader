@@ -19,7 +19,6 @@ import BookMenu from "./BookMenu"
 import PinBookButton from "./PinBookButton"
 import {Api} from "../util/Api"
 import BookEditModal from "./BookEditModal"
-import {BookInfoUpdate} from "../model/Book"
 
 interface Props {
   book: BookResponse,

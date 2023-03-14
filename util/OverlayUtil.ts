@@ -1,6 +1,8 @@
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {Rectangle} from "../model/Rectangle"
 import IVertex = google.cloud.vision.v1.IVertex
+import {TextOrientationSetting} from "../model/TextOrientationSetting"
+import {TextOrientation, textOrientationFromSetting} from "../model/TextOrientation"
 
 export function scaleRectangle(rectangle: Rectangle, scaleX: number, scaleY: number): Rectangle {
   return {
@@ -59,4 +61,8 @@ export function pointsToPolygonPoints(points: readonly number[], scaleX: number,
     polygon += `${points[i] / scaleX},${points[i + 1] / scaleY},`
   }
   return polygon.substring(0, polygon.length - 1)
+}
+
+export function effectiveTextOrientation(setting: TextOrientationSetting, detected: TextOrientation) {
+  return setting == TextOrientationSetting.Auto ? detected : textOrientationFromSetting(setting)
 }

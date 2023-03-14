@@ -8,12 +8,10 @@ import SearchBar from "../components/SearchBar"
 import {useRouter} from "next/router"
 import {homeArchiveRoute, homeRoute, readBookRoute} from "../util/Route"
 import NavBar from "../components/NavBar"
-import BookEditModal from "../components/BookEditModal"
 import HomeMenu from "../components/HomeMenu"
 import {ParsedUrlQuery} from "querystring"
 import {GetServerSidePropsContext} from "next"
 import {Api} from "../util/Api"
-import {BookInfoUpdate} from "../model/Book"
 
 interface Props {
   books: BookResponse[],
