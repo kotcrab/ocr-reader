@@ -1,10 +1,9 @@
 import * as React from "react"
 import {useContext} from "react"
-import {TextOrientationSetting} from "../model/TextOrientationSetting"
 import {OcrLine} from "../model/OcrPage"
-import {textOrientationFromSetting} from "../model/TextOrientation"
 import SvgSymbol from "./SvgSymbol"
 import {SvgOverlayContext} from "../util/SvgOverlayContext"
+import {effectiveTextOrientation} from "../util/OverlayUtil"
 
 interface Props {
   lines: readonly OcrLine[],
@@ -16,13 +15,10 @@ export default function SvgParagraph({lines}: Props) {
   return <>{
     lines.flatMap((line, lineIndex) =>
       line.symbols.flatMap((packedSymbol, index) => {
-        const key = `s-${lineIndex}-${index}`
-        const effectiveTextOrientation = textOrientation == TextOrientationSetting.Auto
-          ? line.orientation : textOrientationFromSetting(textOrientation)
         return <SvgSymbol
-          key={key}
+          key={`s-${lineIndex}-${index}`}
           packedSymbol={packedSymbol}
-          textOrientation={effectiveTextOrientation}
+          textOrientation={effectiveTextOrientation(textOrientation, line.orientation)}
         />
       })
     )}</>

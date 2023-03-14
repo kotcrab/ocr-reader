@@ -189,9 +189,10 @@ export default function ReadBookPage(
             <SvgOverlay
               ocr={ocr}
               pageDimensions={pageDimensions}
-              analysis={showAnalysis ? analysis : undefined}
+              analysis={analysis}
               showParagraphs={showParagraphs || minimumConfidenceHover}
               showText={showText || fontSizeHover}
+              showAnalysis={showAnalysis}
               autoFontSize={autoFontSize}
               fontSize={fontSize}
               textOrientation={textOrientation}

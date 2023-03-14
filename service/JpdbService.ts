@@ -7,9 +7,8 @@ import {RateLimiter} from "limiter"
 import {JPDB_TOKEN_API_FIELDS, unpackJpdbToken} from "../model/JpdbToken"
 import {JPDB_VOCABULARY_API_FIELDS, unpackJpdbVocabulary} from "../model/JpdbVocabulary"
 import {JpdbPackedParseResult, JpdbParseResult} from "../model/JpdbParseResult"
-import {fromPackedOcrSymbol, OcrParagraph, textFromPackedOcrSymbol} from "../model/OcrPage"
-import {ImageAnalysisFragment, ImageAnalysisParagraph, ImageAnalysis} from "../model/ImageAnalysis"
-import {Rectangle} from "../model/Rectangle"
+import {fromPackedOcrSymbol, OcrParagraph, PackedOcrSymbol, textFromPackedOcrSymbol} from "../model/OcrPage"
+import {ImageAnalysis, ImageAnalysisFragment, ImageAnalysisParagraph} from "../model/ImageAnalysis"
 import {unionRectangles} from "../util/OverlayUtil"
 
 export class JpdbService {
@@ -51,24 +50,22 @@ export class JpdbService {
       if (pendingImageFragments.length == 0) {
         return
       }
+      const {id, confidence} = symbolStream.currentParagraph()
       imageParagraphs.push({
-        confidence: boundsStream.currentParagraphConfidence(),
+        id: id,
+        confidence: confidence,
         fragments: pendingImageFragments,
       })
       pendingImageFragments = []
     }
 
-    const boundsStream = new OcrBoundsStream(paragraphs)
+    const symbolStream = new OcrSymbolStream(paragraphs)
     tokens.forEach(token => {
       if (token.text == "\n") {
         commitPendingImageFragments()
-        boundsStream.nextParagraph()
+        symbolStream.nextParagraph()
       } else {
-        const bounds = boundsStream.nextBounds(token.text.length)
-        pendingImageFragments.push({
-          vocabularyIndex: token.vocabularyIndex,
-          bounds: bounds,
-        })
+        pendingImageFragments.push(...symbolStream.nextSymbols(token.text.length, token.vocabularyIndex))
       }
     })
     commitPendingImageFragments()
@@ -177,7 +174,7 @@ export class JpdbService {
   }
 }
 
-class OcrBoundsStream {
+class OcrSymbolStream {
   private readonly paragraphs: readonly OcrParagraph[]
   private paragraphIndex = 0
   private lineIndex = 0
@@ -187,36 +184,40 @@ class OcrBoundsStream {
     this.paragraphs = paragraphs
   }
 
-  nextBounds(length: number): Rectangle[] {
-    const bounds: Rectangle[] = []
-    let pendingBounds: Rectangle[] = []
+  nextSymbols(length: number, vocabularyIndex: number): ImageAnalysisFragment[] {
+    const fragments: ImageAnalysisFragment[] = []
+    let pendingSymbols: PackedOcrSymbol[] = []
 
-    function commitPendingBounds() {
-      if (pendingBounds.length == 0) {
+    const commitPendingSymbols = () => {
+      if (pendingSymbols.length == 0) {
         return
       }
-      bounds.push(unionRectangles(pendingBounds))
-      pendingBounds = []
+      fragments.push({
+        vocabularyIndex: vocabularyIndex,
+        bounds: unionRectangles(pendingSymbols.map(it => fromPackedOcrSymbol(it).bounds)),
+        orientation: this.paragraphs[this.paragraphIndex].lines[this.lineIndex].orientation,
+        symbols: pendingSymbols,
+      })
+      pendingSymbols = []
     }
 
     const paragraph = this.paragraphs[this.paragraphIndex]
     for (let i = 0; i < length; i++) {
       const line = paragraph.lines[this.lineIndex]
-      const symbol = fromPackedOcrSymbol(line.symbols[this.symbolIndex])
-      pendingBounds.push(symbol.bounds)
+      pendingSymbols.push(line.symbols[this.symbolIndex])
       this.symbolIndex++
       if (this.symbolIndex >= line.symbols.length) {
+        commitPendingSymbols()
         this.lineIndex++
         this.symbolIndex = 0
-        commitPendingBounds()
       }
     }
-    commitPendingBounds()
-    return bounds
+    commitPendingSymbols()
+    return fragments
   }
 
-  currentParagraphConfidence(): number {
-    return this.paragraphs[this.paragraphIndex].confidence
+  currentParagraph(): OcrParagraph {
+    return this.paragraphs[this.paragraphIndex]
   }
 
   nextParagraph() {

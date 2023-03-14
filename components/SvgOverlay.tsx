@@ -1,5 +1,4 @@
 import SvgPolygons from "./SvgPolygons"
-import SvgParagraph from "./SvgParagraph"
 import * as React from "react"
 import {useEffect, useState} from "react"
 import {OcrPage} from "../model/OcrPage"
@@ -9,6 +8,7 @@ import {isChromiumBased} from "../util/Util"
 import {Dimensions} from "../model/Dimensions"
 import {ImageAnalysis} from "../model/ImageAnalysis"
 import {SvgOverlayContext} from "../util/SvgOverlayContext"
+import SvgParagraph from "./SvgParagraph"
 
 interface Props {
   ocr: OcrPage,
@@ -16,6 +16,7 @@ interface Props {
   analysis?: ImageAnalysis,
   showParagraphs: boolean,
   showText: boolean,
+  showAnalysis: boolean,
   autoFontSize: boolean,
   fontSize: number,
   textOrientation: TextOrientationSetting,
@@ -29,6 +30,7 @@ export default function SvgOverlay(
     analysis,
     showParagraphs,
     showText,
+    showAnalysis,
     autoFontSize,
     fontSize,
     textOrientation,
@@ -38,6 +40,8 @@ export default function SvgOverlay(
   const scaleX = pageDimensions.w / sizeDiv
   const scaleY = pageDimensions.h / sizeDiv
   const filteredParagraphs = ocr.paragraphs
+    .filter(it => it.confidence > minimumConfidence / 100)
+  const filteredAnalysisParagraphs = analysis?.paragraphs
     .filter(it => it.confidence > minimumConfidence / 100)
   const paragraphPoints = filteredParagraphs.map(it => it.points)
 
@@ -64,10 +68,10 @@ export default function SvgOverlay(
              userSelect: "text",
            }}>
         {!showParagraphs || <SvgPolygons polygons={paragraphPoints}/>}
-        {analysis && <SvgAnalysis analysis={analysis}/>}
-        {filteredParagraphs.map(paragraph =>
-          <SvgParagraph key={paragraph.id} lines={paragraph.lines}/>
-        )}
+        {analysis ?
+          <SvgAnalysis paragraphs={filteredAnalysisParagraphs || []} vocabulary={analysis.vocabulary} showAnalysis={showAnalysis}/>
+          : filteredParagraphs.map(paragraph => <SvgParagraph key={paragraph.id} lines={paragraph.lines}/>)
+        }
       </svg>
     </SvgOverlayContext.Provider>
   )
