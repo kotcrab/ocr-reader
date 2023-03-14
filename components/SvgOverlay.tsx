@@ -13,7 +13,7 @@ import SvgParagraph from "./SvgParagraph"
 interface Props {
   ocr: OcrPage,
   pageDimensions: Dimensions,
-  analysis?: ImageAnalysis,
+  analysis: ImageAnalysis | undefined,
   showParagraphs: boolean,
   showText: boolean,
   showAnalysis: boolean,

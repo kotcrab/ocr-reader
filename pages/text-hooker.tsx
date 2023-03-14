@@ -14,17 +14,18 @@ import {getJpdbVocabularyCardStates} from "../model/JpdbVocabulary"
 
 interface Props {
   jpdbEnabled: boolean,
-  appSettings: AppSettings,
+  readingTimerEnabled: boolean,
+  textHookerWebSocketUrl: string,
 }
 
-export default function TextHooker({jpdbEnabled, appSettings}: Props) {
+export default function TextHooker({jpdbEnabled, readingTimerEnabled, textHookerWebSocketUrl}: Props) {
   const bottomDivRef = useRef<HTMLDivElement>(null)
   const [analyze, setAnalyze] = useState(false)
   const [textHistory, setTextHistory] = useState<string[]>([])
   const [charactersRead, setCharactersRead] = useState(0)
   const [entriesRead, setEntriesRead] = useState(0)
 
-  const {lastMessage, readyState} = useWebSocket(appSettings.textHookerWebSocketUrl)
+  const {lastMessage, readyState} = useWebSocket(textHookerWebSocketUrl)
 
   useEffect(() => {
     if (!lastMessage) {
@@ -88,7 +89,7 @@ export default function TextHooker({jpdbEnabled, appSettings}: Props) {
       <main>
         <Flex p={4} align="stretch" direction="column">
           <NavBar extraEndElement={
-            appSettings.readingTimerEnabled ? <ReadingTimer
+            readingTimerEnabled ? <ReadingTimer
               charactersRead={charactersRead}
               unitsRead={entriesRead}
               unitType={ReadingUnitType.Entries}
@@ -98,7 +99,7 @@ export default function TextHooker({jpdbEnabled, appSettings}: Props) {
             <Checkbox disabled={!jpdbEnabled} isChecked={analyze} onChange={(e) => setAnalyze(e.target.checked)}>
               Analyze with JPDB
             </Checkbox>
-            <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({appSettings.textHookerWebSocketUrl}). You
+            <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({textHookerWebSocketUrl}). You
               can also paste text directly into this page.</Text>
             {textHistory.map((text, idx) => (
               <MemoizedAnalyzedText key={idx} text={text} analyze={analyze}/>
@@ -162,10 +163,12 @@ function getColorForState(states: JpdbCardState[]) {
 }
 
 export async function getServerSideProps() {
+  const appSettings = await services.settingsService.getAppSettings()
   return {
     props: {
       jpdbEnabled: await services.jpdbService.isEnabled(),
-      appSettings: await services.settingsService.getAppSettings(),
+      readingTimerEnabled: appSettings.readingTimerEnabled,
+      textHookerWebSocketUrl: appSettings.textHookerWebSocketUrl,
     },
   }
 }

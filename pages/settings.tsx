@@ -81,7 +81,7 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
               <FormControl>
                 <FormLabel>JPDB API key</FormLabel>
                 <HStack>
-                  <Input value={jpdbApiKey} onChange={event => setJpdbApiKey(event.target.value)}/>
+                  <Input type="password" value={jpdbApiKey} onChange={event => setJpdbApiKey(event.target.value)}/>
                   <RestoreDefaultValueButton onClick={() => setJpdbApiKey(defaultAppSettings.jpdbApiKey)}/>
                 </HStack>
                 <FormHelperText>JPDB API key used for text parsing and words highlighting.</FormHelperText>
