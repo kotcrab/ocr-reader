@@ -1,7 +1,7 @@
 import {JpdbVocabulary} from "./JpdbVocabulary"
 import {Rectangle} from "./Rectangle"
 
-export interface ImageAnalysisResult {
+export interface ImageAnalysis {
   readonly paragraphs: readonly ImageAnalysisParagraph[],
   readonly vocabulary: readonly JpdbVocabulary[],
 }

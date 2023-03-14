@@ -1,7 +1,7 @@
-import {TextOrientation} from "./TextOrientation"
 import {Rectangle} from "./Rectangle"
+import {TextOrientation} from "./TextOrientation"
 
-export interface PageOcrResults {
+export interface OcrPage {
   readonly paragraphs: readonly OcrParagraph[],
   readonly characterCount: number,
 }
@@ -23,7 +23,7 @@ export interface OcrSymbol {
   readonly bounds: Rectangle
 }
 
-type PackedOcrSymbol = [string, number, number, number, number]
+export type PackedOcrSymbol = [string, number, number, number, number]
 
 export function toPackedOcrSymbol(ocrSymbol: OcrSymbol): PackedOcrSymbol {
   return [ocrSymbol.text, ocrSymbol.bounds.x, ocrSymbol.bounds.y, ocrSymbol.bounds.w, ocrSymbol.bounds.h]

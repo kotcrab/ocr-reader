@@ -1,23 +1,24 @@
-import SvgPolygonList from "./SvgPolygonList"
+import SvgPolygons from "./SvgPolygons"
 import SvgParagraph from "./SvgParagraph"
 import * as React from "react"
 import {useEffect, useState} from "react"
-import {PageOcrResults} from "../model/PageOcrResults"
-import SvgAnalysisOverlay from "./SvgAnalysisOverlay"
-import {TextOrientation} from "../model/TextOrientation"
+import {OcrPage} from "../model/OcrPage"
+import SvgAnalysis from "./SvgAnalysis"
+import {TextOrientationSetting} from "../model/TextOrientationSetting"
 import {isChromiumBased} from "../util/Util"
 import {Dimensions} from "../model/Dimensions"
-import {ImageAnalysisResult} from "../model/ImageAnalysisResults"
+import {ImageAnalysis} from "../model/ImageAnalysis"
+import {SvgOverlayContext} from "../util/SvgOverlayContext"
 
 interface Props {
-  ocr: PageOcrResults,
+  ocr: OcrPage,
   pageDimensions: Dimensions,
-  analysis?: ImageAnalysisResult,
+  analysis?: ImageAnalysis,
   showParagraphs: boolean,
   showText: boolean,
   autoFontSize: boolean,
-  textOrientation: TextOrientation,
   fontSize: number,
+  textOrientation: TextOrientationSetting,
   minimumConfidence: number,
 }
 
@@ -29,8 +30,8 @@ export default function SvgOverlay(
     showParagraphs,
     showText,
     autoFontSize,
-    textOrientation,
     fontSize,
+    textOrientation,
     minimumConfidence,
   }: Props) {
   const sizeDiv = 1000
@@ -44,30 +45,30 @@ export default function SvgOverlay(
   useEffect(() => setChromiumBased(isChromiumBased()), [])
 
   return (
-    <svg width="100%"
-         height="100%"
-         viewBox={`0 0 ${sizeDiv} ${sizeDiv}`}
-         preserveAspectRatio="none"
-         style={{
-           position: "absolute",
-           bottom: "0px",
-           userSelect: "text",
-         }}>
-      {!showParagraphs || <SvgPolygonList polygons={paragraphPoints} scaleX={scaleX} scaleY={scaleY}/>}
-      {analysis && <SvgAnalysisOverlay analysis={analysis} scaleX={scaleX} scaleY={scaleY}/>}
-      {filteredParagraphs.map(paragraph =>
-        <SvgParagraph
-          key={paragraph.id}
-          showText={showText}
-          lines={paragraph.lines}
-          scaleX={scaleX}
-          scaleY={scaleY}
-          autoFontSize={autoFontSize}
-          fontSize={fontSize}
-          textOrientation={textOrientation}
-          chromiumBased={chromiumBased}
-        />
-      )}
-    </svg>
+    <SvgOverlayContext.Provider value={{
+      scaleX: scaleX,
+      scaleY: scaleY,
+      showText: showText,
+      autoFontSize: autoFontSize,
+      fontSize: fontSize,
+      textOrientation: textOrientation,
+      chromiumBased: chromiumBased,
+    }}>
+      <svg width="100%"
+           height="100%"
+           viewBox={`0 0 ${sizeDiv} ${sizeDiv}`}
+           preserveAspectRatio="none"
+           style={{
+             position: "absolute",
+             bottom: "0px",
+             userSelect: "text",
+           }}>
+        {!showParagraphs || <SvgPolygons polygons={paragraphPoints}/>}
+        {analysis && <SvgAnalysis analysis={analysis}/>}
+        {filteredParagraphs.map(paragraph =>
+          <SvgParagraph key={paragraph.id} lines={paragraph.lines}/>
+        )}
+      </svg>
+    </SvgOverlayContext.Provider>
   )
 }

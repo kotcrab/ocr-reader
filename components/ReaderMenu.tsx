@@ -12,7 +12,7 @@ import {
 } from "@chakra-ui/react"
 import {HamburgerIcon} from "@chakra-ui/icons"
 import React from "react"
-import {TextOrientation} from "../model/TextOrientation"
+import {TextOrientationSetting} from "../model/TextOrientationSetting"
 import FontSizeSelector from "./FontSizeSelector"
 import {useHotkeys} from "react-hotkeys-hook"
 import {ReadingDirection} from "../model/ReadingDirection"
@@ -27,7 +27,7 @@ interface Props {
   showText: boolean,
   showParagraphs: boolean,
   showAnalysis: boolean,
-  textOrientation: TextOrientation,
+  textOrientation: TextOrientationSetting,
   readingDirection: ReadingDirection,
   analysisEnabled: boolean,
   hasAnalysis: boolean,
@@ -37,7 +37,7 @@ interface Props {
   onChangeShowText: (showText: boolean) => void,
   onChangeShowParagraphs: (showParagraphs: boolean) => void,
   onChangeShowAnalysis: (showAnalysis: boolean) => void,
-  onChangeTextOrientation: (textOrientation: TextOrientation) => void,
+  onChangeTextOrientation: (textOrientation: TextOrientationSetting) => void,
   onChangeReadingDirection: (readingDirection: ReadingDirection) => void,
   onAnalyze: () => void,
   onAutoFontSizeChange: (autoFontSize: boolean) => void,
@@ -154,18 +154,18 @@ export default function ReaderMenu(
 
         <MenuOptionGroup title='Text orientation' type='radio' value={textOrientation}>
           <MenuItemOption
-            value={TextOrientation.Auto}
-            onClick={() => onChangeTextOrientation(TextOrientation.Auto)}>
+            value={TextOrientationSetting.Auto}
+            onClick={() => onChangeTextOrientation(TextOrientationSetting.Auto)}>
             Auto
           </MenuItemOption>
           <MenuItemOption
-            value={TextOrientation.Horizontal}
-            onClick={() => onChangeTextOrientation(TextOrientation.Horizontal)}>
+            value={TextOrientationSetting.Horizontal}
+            onClick={() => onChangeTextOrientation(TextOrientationSetting.Horizontal)}>
             Horizontal
           </MenuItemOption>
           <MenuItemOption
-            value={TextOrientation.Vertical}
-            onClick={() => onChangeTextOrientation(TextOrientation.Vertical)}>
+            value={TextOrientationSetting.Vertical}
+            onClick={() => onChangeTextOrientation(TextOrientationSetting.Vertical)}>
             Vertical
           </MenuItemOption>
         </MenuOptionGroup>

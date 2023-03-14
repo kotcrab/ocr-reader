@@ -1,6 +1,6 @@
 import type {NextApiRequest, NextApiResponse} from "next"
 import {services} from "../../service/Services"
-import {TextAnalysisResult} from "../../model/TextAnalysisResults"
+import {TextAnalysisResult} from "../../model/TextAnalysis"
 
 export default async function handler(
   req: NextApiRequest,

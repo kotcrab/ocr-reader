@@ -1,4 +1,4 @@
-import {TextOrientation} from "./TextOrientation"
+import {TextOrientationSetting} from "./TextOrientationSetting"
 import {ReadingDirection} from "./ReadingDirection"
 
 export interface ReaderSettings {
@@ -9,6 +9,6 @@ export interface ReaderSettings {
   showText: boolean,
   showParagraphs: boolean,
   showAnalysis: boolean,
-  textOrientation: TextOrientation,
+  textOrientation: TextOrientationSetting,
   readingDirection: ReadingDirection,
 }

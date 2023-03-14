@@ -1,16 +1,18 @@
 import {scaleRectangle} from "../util/OverlayUtil"
 import * as React from "react"
 import {JpdbCardState} from "../model/JpdbCardState"
-import {ImageAnalysisResult} from "../model/ImageAnalysisResults"
+import {ImageAnalysis} from "../model/ImageAnalysis"
 import {getJpdbVocabularyCardStates} from "../model/JpdbVocabulary"
+import {useContext} from "react"
+import {SvgOverlayContext} from "../util/SvgOverlayContext"
 
 interface Props {
-  analysis: ImageAnalysisResult,
-  scaleX: number,
-  scaleY: number,
+  analysis: ImageAnalysis,
 }
 
-export default function SvgAnalysisOverlay({analysis, scaleX, scaleY}: Props) {
+export default function SvgAnalysis({analysis}: Props) {
+  const {scaleX, scaleY} = useContext(SvgOverlayContext)
+
   return <>{
     analysis.paragraphs.flatMap((paragraph, paragraphIndex) =>
       paragraph.fragments.flatMap((fragment, fragmentIndex) =>

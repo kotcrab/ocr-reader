@@ -6,7 +6,7 @@ import {Book, BookInfoUpdate} from "../model/Book"
 import {RequestError} from "../util/RequestError"
 import {bookToBookResponse} from "../model/BookResponse"
 import {PromisePool} from "@supercharge/promise-pool"
-import {OcrLine, OcrParagraph, OcrSymbol, PageOcrResults, toPackedOcrSymbol} from "../model/PageOcrResults"
+import {OcrLine, OcrParagraph, OcrSymbol, OcrPage, toPackedOcrSymbol} from "../model/OcrPage"
 import {google} from "@google-cloud/vision/build/protos/protos"
 import {calculateBoundingRectangle} from "../util/OverlayUtil"
 import {TextOrientation} from "../model/TextOrientation"
@@ -138,7 +138,7 @@ export class BookService {
     }
   }
 
-  async getBookOcrResults(bookId: string, page: number): Promise<PageOcrResults> {
+  async getBookOcrResults(bookId: string, page: number): Promise<OcrPage> {
     const {annotations} = await this.getBookOcrAnnotations(bookId, page)
     const blocks = annotations.pages?.[0].blocks || []
     const paragraphs = blocks
