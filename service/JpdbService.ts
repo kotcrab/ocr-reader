@@ -1,17 +1,16 @@
 import {BookService} from "./BookService"
 import * as crypto from "crypto"
-import {TextAnalysisResult, TextAnalysisToken} from "../model/TextAnalysisResults"
+import {TextAnalysisResult, TextAnalysisToken} from "../model/TextAnalysis"
 import {SettingsService} from "./SettingsService"
 import {JpdbCache} from "./JpdbCache"
 import {RateLimiter} from "limiter"
 import {JPDB_TOKEN_API_FIELDS, unpackJpdbToken} from "../model/JpdbToken"
 import {JPDB_VOCABULARY_API_FIELDS, unpackJpdbVocabulary} from "../model/JpdbVocabulary"
 import {JpdbPackedParseResult, JpdbParseResult} from "../model/JpdbParseResult"
-import {fromPackedOcrSymbol, OcrParagraph, textFromPackedOcrSymbol} from "../model/PageOcrResults"
-import {ImageAnalysisFragment, ImageAnalysisParagraph, ImageAnalysisResult} from "../model/ImageAnalysisResults"
+import {fromPackedOcrSymbol, OcrParagraph, textFromPackedOcrSymbol} from "../model/OcrPage"
+import {ImageAnalysisFragment, ImageAnalysisParagraph, ImageAnalysis} from "../model/ImageAnalysis"
 import {Rectangle} from "../model/Rectangle"
 import {unionRectangles} from "../util/OverlayUtil"
-
 
 export class JpdbService {
   private readonly bookService: BookService
@@ -30,7 +29,7 @@ export class JpdbService {
     return (await this.getJpdbApiKey()).length > 0
   }
 
-  async analyzeBookPage(bookId: string, page: number): Promise<ImageAnalysisResult> {
+  async analyzeBookPage(bookId: string, page: number): Promise<ImageAnalysis> {
     const {paragraphs} = await this.bookService.getBookOcrResults(bookId, page)
 
     const pageText = paragraphs
@@ -90,14 +89,14 @@ export class JpdbService {
     const parseResult = await this.parseText(text)
     const tokens = parseResult.tokens
 
-    const fragments: TextAnalysisToken[] = []
+    const analysisTokens: TextAnalysisToken[] = []
     let currentPosition = 0
     let currentToken = 0
     while (currentPosition < text.length) {
       if (currentToken < tokens.length && tokens[currentToken].position == currentPosition) {
         const token = tokens[currentToken]
         const end = currentPosition + token.length
-        fragments.push({
+        analysisTokens.push({
             text: text.slice(currentPosition, end),
             vocabularyIndex: token.vocabularyIndex,
           }
@@ -106,7 +105,7 @@ export class JpdbService {
         currentToken++
       } else {
         const end = currentToken < tokens.length ? tokens[currentToken].position : text.length
-        fragments.push({
+        analysisTokens.push({
             text: text.slice(currentPosition, end),
             vocabularyIndex: -1,
           }
@@ -114,7 +113,14 @@ export class JpdbService {
         currentPosition = end
       }
     }
-    const normalizedFragments: TextAnalysisToken[] = fragments
+    return {
+      tokens: this.normalizeTokens(analysisTokens),
+      vocabulary: parseResult.vocabulary,
+    }
+  }
+
+  private normalizeTokens(tokens: TextAnalysisToken[]): TextAnalysisToken[] {
+    return tokens
       .flatMap(it => {
         if (it.text.includes("\n")) {
           const parts = it.text.split(/(\n)/g)
@@ -124,10 +130,6 @@ export class JpdbService {
         }
       })
       .filter(it => !!it.text)
-    return {
-      tokens: normalizedFragments,
-      vocabulary: parseResult.vocabulary,
-    }
   }
 
   private async parseText(text: string): Promise<JpdbParseResult> {

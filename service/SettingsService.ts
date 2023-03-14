@@ -3,7 +3,7 @@ import fs from "fs"
 import {StorageService} from "./StorageService"
 import {Book} from "../model/Book"
 import {ReaderSettings} from "../model/ReaderSettings"
-import {TextOrientation} from "../model/TextOrientation"
+import {TextOrientationSetting} from "../model/TextOrientationSetting"
 import {ReadingDirection} from "../model/ReadingDirection"
 
 export class SettingsService {
@@ -79,7 +79,7 @@ export class SettingsService {
       showText: false,
       showParagraphs: false,
       showAnalysis: true,
-      textOrientation: TextOrientation.Auto,
+      textOrientation: TextOrientationSetting.Auto,
       readingDirection: ReadingDirection.RightToLeft,
     }
     const fileExists = await fs.promises.stat(book.readerSettingsFile).then(() => true, () => false)

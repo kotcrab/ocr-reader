@@ -1,13 +1,15 @@
 import {pointsToPolygonPoints} from "../util/OverlayUtil"
 import * as React from "react"
+import {useContext} from "react"
+import {SvgOverlayContext} from "../util/SvgOverlayContext"
 
 interface Props {
   polygons: (readonly number[])[],
-  scaleX: number,
-  scaleY: number,
 }
 
-export default function SvgPolygonList({polygons, scaleX, scaleY}: Props) {
+export default function SvgPolygons({polygons}: Props) {
+  const {scaleX, scaleY} = useContext(SvgOverlayContext)
+
   return <>{
     polygons.map((points, index) =>
       <polygon

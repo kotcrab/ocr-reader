@@ -5,7 +5,7 @@ import {useRouter} from "next/router"
 import {ColorModeSwitcher} from "../../../components/ColorModeSwitcher"
 import {services} from "../../../service/Services"
 import {GetServerSidePropsContext} from "next"
-import {PageOcrResults} from "../../../model/PageOcrResults"
+import {OcrPage} from "../../../model/OcrPage"
 import ZoomSelector from "../../../components/ZoomSelector"
 import SelectionColorOverride from "../../../components/SelectionColorOverride"
 import PageSwitcher from "../../../components/PageSwitcher"
@@ -21,12 +21,12 @@ import {AppSettings} from "../../../model/AppSettings"
 import {ReadingUnitType} from "../../../model/ReadingUnitType"
 import {Api} from "../../../util/Api"
 import {Dimensions} from "../../../model/Dimensions"
-import {ImageAnalysisResult} from "../../../model/ImageAnalysisResults"
+import {ImageAnalysis} from "../../../model/ImageAnalysis"
 
 interface Props {
   title: string,
   pages: number,
-  ocr: PageOcrResults,
+  ocr: OcrPage,
   pageDimensions: Dimensions,
   jpdbEnabled: boolean,
   readerSettings: ReaderSettings,
@@ -66,7 +66,7 @@ export default function ReadBookPage(
 
   const [fontSizeHover, setFontSizeHover] = useState(false)
   const [minimumConfidenceHover, setMinimumConfidenceHover] = useState(false)
-  const [analysis, setAnalysis] = useState<ImageAnalysisResult | undefined>(undefined)
+  const [analysis, setAnalysis] = useState<ImageAnalysis | undefined>(undefined)
   const [analysisStarted, setAnalysisStarted] = useState(false)
 
   const [charactersRead, setCharactersRead] = useState(0)
@@ -193,8 +193,8 @@ export default function ReadBookPage(
               showParagraphs={showParagraphs || minimumConfidenceHover}
               showText={showText || fontSizeHover}
               autoFontSize={autoFontSize}
-              textOrientation={textOrientation}
               fontSize={fontSize}
+              textOrientation={textOrientation}
               minimumConfidence={minimumConfidence}
             />
           </div>
