@@ -30,6 +30,7 @@ interface Props {
   pageDimensions: Dimensions,
   jpdbRules: readonly JpdbRule[],
   jpdbEnabled: boolean,
+  jpdbMiningDeckId: number,
   readingTimerEnabled: boolean,
   readerSettings: ReaderSettings,
 }
@@ -50,6 +51,7 @@ export default function ReadBookPage(
     pageDimensions,
     jpdbRules,
     jpdbEnabled,
+    jpdbMiningDeckId,
     readingTimerEnabled,
     readerSettings,
   }: Props) {
@@ -200,6 +202,7 @@ export default function ReadBookPage(
               fontSize={fontSize}
               textOrientation={textOrientation}
               minimumConfidence={minimumConfidence}
+              jpdbMiningDeckId={jpdbMiningDeckId}
             />
           </div>
         </Flex>
@@ -224,6 +227,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       pageDimensions: pageDimensions,
       jpdbEnabled: await services.jpdbService.isEnabled(),
       jpdbRules: appSettings.jpdbRules,
+      jpdbMiningDeckId: appSettings.jpdbMiningDeckId,
       readingTimerEnabled: appSettings.readingTimerEnabled,
       readerSettings: readerSettings,
     },

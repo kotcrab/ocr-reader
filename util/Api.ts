@@ -1,7 +1,9 @@
 import {BookInfoUpdate} from "../model/Book"
-import {appSettingsUrl, bookReaderSettingsUrl, booksUrl, bookTextDumpUrl, bookUrl} from "./Url"
+import {appSettingsUrl, bookReaderSettingsUrl, booksUrl, bookTextDumpUrl, bookUrl, decksUrl} from "./Url"
 import {AppSettings} from "../model/AppSettings"
 import {ReaderSettings} from "../model/ReaderSettings"
+import {RequestError} from "./RequestError"
+import {JpdbDeckId} from "../model/Jpdb"
 
 const jsonHeaders = {
   "Content-Type": "application/json",
@@ -47,5 +49,16 @@ export class Api {
   static async dumpBookText(bookId: string, removeLineBreaks: boolean) {
     const res = await fetch(bookTextDumpUrl(bookId, removeLineBreaks))
     return await res.blob()
+  }
+
+  static async modifyDeck(deckId: JpdbDeckId, vid: number, sid: number, mode: "add" | "remove") {
+    const response = await fetch(decksUrl(), {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({deckId: deckId, vid: vid, sid: sid, mode: mode}),
+    })
+    if (!response.ok) {
+      throw new RequestError("Could not modify deck")
+    }
   }
 }

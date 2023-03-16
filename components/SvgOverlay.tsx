@@ -23,6 +23,7 @@ interface Props {
   fontSize: number,
   textOrientation: TextOrientationSetting,
   minimumConfidence: number,
+  jpdbMiningDeckId: number,
 }
 
 export default function SvgOverlay(
@@ -38,6 +39,7 @@ export default function SvgOverlay(
     fontSize,
     textOrientation,
     minimumConfidence,
+    jpdbMiningDeckId,
   }: Props) {
   const sizeDiv = 1000
   const scaleX = pageDimensions.w / sizeDiv
@@ -60,6 +62,7 @@ export default function SvgOverlay(
       fontSize: fontSize,
       textOrientation: textOrientation,
       chromiumBased: chromiumBased,
+      jpdbMiningDeckId: jpdbMiningDeckId,
     }}>
       <svg width="100%"
            height="100%"
