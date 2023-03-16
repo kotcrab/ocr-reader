@@ -34,6 +34,10 @@ export function bookAnalyzePageUrl(bookId: string, page: number): string {
   return `/api/books/${bookId}/pages/${page}?analyze=true`
 }
 
+export function decksUrl(): string {
+  return "/api/decks"
+}
+
 export function isValidWebSocketUrl(value: string) {
   let url
   try {

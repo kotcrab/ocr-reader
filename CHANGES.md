@@ -3,7 +3,8 @@
   - If you are using this integration you will need to go the settings and enter your JPDB API key.
     SID cookie is no longer used.
   - The `data/.jpdb-cache` directory is no longer used and should be deleted. Cache is now in memory.
-  - Added JPDB vocabulary popup when hovering over the highlighted word.
+  - Added JPDB vocabulary popup when hovering over the word.
+  - You can now customise which card types to highlight, default colors can be changed.
   - Confidence selector now also works on analysis result.
 - Text selection color override is now only applied to the SVG.
 

@@ -9,4 +9,5 @@ export const SvgOverlayContext = createContext({
   fontSize: 1,
   textOrientation: TextOrientationSetting.Auto,
   chromiumBased: false,
+  jpdbMiningDeckId: 0,
 })

@@ -10,6 +10,9 @@ import {JpdbPackedParseResult, JpdbParseResult} from "../model/JpdbParseResult"
 import {fromPackedOcrSymbol, OcrParagraph, PackedOcrSymbol, textFromPackedOcrSymbol} from "../model/OcrPage"
 import {ImageAnalysis, ImageAnalysisFragment, ImageAnalysisParagraph} from "../model/ImageAnalysis"
 import {unionRectangles} from "../util/OverlayUtil"
+import {JPDB_BASE} from "../util/JpdbUitl"
+import {RequestError} from "../util/RequestError"
+import {JpdbDeckId} from "../model/Jpdb"
 
 export class JpdbService {
   private readonly bookService: BookService
@@ -144,12 +147,9 @@ export class JpdbService {
 
   private async fetchParseText(text: string): Promise<JpdbParseResult> {
     await this.rateLimiter.removeTokens(1)
-    const response = await fetch("https://jpdb.io/api/v1/parse", {
+    const response = await fetch(`${JPDB_BASE}/api/v1/parse`, {
       method: "POST",
-      headers: {
-        "Authorization": "Bearer " + await this.getJpdbApiKey(),
-        "Content-Type": "application/json",
-      },
+      headers: await this.getStandardPostHeaders(),
       body: JSON.stringify({
           text: text,
           token_fields: JPDB_TOKEN_API_FIELDS,
@@ -162,6 +162,30 @@ export class JpdbService {
       tokens: parseResult.tokens.map(it => unpackJpdbToken(it))
         .sort((a, b) => a.position - b.position),
       vocabulary: parseResult.vocabulary.map(it => unpackJpdbVocabulary(it)),
+    }
+  }
+
+  async modifyVocabularyInDeck(deckId: JpdbDeckId, vid: number, sid: number, mode: "add" | "remove") {
+    const response = await fetch(`${JPDB_BASE}/api/v1/deck/${mode}-vocabulary`, {
+      method: "POST",
+      headers: await this.getStandardPostHeaders(),
+      body: JSON.stringify({
+          id: deckId,
+          vocabulary: [[vid, sid]],
+        }
+      ),
+    })
+    if (!response.ok) {
+      console.log(await response.json())
+      throw new RequestError(`Could not modify vocabulary ${vid} in deck ${deckId}`)
+    }
+    this.jpdbCache.clear()
+  }
+
+  private async getStandardPostHeaders() {
+    return {
+      "Authorization": "Bearer " + await this.getJpdbApiKey(),
+      "Content-Type": "application/json",
     }
   }
 
