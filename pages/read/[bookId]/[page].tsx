@@ -17,17 +17,18 @@ import ReaderMenu from "../../../components/ReaderMenu"
 import ExitButton from "../../../components/ExitButton"
 import {ReaderSettings} from "../../../model/ReaderSettings"
 import ReadingTimer from "../../../components/ReadingTimer"
-import {AppSettings} from "../../../model/AppSettings"
 import {ReadingUnitType} from "../../../model/ReadingUnitType"
 import {Api} from "../../../util/Api"
 import {Dimensions} from "../../../model/Dimensions"
 import {ImageAnalysis} from "../../../model/ImageAnalysis"
+import {JpdbRule} from "../../../model/JpdbRule"
 
 interface Props {
   title: string,
   pages: number,
   ocr: OcrPage,
   pageDimensions: Dimensions,
+  jpdbRules: readonly JpdbRule[],
   jpdbEnabled: boolean,
   readingTimerEnabled: boolean,
   readerSettings: ReaderSettings,
@@ -47,6 +48,7 @@ export default function ReadBookPage(
     pages,
     ocr,
     pageDimensions,
+    jpdbRules,
     jpdbEnabled,
     readingTimerEnabled,
     readerSettings,
@@ -190,6 +192,7 @@ export default function ReadBookPage(
               ocr={ocr}
               pageDimensions={pageDimensions}
               analysis={analysis}
+              jpdbRules={jpdbRules}
               showParagraphs={showParagraphs || minimumConfidenceHover}
               showText={showText || fontSizeHover}
               showAnalysis={showAnalysis}
@@ -220,6 +223,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       ocr: ocr,
       pageDimensions: pageDimensions,
       jpdbEnabled: await services.jpdbService.isEnabled(),
+      jpdbRules: appSettings.jpdbRules,
       readingTimerEnabled: appSettings.readingTimerEnabled,
       readerSettings: readerSettings,
     },

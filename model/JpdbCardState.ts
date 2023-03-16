@@ -9,6 +9,6 @@ export enum JpdbCardState {
   Failed = "failed",
   Blacklisted = "blacklisted",
   Redundant = "redundant",
-  NotInDeck = "not-in-deck",
+  NotInDecks = "not-in-decks",
   Unparsed = "unparsed",
 }

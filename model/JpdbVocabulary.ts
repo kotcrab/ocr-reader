@@ -24,16 +24,6 @@ export function unpackJpdbVocabulary(packed: any[]): JpdbVocabulary {
     reading: packed[4],
     frequencyRank: packed[5],
     meanings: packed[6],
-    cardStates: packed[7] ?? [JpdbCardState.NotInDeck],
+    cardStates: packed[7] ?? [JpdbCardState.NotInDecks],
   }
-}
-
-export function getJpdbVocabularyCardStates(
-  vocabulary: readonly JpdbVocabulary[],
-  vocabularyIndex: number
-): JpdbCardState[] {
-  if (vocabularyIndex == -1) {
-    return [JpdbCardState.Unparsed]
-  }
-  return vocabulary[vocabularyIndex].cardStates
 }

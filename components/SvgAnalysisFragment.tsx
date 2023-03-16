@@ -6,34 +6,37 @@ import {JpdbVocabulary} from "../model/JpdbVocabulary"
 import {SvgOverlayContext} from "../util/SvgOverlayContext"
 import SvgSymbol from "./SvgSymbol"
 import SvgHighlight from "./SvgHighlight"
+import {JpdbRule} from "../model/JpdbRule"
+import useDebounce from "../util/Debouce"
 
 interface Props {
   fragment: ImageAnalysisFragment,
-  color: string | undefined,
+  rule: JpdbRule | undefined,
   vocabulary: JpdbVocabulary | undefined,
   showAnalysis: boolean,
 }
 
-export default function SvgAnalysisFragment({fragment, color, vocabulary, showAnalysis}: Props) {
+export default function SvgAnalysisFragment({fragment, rule, vocabulary, showAnalysis}: Props) {
   const {scaleX, scaleY, textOrientation} = useContext(SvgOverlayContext)
-  const [popupOpen, setPopupOpen] = useState(false)
+  const [mouseOver, setMouseOver] = useState(false)
+  const debouncedMouseOver = useDebounce(mouseOver, 40)
 
   const bounds = scaleRectangle(fragment.bounds, scaleX, scaleY)
 
   return <g
-    onMouseEnter={() => setPopupOpen(true)}
-    onMouseLeave={() => setPopupOpen(false)}
+    onMouseEnter={() => setMouseOver(true)}
+    onMouseLeave={() => setMouseOver(false)}
   >
-    {color && showAnalysis ?
+    {showAnalysis && rule ?
       <SvgHighlight
         bounds={bounds}
-        color={color}
+        rule={rule}
         vocabulary={vocabulary}
-        popupOpen={popupOpen}
+        mouseOverGroup={debouncedMouseOver}
       /> : null}
     {fragment.symbols.map((symbol, symbolIndex) =>
       <SvgSymbol
-        key={`as-${symbolIndex}`}
+        key={symbolIndex}
         packedSymbol={symbol}
         textOrientation={effectiveTextOrientation(textOrientation, fragment.orientation)}
       />

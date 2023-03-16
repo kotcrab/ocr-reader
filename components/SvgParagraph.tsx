@@ -16,7 +16,7 @@ export default function SvgParagraph({lines}: Props) {
     lines.flatMap((line, lineIndex) =>
       line.symbols.flatMap((packedSymbol, index) => {
         return <SvgSymbol
-          key={`s-${lineIndex}-${index}`}
+          key={`${lineIndex}-${index}`}
           packedSymbol={packedSymbol}
           textOrientation={effectiveTextOrientation(textOrientation, line.orientation)}
         />
