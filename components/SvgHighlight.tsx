@@ -2,35 +2,25 @@ import * as React from "react"
 import {useState} from "react"
 import {JpdbVocabulary} from "../model/JpdbVocabulary"
 import {Rectangle} from "../model/Rectangle"
-import {
-  Box,
-  Button,
-  HStack,
-  Link,
-  ListItem,
-  OrderedList,
-  Portal,
-  Spacer,
-  Text,
-  useColorModeValue,
-  usePopper,
-  VStack
-} from "@chakra-ui/react"
+import {Portal, usePopper,} from "@chakra-ui/react"
+import {JpdbPopupDialog} from "./JpdbPopup"
+import {JpdbRule} from "../model/JpdbRule"
+import {JpdbPopup} from "../model/JpdbPopup"
 
 interface Props {
   bounds: Rectangle,
-  color: string,
+  rule: JpdbRule,
   vocabulary?: JpdbVocabulary,
-  popupOpen: boolean,
+  mouseOverGroup: boolean,
 }
 
-export default function SvgHighlight({bounds, color, vocabulary, popupOpen}: Props) {
+export default function SvgHighlight({bounds, rule, vocabulary, mouseOverGroup}: Props) {
   const {popperRef, referenceRef} = usePopper({placement: "right"})
 
-  const popupBg = useColorModeValue("gray.200", "gray.900")
-  const commonColor = useColorModeValue("green.700", "green.500")
-
   const [mouseOverPopup, setMouseOverPopup] = useState(false)
+
+  const popupOpen = mouseOverGroup || mouseOverPopup
+  const popupPossible = vocabulary && rule.popup !== JpdbPopup.None
 
   return <>
     <rect
@@ -38,55 +28,16 @@ export default function SvgHighlight({bounds, color, vocabulary, popupOpen}: Pro
       y={bounds.y}
       width={bounds.w}
       height={bounds.h}
-      style={{fill: color}}
+      style={{fill: rule.overlayColor}}
       ref={referenceRef}
     />
-    {(popupOpen || mouseOverPopup) && vocabulary && <Portal>
-      <Box
+    {popupOpen && popupPossible && <Portal>
+      <JpdbPopupDialog
         ref={popperRef}
-        bg={popupBg}
-        opacity={0.9}
-        p={3}
-        maxW="400px"
-        boxShadow="dark-lg"
-        onMouseEnter={() => setMouseOverPopup(true)}
-        onMouseLeave={() => setMouseOverPopup(false)}
-      >
-        <VStack alignItems="start" spacing={0}>
-          <HStack spacing={1} pb={3} alignSelf="stretch">
-            <Button colorScheme="blue" size="xs" fontSize="2xs">
-              Add
-            </Button>
-            <Button colorScheme="red" size="xs" fontSize="2xs">
-              Blacklist
-            </Button>
-            <Button colorScheme="green" size="xs" fontSize="2xs">
-              Never forget
-            </Button>
-          </HStack>
-          <HStack alignSelf="stretch">
-            <Text fontSize="2xl">
-              <Link
-                href={`https://jpdb.io/vocabulary/${vocabulary.vid}/${encodeURIComponent(vocabulary.spelling)}/${encodeURIComponent(vocabulary.reading)}`}
-                isExternal>
-                <ruby>{vocabulary.spelling}
-                  <rt>{vocabulary.reading !== vocabulary.spelling ? vocabulary.reading : ""}</rt>
-                </ruby>
-              </Link>
-            </Text>
-            <Spacer/>
-            <VStack spacing={0} pl={3}>
-              {vocabulary.cardStates.map((state, index) => <Text key={index} fontSize="sm">{state}</Text>)}
-            </VStack>
-          </HStack>
-          <Text fontSize="sm" color={vocabulary.frequencyRank < 30000 ? commonColor : undefined}>
-            Top {vocabulary.frequencyRank}
-          </Text>
-          <OrderedList pt={3} pl={4}>
-            {vocabulary.meanings.map((meaning, index) => <ListItem key={index} fontSize="sm">{meaning}</ListItem>)}
-          </OrderedList>
-        </VStack>
-      </Box>
+        vocabulary={vocabulary}
+        compact={rule.popup === JpdbPopup.Compact}
+        onMouseOver={(over) => setMouseOverPopup(over)}
+      />
     </Portal>
     }
   </>

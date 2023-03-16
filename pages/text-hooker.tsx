@@ -8,17 +8,17 @@ import {analyzeTextUrl} from "../util/Url"
 import {TextAnalysisResult} from "../model/TextAnalysis"
 import ReadingTimer from "../components/ReadingTimer"
 import {ReadingUnitType} from "../model/ReadingUnitType"
-import {AppSettings} from "../model/AppSettings"
-import {JpdbCardState} from "../model/JpdbCardState"
-import {getJpdbVocabularyCardStates} from "../model/JpdbVocabulary"
+import {evaluateJpdbRules} from "../util/JpdbUitl"
+import {JpdbRule} from "../model/JpdbRule"
 
 interface Props {
   jpdbEnabled: boolean,
+  jpdbRules: readonly JpdbRule[],
   readingTimerEnabled: boolean,
   textHookerWebSocketUrl: string,
 }
 
-export default function TextHooker({jpdbEnabled, readingTimerEnabled, textHookerWebSocketUrl}: Props) {
+export default function TextHooker({jpdbEnabled, jpdbRules, readingTimerEnabled, textHookerWebSocketUrl}: Props) {
   const bottomDivRef = useRef<HTMLDivElement>(null)
   const [analyze, setAnalyze] = useState(false)
   const [textHistory, setTextHistory] = useState<string[]>([])
@@ -102,7 +102,7 @@ export default function TextHooker({jpdbEnabled, readingTimerEnabled, textHooker
             <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({textHookerWebSocketUrl}). You
               can also paste text directly into this page.</Text>
             {textHistory.map((text, idx) => (
-              <MemoizedAnalyzedText key={idx} text={text} analyze={analyze}/>
+              <MemoizedAnalyzedText key={idx} text={text} analyze={analyze} jpdbRules={jpdbRules}/>
             ))}
           </VStack>
         </Flex>
@@ -115,9 +115,10 @@ export default function TextHooker({jpdbEnabled, readingTimerEnabled, textHooker
 interface AnalyzedTextProps {
   text: string,
   analyze: boolean,
+  jpdbRules: readonly JpdbRule[],
 }
 
-function AnalyzedText({text, analyze}: AnalyzedTextProps) {
+function AnalyzedText({text, analyze, jpdbRules}: AnalyzedTextProps) {
   const [analysis, setAnalysis] = useState<TextAnalysisResult | undefined>(undefined)
 
   useEffect(() => {
@@ -138,8 +139,8 @@ function AnalyzedText({text, analyze}: AnalyzedTextProps) {
 
   return <Text style={{whiteSpace: "pre-wrap"}}>
     {analysis ? analysis.tokens.map((it, index) => {
-        const color = getColorForState(getJpdbVocabularyCardStates(analysis.vocabulary, it.vocabularyIndex))
-        return <span key={index} style={{color: color}}>{it.text}</span>
+        const rule = evaluateJpdbRules(jpdbRules, analysis.vocabulary[it.vocabularyIndex])
+        return <span key={index} style={{color: rule?.textColor}}>{it.text}</span>
       })
       : text
     }
@@ -148,25 +149,12 @@ function AnalyzedText({text, analyze}: AnalyzedTextProps) {
 
 const MemoizedAnalyzedText = React.memo(AnalyzedText, () => true)
 
-function getColorForState(states: JpdbCardState[]) {
-  switch (states[0]) {
-    case JpdbCardState.Learning:
-      return "#68D391"
-    case JpdbCardState.Locked:
-    case JpdbCardState.NotInDeck:
-      return "#8999a2"
-    case JpdbCardState.New:
-      return "#63b3ed"
-    default:
-      return undefined
-  }
-}
-
 export async function getServerSideProps() {
   const appSettings = await services.settingsService.getAppSettings()
   return {
     props: {
       jpdbEnabled: await services.jpdbService.isEnabled(),
+      jpdbRules: appSettings.jpdbRules,
       readingTimerEnabled: appSettings.readingTimerEnabled,
       textHookerWebSocketUrl: appSettings.textHookerWebSocketUrl,
     },

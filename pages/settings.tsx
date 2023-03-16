@@ -22,6 +22,7 @@ import {AppSettings} from "../model/AppSettings"
 import {isValidWebSocketUrl} from "../util/Url"
 import RestoreDefaultValueButton from "../components/RestoreDefaultValueButton"
 import {Api} from "../util/Api"
+import JpdbRulesEditModal from "../components/JpdbRulesEditModal"
 
 interface Props {
   appSettings: AppSettings,
@@ -31,11 +32,15 @@ interface Props {
 export default function Settings({appSettings, defaultAppSettings}: Props) {
   const [readingTimerEnabled, setReadingTimerEnabled] = useState(appSettings.readingTimerEnabled)
   const [jpdbApiKey, setJpdbApiKey] = useState(appSettings.jpdbApiKey)
+  const [jpdbMiningDeckId, setJpdbMiningDeckId] = useState(appSettings.jpdbMiningDeckId)
+  const [jpdbRules, setJpdbRules] = useState(appSettings.jpdbRules)
   const [textHookerWebSocketUrl, setTextHookerWebSocketUrl] = useState(appSettings.textHookerWebSocketUrl)
 
   const [settingsSaved, setSettingsSaved] = useState(false)
   const [settingsInvalid, setSettingsInvalid] = useState(false)
   const [settingsInvalidMessage, setSettingsInvalidMessage] = useState("")
+
+  const [jpdbRulesEditPending, setJpdbRulesEditPending] = useState(false)
 
   async function saveSettings() {
     if (!isValidWebSocketUrl(textHookerWebSocketUrl)) {
@@ -47,6 +52,8 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
     await Api.updateAppSettings({
       readingTimerEnabled: readingTimerEnabled,
       jpdbApiKey: jpdbApiKey,
+      jpdbMiningDeckId: jpdbMiningDeckId,
+      jpdbRules: jpdbRules,
       textHookerWebSocketUrl: textHookerWebSocketUrl,
     })
     setSettingsSaved(true)
@@ -57,9 +64,18 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
     <>
       <PageHead/>
       <main>
+        <JpdbRulesEditModal
+          rules={jpdbRules}
+          open={jpdbRulesEditPending}
+          onSave={(newJpdbRules) => {
+            setJpdbRules(newJpdbRules)
+            setJpdbRulesEditPending(false)
+          }}
+          onCancel={() => setJpdbRulesEditPending(false)}
+        />
         <Flex p={4} align="stretch" direction="column">
           <NavBar/>
-          <Container maxW='xl'>
+          <Container maxW="xl">
             <VStack alignItems="center" spacing="8">
               {settingsSaved ? <Alert status="success">
                 <AlertIcon/>
@@ -87,6 +103,20 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
                 <FormHelperText>JPDB API key used for text parsing and words highlighting.</FormHelperText>
               </FormControl>
               <FormControl>
+                <FormLabel>JPDB mining deck ID</FormLabel>
+                <HStack>
+                  <Input type="number" value={jpdbMiningDeckId}
+                         onChange={event => setJpdbMiningDeckId(parseInt(event.target.value))}/>
+                  <RestoreDefaultValueButton onClick={() => setJpdbMiningDeckId(defaultAppSettings.jpdbMiningDeckId)}/>
+                </HStack>
+                <FormHelperText>Mined words will be added to JPDB deck with this ID number.</FormHelperText>
+              </FormControl>
+              <FormControl>
+                <FormLabel>JPDB rules</FormLabel>
+                <Button onClick={() => setJpdbRulesEditPending(true)}>Edit</Button>
+                <FormHelperText>Configure colors and which words should be highlighted.</FormHelperText>
+              </FormControl>
+              <FormControl>
                 <FormLabel>Text hooker WebSocket URL</FormLabel>
                 <HStack>
                   <Input value={textHookerWebSocketUrl}
@@ -97,7 +127,7 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
                 <FormHelperText>WebSocket URL used for the text hooker page.</FormHelperText>
               </FormControl>
               <Box pt={4}>
-                <Button variant='solid' colorScheme='blue' onClick={saveSettings}>
+                <Button variant="solid" colorScheme="blue" onClick={saveSettings}>
                   Save settings
                 </Button>
               </Box>

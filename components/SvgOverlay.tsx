@@ -9,11 +9,13 @@ import {Dimensions} from "../model/Dimensions"
 import {ImageAnalysis} from "../model/ImageAnalysis"
 import {SvgOverlayContext} from "../util/SvgOverlayContext"
 import SvgParagraph from "./SvgParagraph"
+import {JpdbRule} from "../model/JpdbRule"
 
 interface Props {
   ocr: OcrPage,
   pageDimensions: Dimensions,
   analysis: ImageAnalysis | undefined,
+  jpdbRules: readonly JpdbRule[],
   showParagraphs: boolean,
   showText: boolean,
   showAnalysis: boolean,
@@ -28,6 +30,7 @@ export default function SvgOverlay(
     ocr,
     pageDimensions,
     analysis,
+    jpdbRules,
     showParagraphs,
     showText,
     showAnalysis,
@@ -69,7 +72,11 @@ export default function SvgOverlay(
            }}>
         {!showParagraphs || <SvgPolygons polygons={paragraphPoints}/>}
         {analysis ?
-          <SvgAnalysis paragraphs={filteredAnalysisParagraphs || []} vocabulary={analysis.vocabulary} showAnalysis={showAnalysis}/>
+          <SvgAnalysis
+            paragraphs={filteredAnalysisParagraphs || []}
+            vocabulary={analysis.vocabulary}
+            rules={jpdbRules}
+            showAnalysis={showAnalysis}/>
           : filteredParagraphs.map(paragraph => <SvgParagraph key={paragraph.id} lines={paragraph.lines}/>)
         }
       </svg>
