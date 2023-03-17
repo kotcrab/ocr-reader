@@ -6,7 +6,7 @@
   - Added JPDB vocabulary popup when hovering over the word.
   - You can now customise which card types to highlight, default colors can be changed.
   - Confidence selector now also works on analysis result.
-- Text selection color override is now only applied to the SVG.
+- Text selection color override is now only applied to the overlay.
 
 #### Version 1.2.2
 

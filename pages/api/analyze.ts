@@ -1,10 +1,10 @@
 import type {NextApiRequest, NextApiResponse} from "next"
 import {services} from "../../service/Services"
-import {TextAnalysisResult} from "../../model/TextAnalysis"
+import {TextAnalysis} from "../../model/TextAnalysis"
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse<TextAnalysisResult>
+  res: NextApiResponse<TextAnalysis>
 ) {
   if (req.method === "GET") {
     const text = req.query.text as string || ""

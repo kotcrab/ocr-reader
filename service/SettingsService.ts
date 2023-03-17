@@ -149,7 +149,7 @@ const DEFAULT_JPDB_RULES: JpdbRule[] = [
     popup: JpdbPopup.Full,
   },
   {
-    enabled: false,
+    enabled: true,
     states: [JpdbCardState.Due],
     overlayColor: "#FF450026",
     textColor: "#FF4500FF",

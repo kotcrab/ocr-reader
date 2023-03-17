@@ -5,20 +5,24 @@ import NavBar from "../components/NavBar"
 import useWebSocket, {ReadyState} from "react-use-websocket"
 import {services} from "../service/Services"
 import {analyzeTextUrl} from "../util/Url"
-import {TextAnalysisResult} from "../model/TextAnalysis"
+import {TextAnalysis} from "../model/TextAnalysis"
 import ReadingTimer from "../components/ReadingTimer"
 import {ReadingUnitType} from "../model/ReadingUnitType"
 import {evaluateJpdbRules} from "../util/JpdbUitl"
 import {JpdbRule} from "../model/JpdbRule"
+import {JpdbVocabulary} from "../model/JpdbVocabulary"
+import JpdbPopupWrapper from "../components/JpdbPopupWrapper"
+import useDebounce from "../util/Debounce"
 
 interface Props {
   jpdbEnabled: boolean,
   jpdbRules: readonly JpdbRule[],
+  jpdbMiningDeckId: number,
   readingTimerEnabled: boolean,
   textHookerWebSocketUrl: string,
 }
 
-export default function TextHooker({jpdbEnabled, jpdbRules, readingTimerEnabled, textHookerWebSocketUrl}: Props) {
+export default function TextHooker({jpdbEnabled, jpdbRules, jpdbMiningDeckId, readingTimerEnabled, textHookerWebSocketUrl}: Props) {
   const bottomDivRef = useRef<HTMLDivElement>(null)
   const [analyze, setAnalyze] = useState(false)
   const [textHistory, setTextHistory] = useState<string[]>([])
@@ -102,7 +106,7 @@ export default function TextHooker({jpdbEnabled, jpdbRules, readingTimerEnabled,
             <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({textHookerWebSocketUrl}). You
               can also paste text directly into this page.</Text>
             {textHistory.map((text, idx) => (
-              <MemoizedAnalyzedText key={idx} text={text} analyze={analyze} jpdbRules={jpdbRules}/>
+              <AnalyzedText key={idx} text={text} analyze={analyze} jpdbRules={jpdbRules} jpdbMiningDeckId={jpdbMiningDeckId}/>
             ))}
           </VStack>
         </Flex>
@@ -116,14 +120,16 @@ interface AnalyzedTextProps {
   text: string,
   analyze: boolean,
   jpdbRules: readonly JpdbRule[],
+  jpdbMiningDeckId: number,
 }
 
-function AnalyzedText({text, analyze, jpdbRules}: AnalyzedTextProps) {
-  const [analysis, setAnalysis] = useState<TextAnalysisResult | undefined>(undefined)
+function AnalyzedText({text, analyze, jpdbRules, jpdbMiningDeckId}: AnalyzedTextProps) {
+  const [wantsAnalyze, _] = useState(analyze)
+  const [analysis, setAnalysis] = useState<TextAnalysis | undefined>(undefined)
 
   useEffect(() => {
     async function analyzeMessage() {
-      if (!analyze || analysis) {
+      if (!wantsAnalyze || analysis) {
         return
       }
       const result = await fetch(analyzeTextUrl(encodeURIComponent(text)))
@@ -134,20 +140,52 @@ function AnalyzedText({text, analyze, jpdbRules}: AnalyzedTextProps) {
 
     analyzeMessage()
       .catch(console.error)
-  }, [analyze, analysis, text])
-
+  }, [wantsAnalyze, analysis, text])
 
   return <Text style={{whiteSpace: "pre-wrap"}}>
     {analysis ? analysis.tokens.map((it, index) => {
-        const rule = evaluateJpdbRules(jpdbRules, analysis.vocabulary[it.vocabularyIndex])
-        return <span key={index} style={{color: rule?.textColor}}>{it.text}</span>
+      const vocabulary = analysis.vocabulary[it.vocabularyIndex]
+        const rule = evaluateJpdbRules(jpdbRules, vocabulary)
+        return <TextToken key={index} text={it.text} rule={rule} vocabulary={vocabulary} jpdbMiningDeckId={jpdbMiningDeckId}/>
       })
       : text
     }
   </Text>
 }
 
-const MemoizedAnalyzedText = React.memo(AnalyzedText, () => true)
+interface TextTokenProps {
+  text: string,
+  rule?: JpdbRule,
+  vocabulary?: JpdbVocabulary,
+  jpdbMiningDeckId: number,
+}
+
+function TextToken({text, rule, vocabulary, jpdbMiningDeckId}: TextTokenProps) {
+  const [mouseOver, setMouseOver] = useState(false)
+  const debouncedMouseOver = useDebounce(mouseOver, 40)
+
+  if (!rule) {
+    return <span>{text}</span>
+  }
+
+  return <JpdbPopupWrapper
+    rule={rule}
+    vocabulary={vocabulary}
+    miningDeckId={jpdbMiningDeckId}
+    mouseOverReference={debouncedMouseOver}
+    placement="bottom"
+    wrapper={(ref) => <span
+      ref={ref}
+      style={{color: rule.textColor}}
+      onMouseEnter={() => setMouseOver(true)}
+      onMouseLeave={() => setMouseOver(false)}
+    >
+      {text}
+    </span>
+    }
+  />
+}
+
 
 export async function getServerSideProps() {
   const appSettings = await services.settingsService.getAppSettings()
@@ -155,6 +193,7 @@ export async function getServerSideProps() {
     props: {
       jpdbEnabled: await services.jpdbService.isEnabled(),
       jpdbRules: appSettings.jpdbRules,
+      jpdbMiningDeckId: appSettings.jpdbMiningDeckId,
       readingTimerEnabled: appSettings.readingTimerEnabled,
       textHookerWebSocketUrl: appSettings.textHookerWebSocketUrl,
     },

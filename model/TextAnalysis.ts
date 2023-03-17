@@ -1,6 +1,6 @@
 import {JpdbVocabulary} from "./JpdbVocabulary"
 
-export interface TextAnalysisResult {
+export interface TextAnalysis {
   readonly tokens: readonly TextAnalysisToken[],
   readonly vocabulary: readonly JpdbVocabulary[],
 }

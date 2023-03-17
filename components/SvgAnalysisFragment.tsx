@@ -7,7 +7,7 @@ import {SvgOverlayContext} from "../util/SvgOverlayContext"
 import SvgSymbol from "./SvgSymbol"
 import SvgHighlight from "./SvgHighlight"
 import {JpdbRule} from "../model/JpdbRule"
-import useDebounce from "../util/Debouce"
+import useDebounce from "../util/Debounce"
 
 interface Props {
   fragment: ImageAnalysisFragment,
