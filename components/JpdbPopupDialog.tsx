@@ -36,7 +36,8 @@ function JpdbPopupDialogInternal(
     miningDeckId,
     compact,
     onMouseOver,
-  }: Props, ref: ForwardedRef<HTMLDivElement>) {
+  }: Props, ref: ForwardedRef<HTMLDivElement>
+) {
   const toast = useToast()
 
   const [expanded, setExpanded] = useState(!compact)

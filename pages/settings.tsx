@@ -66,6 +66,7 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
       <main>
         <JpdbRulesEditModal
           rules={jpdbRules}
+          defaultRules={defaultAppSettings.jpdbRules}
           open={jpdbRulesEditPending}
           onSave={(newJpdbRules) => {
             setJpdbRules(newJpdbRules)

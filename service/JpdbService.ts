@@ -1,6 +1,6 @@
 import {BookService} from "./BookService"
 import * as crypto from "crypto"
-import {TextAnalysisResult, TextAnalysisToken} from "../model/TextAnalysis"
+import {TextAnalysis, TextAnalysisToken} from "../model/TextAnalysis"
 import {SettingsService} from "./SettingsService"
 import {JpdbCache} from "./JpdbCache"
 import {RateLimiter} from "limiter"
@@ -79,7 +79,7 @@ export class JpdbService {
     }
   }
 
-  async analyzeText(text: string): Promise<TextAnalysisResult> {
+  async analyzeText(text: string): Promise<TextAnalysis> {
     if (!text) {
       return {
         tokens: [],
