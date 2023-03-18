@@ -1,25 +1,15 @@
 import type {NextApiRequest, NextApiResponse} from "next"
-import {AppSettings} from "../../model/AppSettings"
+import {AppSettings, appSettingsSchema} from "../../model/AppSettings"
 import {services} from "../../service/Services"
+import {validatePost} from "../../util/Validate"
 
-interface Body {
-  appSettings: AppSettings | undefined
-}
-
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "POST") {
-    res.status(400).end()
-    return
-  }
-  const body = req.body as Body
-
-  if (body.appSettings) {
-    await services.settingsService.updateAppSettings(body.appSettings)
-    res.status(200).end()
-  } else {
-    res.status(400).end()
-  }
+  const appSettings = req.body as AppSettings
+  await services.settingsService.updateAppSettings(appSettings)
+  res.status(200).end()
 }
+
+export default validatePost(appSettingsSchema, handler)

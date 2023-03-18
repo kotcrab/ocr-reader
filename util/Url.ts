@@ -35,7 +35,7 @@ export function bookAnalyzePageUrl(bookId: string, page: number): string {
 }
 
 export function decksUrl(): string {
-  return "/api/decks"
+  return "/api/jpdb/decks"
 }
 
 export function isValidWebSocketUrl(value: string) {

@@ -1,14 +1,18 @@
 import {TextOrientationSetting} from "./TextOrientationSetting"
 import {ReadingDirection} from "./ReadingDirection"
+import {boolean, InferType, mixed, number, object} from "yup"
 
-export interface ReaderSettings {
-  zoom: number,
-  autoFontSize: boolean,
-  fontSize: number,
-  minimumConfidence: number,
-  showText: boolean,
-  showParagraphs: boolean,
-  showAnalysis: boolean,
-  textOrientation: TextOrientationSetting,
-  readingDirection: ReadingDirection,
+export const readerSettingsSchema = object({
+  zoom: number().integer().required(),
+  autoFontSize: boolean().required(),
+  fontSize: number().integer().required(),
+  minimumConfidence: number().required(),
+  showText: boolean().required(),
+  showParagraphs: boolean().required(),
+  showAnalysis: boolean().required(),
+  textOrientation: mixed<TextOrientationSetting>().oneOf(Object.values(TextOrientationSetting)).required(),
+  readingDirection: mixed<ReadingDirection>().oneOf(Object.values(ReadingDirection)).required(),
+})
+
+export interface ReaderSettings extends InferType<typeof readerSettingsSchema> {
 }

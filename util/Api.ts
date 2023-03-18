@@ -1,9 +1,9 @@
-import {BookInfoUpdate} from "../model/Book"
 import {appSettingsUrl, bookReaderSettingsUrl, booksUrl, bookTextDumpUrl, bookUrl, decksUrl} from "./Url"
 import {AppSettings} from "../model/AppSettings"
 import {ReaderSettings} from "../model/ReaderSettings"
 import {RequestError} from "./RequestError"
-import {JpdbDeckId} from "../model/Jpdb"
+import {JpdbDeckId} from "../model/JpdbDeckId"
+import {BookInfoUpdate} from "../model/BookInfoUpdate"
 
 const jsonHeaders = {
   "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export class Api {
     await fetch(appSettingsUrl(), {
       method: "POST",
       headers: jsonHeaders,
-      body: JSON.stringify({appSettings: appSettings}),
+      body: JSON.stringify(appSettings),
     })
   }
 
@@ -34,7 +34,7 @@ export class Api {
     await fetch(bookReaderSettingsUrl(bookId), {
       method: "POST",
       headers: jsonHeaders,
-      body: JSON.stringify({readerSettings: readerSettings}),
+      body: JSON.stringify(readerSettings),
     })
   }
 

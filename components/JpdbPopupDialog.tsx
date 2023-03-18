@@ -16,7 +16,7 @@ import {ForwardedRef, forwardRef, useState} from "react"
 import {JpdbVocabulary} from "../model/JpdbVocabulary"
 import {JPDB_BASE} from "../util/JpdbUitl"
 import {Api} from "../util/Api"
-import {JpdbDeckId} from "../model/Jpdb"
+import {JpdbDeckId, JpdbStandardDeckId} from "../model/JpdbDeckId"
 import {JpdbCardState} from "../model/JpdbCardState"
 
 interface Props {
@@ -102,21 +102,21 @@ function JpdbPopupDialogInternal(
         </Button>
         {isInBlacklist ?
           <Button colorScheme="red" size="xs" fontSize="2xs"
-                  onClick={async () => await removeFromDeck("blacklist", "blacklist")}>
+                  onClick={async () => await removeFromDeck(JpdbStandardDeckId.Blacklist, "blacklist")}>
             Remove from blacklist
           </Button> :
           <Button colorScheme="red" size="xs" fontSize="2xs"
-                  onClick={async () => await addToDeck("blacklist", "blacklist")}>
+                  onClick={async () => await addToDeck(JpdbStandardDeckId.Blacklist, "blacklist")}>
             Blacklist
           </Button>
         }
         {isInNeverForget ?
           <Button colorScheme="green" size="xs" fontSize="2xs"
-                  onClick={async () => await removeFromDeck("never-forget", "never forget")}>
+                  onClick={async () => await removeFromDeck(JpdbStandardDeckId.NeverForget, "never forget")}>
             Unmark as never forget
           </Button> :
           <Button colorScheme="green" size="xs" fontSize="2xs"
-                  onClick={async () => await addToDeck("never-forget", "never forget")}>
+                  onClick={async () => await addToDeck(JpdbStandardDeckId.NeverForget, "never forget")}>
             Never forget
           </Button>
         }
