@@ -13,7 +13,7 @@ export default function SvgPolygons({polygons}: Props) {
   return <>{
     polygons.map((points, index) =>
       <polygon
-        key={`${index}`}
+        key={index}
         points={pointsToPolygonPoints(points, scaleX, scaleY)}
         style={{fill: "rgba(255, 255, 255, .3)"}}
       />

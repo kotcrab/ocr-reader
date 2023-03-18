@@ -13,11 +13,11 @@ interface Props {
   fragment: ImageAnalysisFragment,
   rule: JpdbRule | undefined,
   vocabulary: JpdbVocabulary | undefined,
-  showAnalysis: boolean,
 }
 
-export default function SvgAnalysisFragment({fragment, rule, vocabulary, showAnalysis}: Props) {
-  const {scaleX, scaleY, textOrientation} = useContext(SvgOverlayContext)
+export default function SvgAnalysisFragment({fragment, rule, vocabulary}: Props) {
+  const {scaleX, scaleY, textOrientation, showAnalysis} = useContext(SvgOverlayContext)
+
   const [mouseOver, setMouseOver] = useState(false)
   const debouncedMouseOver = useDebounce(mouseOver, 40)
 
@@ -27,13 +27,12 @@ export default function SvgAnalysisFragment({fragment, rule, vocabulary, showAna
     onMouseEnter={() => setMouseOver(true)}
     onMouseLeave={() => setMouseOver(false)}
   >
-    {showAnalysis && rule ?
-      <SvgHighlight
-        bounds={bounds}
-        rule={rule}
-        vocabulary={vocabulary}
-        mouseOverGroup={debouncedMouseOver}
-      /> : null}
+    {showAnalysis && rule && <SvgHighlight
+      bounds={bounds}
+      rule={rule}
+      vocabulary={vocabulary}
+      mouseOverGroup={debouncedMouseOver}
+    />}
     {fragment.symbols.map((symbol, symbolIndex) =>
       <SvgSymbol
         key={symbolIndex}

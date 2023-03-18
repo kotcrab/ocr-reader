@@ -18,6 +18,7 @@ import {JPDB_BASE} from "../util/JpdbUitl"
 import {Api} from "../util/Api"
 import {JpdbDeckId, JpdbStandardDeckId} from "../model/JpdbDeckId"
 import {JpdbCardState} from "../model/JpdbCardState"
+import {JpdbDeckUpdateMode} from "../model/JpdbDeckUpdateMode"
 
 interface Props {
   vocabulary: JpdbVocabulary,
@@ -45,44 +46,52 @@ function JpdbPopupDialogInternal(
   const popupBgColor = useColorModeValue("gray.200", "gray.900")
   const commonVocabularyColor = useColorModeValue("green.700", "green.500")
 
+  const isInBlacklist = vocabulary.cardStates.includes(JpdbCardState.Blacklisted)
+  const isInNeverForget = vocabulary.cardStates.includes(JpdbCardState.NeverForget)
+
+  function showSuccessToast(message: string) {
+    toast({
+      description: message,
+      status: "success",
+      duration: TOAST_DURATION,
+    })
+  }
+
+  function showErrorToast(message: string) {
+    toast({
+      description: message,
+      status: "error",
+      duration: TOAST_DURATION,
+    })
+  }
+
   async function addToDeck(deckId: JpdbDeckId, friendlyName: string) {
     try {
-      await Api.modifyDeck(deckId, vocabulary.vid, vocabulary.sid, "add")
-      toast({
-        description: `Added ${vocabulary.spelling} to the ${friendlyName} deck`,
-        status: "success",
-        duration: TOAST_DURATION,
-      })
+      await Api.modifyDeck(deckId, vocabulary.vid, vocabulary.sid, JpdbDeckUpdateMode.Add)
+      showSuccessToast(`Added ${vocabulary.spelling} to the ${friendlyName} deck`)
     } catch (e) {
       console.log(e)
-      toast({
-        description: `Could not add ${vocabulary.spelling} to the ${friendlyName} deck`,
-        status: "error",
-        duration: TOAST_DURATION,
-      })
+      showErrorToast(`Could not add ${vocabulary.spelling} to the ${friendlyName} deck`)
     }
   }
 
   async function removeFromDeck(deckId: JpdbDeckId, friendlyName: string) {
     try {
-      await Api.modifyDeck(deckId, vocabulary.vid, vocabulary.sid, "remove")
-      toast({
-        description: `Removed ${vocabulary.spelling} from the ${friendlyName} deck`,
-        status: "success",
-        duration: TOAST_DURATION,
-      })
+      await Api.modifyDeck(deckId, vocabulary.vid, vocabulary.sid, JpdbDeckUpdateMode.Remove)
+      showSuccessToast(`Removed ${vocabulary.spelling} from the ${friendlyName} deck`)
     } catch (e) {
       console.log(e)
-      toast({
-        description: `Could not remove ${vocabulary.spelling} from the ${friendlyName} deck`,
-        status: "error",
-        duration: TOAST_DURATION,
-      })
+      showErrorToast(`Could not remove ${vocabulary.spelling} from the ${friendlyName} deck`)
     }
   }
 
-  const isInBlacklist = vocabulary.cardStates.includes(JpdbCardState.Blacklisted)
-  const isInNeverForget = vocabulary.cardStates.includes(JpdbCardState.NeverForget)
+  async function toggleInDeck(isInDeck: boolean, deckId: JpdbDeckId, friendlyName: string) {
+    if (isInDeck) {
+      await removeFromDeck(deckId, friendlyName)
+    } else {
+      await addToDeck(deckId, friendlyName)
+    }
+  }
 
   return <Box
     ref={ref}
@@ -96,30 +105,22 @@ function JpdbPopupDialogInternal(
   >
     <VStack alignItems="start" spacing={0}>
       <HStack spacing={1} pb={3} alignSelf="stretch">
-        <Button colorScheme="blue" size="xs" fontSize="2xs" disabled={miningDeckId <= 0}
-                onClick={async () => await addToDeck(miningDeckId, "mining")}>
+        <Button
+          colorScheme="blue" size="xs" fontSize="2xs"
+          disabled={miningDeckId <= 0}
+          onClick={async () => await addToDeck(miningDeckId, "mining")}>
           Mine
         </Button>
-        {isInBlacklist ?
-          <Button colorScheme="red" size="xs" fontSize="2xs"
-                  onClick={async () => await removeFromDeck(JpdbStandardDeckId.Blacklist, "blacklist")}>
-            Remove from blacklist
-          </Button> :
-          <Button colorScheme="red" size="xs" fontSize="2xs"
-                  onClick={async () => await addToDeck(JpdbStandardDeckId.Blacklist, "blacklist")}>
-            Blacklist
-          </Button>
-        }
-        {isInNeverForget ?
-          <Button colorScheme="green" size="xs" fontSize="2xs"
-                  onClick={async () => await removeFromDeck(JpdbStandardDeckId.NeverForget, "never forget")}>
-            Unmark as never forget
-          </Button> :
-          <Button colorScheme="green" size="xs" fontSize="2xs"
-                  onClick={async () => await addToDeck(JpdbStandardDeckId.NeverForget, "never forget")}>
-            Never forget
-          </Button>
-        }
+        <Button
+          colorScheme="red" size="xs" fontSize="2xs"
+          onClick={async () => toggleInDeck(isInBlacklist, JpdbStandardDeckId.Blacklist, "blacklist")}>
+          {isInBlacklist ? "Remove from blacklist" : "Blacklist"}
+        </Button>
+        <Button
+          colorScheme="green" size="xs" fontSize="2xs"
+          onClick={async () => toggleInDeck(isInNeverForget, JpdbStandardDeckId.NeverForget, "never forget")}>
+          {isInNeverForget ? "Unmark as never forget" : "Never forget"}
+        </Button>
       </HStack>
       <HStack alignSelf="stretch">
         <Text fontSize="2xl">

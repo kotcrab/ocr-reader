@@ -9,10 +9,9 @@ interface Props {
   paragraphs: readonly ImageAnalysisParagraph[],
   vocabulary: readonly JpdbVocabulary[],
   rules: readonly JpdbRule[],
-  showAnalysis: boolean,
 }
 
-export default function SvgAnalysis({paragraphs, vocabulary, rules, showAnalysis}: Props) {
+export default function SvgAnalysis({paragraphs, vocabulary, rules}: Props) {
   return <>{
     paragraphs.flatMap(paragraph =>
       paragraph.fragments.flatMap((fragment, fragmentIndex) =>
@@ -20,7 +19,6 @@ export default function SvgAnalysis({paragraphs, vocabulary, rules, showAnalysis
           key={`${paragraph.id}-${fragmentIndex}`}
           fragment={fragment}
           rule={evaluateJpdbRules(rules, vocabulary[fragment.vocabularyIndex])}
-          showAnalysis={showAnalysis}
           vocabulary={vocabulary[fragment.vocabularyIndex]}
         />
       )

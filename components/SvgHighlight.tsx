@@ -10,7 +10,7 @@ import JpdbPopupWrapper from "./JpdbPopupWrapper"
 interface Props {
   bounds: Rectangle,
   rule: JpdbRule,
-  vocabulary?: JpdbVocabulary,
+  vocabulary: JpdbVocabulary | undefined,
   mouseOverGroup: boolean,
 }
 
@@ -18,11 +18,11 @@ export default function SvgHighlight({bounds, rule, vocabulary, mouseOverGroup}:
   const {jpdbMiningDeckId} = useContext(SvgOverlayContext)
 
   return <JpdbPopupWrapper
+    placement="right"
     rule={rule}
     vocabulary={vocabulary}
     miningDeckId={jpdbMiningDeckId}
     mouseOverReference={mouseOverGroup}
-    placement="right"
     wrapper={(ref) => <rect
       x={bounds.x}
       y={bounds.y}

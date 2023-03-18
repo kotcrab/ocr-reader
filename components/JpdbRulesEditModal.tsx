@@ -28,7 +28,7 @@ export default function JpdbRulesEditModal({rules, defaultRules, open, onSave, o
 
   function finish() {
     try {
-      onSave(array(jpdbRuleSchema).validateSync(JSON.parse(newRules)) as JpdbRule[])
+      onSave(array(jpdbRuleSchema).required().validateSync(JSON.parse(newRules)))
       toast({
         description: "Don't forget to save your settings",
         status: "info",

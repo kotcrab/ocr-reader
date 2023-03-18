@@ -4,11 +4,13 @@ OCR Reader is an app for organizing and reading scans of physical Japanese books
 Each page is run through OCR (optical character recognition) which allows for selecting text
 and use of pop-up dictionaries such as [yomichan](https://github.com/FooSoft/yomichan).
 Reader also integrates with [JPDB](https://jpdb.io/) to automatically parse the text and
-highlight unknown words.
+highlight unknown words. There is also a JPDB vocabulary popup which can be used to check
+words definitions and to quickly add them to your decks.
 
-There is also a text hooker page, it can also highlight unknown words thanks to the JPDB integration.
+The app also includes a text hooker page, it can also parse the text and highlight unknown
+words thanks to the JPDB integration.
 
-<img src="https://user-images.githubusercontent.com/4594081/224509444-e65b09c7-b1ce-428a-aa33-27e6f943d8f2.png" width="70%" height="70%" />
+<img src="https://user-images.githubusercontent.com/4594081/224509444-e65b09c7-b1ce-428a-aa33-27e6f943d8f2.png" width="80%" height="80%" />
 
 ## Setup
 
@@ -136,4 +138,4 @@ WebSocket is connected after opening the text hooker page.
 
 You can also just paste text directly into the page even when the WebSocket is disconnected.
 
-If you have configured JPDB then click the `Analyze with JPDB` checkbox to enable words highlighting.
+If you have configured JPDB then click on the `Analyze with JPDB` checkbox to enable text parsing and highlighting words.
