@@ -1,9 +1,10 @@
-import {appSettingsUrl, bookReaderSettingsUrl, booksUrl, bookTextDumpUrl, bookUrl, decksUrl} from "./Url"
+import {appSettingsUrl, bookReaderSettingsUrl, booksUrl, bookTextDumpUrl, bookUrl, jpdbDecksUrl} from "./Url"
 import {AppSettings} from "../model/AppSettings"
 import {ReaderSettings} from "../model/ReaderSettings"
 import {RequestError} from "./RequestError"
 import {JpdbDeckId} from "../model/JpdbDeckId"
 import {BookInfoUpdate} from "../model/BookInfoUpdate"
+import {JpdbDeckUpdateMode} from "../model/JpdbDeckUpdateMode"
 
 const jsonHeaders = {
   "Content-Type": "application/json",
@@ -12,14 +13,6 @@ const jsonHeaders = {
 export class Api {
   static async rescanBooks() {
     await fetch(booksUrl(), {method: "POST"})
-  }
-
-  static async ocrBook(bookId: string) {
-    await fetch(bookUrl(bookId), {
-      method: "POST",
-      headers: jsonHeaders,
-      body: JSON.stringify({ocr: true}),
-    })
   }
 
   static async updateAppSettings(appSettings: AppSettings) {
@@ -38,6 +31,14 @@ export class Api {
     })
   }
 
+  static async ocrBook(bookId: string) {
+    await fetch(bookUrl(bookId), {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({ocr: true}),
+    })
+  }
+
   static async updateBookInfo(bookId: string, info: BookInfoUpdate) {
     await fetch(bookUrl(bookId), {
       method: "POST",
@@ -51,8 +52,8 @@ export class Api {
     return await res.blob()
   }
 
-  static async modifyDeck(deckId: JpdbDeckId, vid: number, sid: number, mode: "add" | "remove") {
-    const response = await fetch(decksUrl(), {
+  static async modifyDeck(deckId: JpdbDeckId, vid: number, sid: number, mode: JpdbDeckUpdateMode) {
+    const response = await fetch(jpdbDecksUrl(), {
       method: "POST",
       headers: jsonHeaders,
       body: JSON.stringify({deckId: deckId, vid: vid, sid: sid, mode: mode}),

@@ -7,12 +7,12 @@ import {JpdbRule} from "../model/JpdbRule"
 import {JpdbPopup} from "../model/JpdbPopup"
 
 interface Props {
-  wrapper: (reference: React.Ref<any>) => JSX.Element,
+  placement: "right" | "bottom",
   rule: JpdbRule,
-  vocabulary?: JpdbVocabulary,
+  vocabulary: JpdbVocabulary | undefined,
   miningDeckId: number,
   mouseOverReference: boolean,
-  placement: "right" | "bottom",
+  wrapper: (reference: React.Ref<any>) => JSX.Element,
 }
 
 export default function JpdbPopupWrapper(
@@ -25,7 +25,6 @@ export default function JpdbPopupWrapper(
     placement,
   }: Props
 ) {
-
   const {popperRef, referenceRef} = usePopper({placement: placement})
 
   const [mouseOverPopup, setMouseOverPopup] = useState(false)

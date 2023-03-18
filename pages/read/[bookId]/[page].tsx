@@ -54,7 +54,8 @@ export default function ReadBookPage(
     jpdbMiningDeckId,
     readingTimerEnabled,
     readerSettings,
-  }: Props) {
+  }: Props
+) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
@@ -138,7 +139,7 @@ export default function ReadBookPage(
       <main>
         <SelectionColorOverride/>
         <Flex p={4} direction="column" alignItems="center">
-          <Grid alignSelf="stretch" templateColumns='repeat(3, 1fr)' pb={4}>
+          <Grid alignSelf="stretch" templateColumns="repeat(3, 1fr)" pb={4}>
             <GridItem>
               <ExitButton/>
             </GridItem>

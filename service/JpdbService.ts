@@ -97,19 +97,17 @@ export class JpdbService {
         const token = tokens[currentToken]
         const end = currentPosition + token.length
         analysisTokens.push({
-            text: text.slice(currentPosition, end),
-            vocabularyIndex: token.vocabularyIndex,
-          }
-        )
+          text: text.slice(currentPosition, end),
+          vocabularyIndex: token.vocabularyIndex,
+        })
         currentPosition = end
         currentToken++
       } else {
         const end = currentToken < tokens.length ? tokens[currentToken].position : text.length
         analysisTokens.push({
-            text: text.slice(currentPosition, end),
-            vocabularyIndex: -1,
-          }
-        )
+          text: text.slice(currentPosition, end),
+          vocabularyIndex: -1,
+        })
         currentPosition = end
       }
     }
@@ -157,6 +155,10 @@ export class JpdbService {
         }
       ),
     })
+    if (!response.ok) {
+      console.log(await response.json())
+      throw new RequestError("Could not parse text")
+    }
     const parseResult = await response.json() as JpdbPackedParseResult
     return {
       tokens: parseResult.tokens.map(it => unpackJpdbToken(it))
@@ -166,6 +168,7 @@ export class JpdbService {
   }
 
   async modifyVocabularyInDeck(deckId: JpdbDeckId, vid: number, sid: number, mode: "add" | "remove") {
+    await this.rateLimiter.removeTokens(1)
     const response = await fetch(`${JPDB_BASE}/api/v1/deck/${mode}-vocabulary`, {
       method: "POST",
       headers: await this.getStandardPostHeaders(),

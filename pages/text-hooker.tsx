@@ -22,7 +22,15 @@ interface Props {
   textHookerWebSocketUrl: string,
 }
 
-export default function TextHooker({jpdbEnabled, jpdbRules, jpdbMiningDeckId, readingTimerEnabled, textHookerWebSocketUrl}: Props) {
+export default function TextHooker(
+  {
+    jpdbEnabled,
+    jpdbRules,
+    jpdbMiningDeckId,
+    readingTimerEnabled,
+    textHookerWebSocketUrl,
+  }: Props
+) {
   const bottomDivRef = useRef<HTMLDivElement>(null)
   const [analyze, setAnalyze] = useState(false)
   const [textHistory, setTextHistory] = useState<string[]>([])
@@ -106,7 +114,13 @@ export default function TextHooker({jpdbEnabled, jpdbRules, jpdbMiningDeckId, re
             <Text>The WebSocket is {connectionStatus.toLowerCase()}. ({textHookerWebSocketUrl}). You
               can also paste text directly into this page.</Text>
             {textHistory.map((text, idx) => (
-              <AnalyzedText key={idx} text={text} analyze={analyze} jpdbRules={jpdbRules} jpdbMiningDeckId={jpdbMiningDeckId}/>
+              <AnalyzedText
+                key={idx}
+                text={text}
+                analyze={analyze}
+                jpdbRules={jpdbRules}
+                jpdbMiningDeckId={jpdbMiningDeckId}
+              />
             ))}
           </VStack>
         </Flex>
@@ -144,9 +158,15 @@ function AnalyzedText({text, analyze, jpdbRules, jpdbMiningDeckId}: AnalyzedText
 
   return <Text style={{whiteSpace: "pre-wrap"}}>
     {analysis ? analysis.tokens.map((it, index) => {
-      const vocabulary = analysis.vocabulary[it.vocabularyIndex]
+        const vocabulary = analysis.vocabulary[it.vocabularyIndex]
         const rule = evaluateJpdbRules(jpdbRules, vocabulary)
-        return <TextToken key={index} text={it.text} rule={rule} vocabulary={vocabulary} jpdbMiningDeckId={jpdbMiningDeckId}/>
+        return <TextToken
+          key={index}
+          text={it.text}
+          rule={rule}
+          vocabulary={vocabulary}
+          miningDeckId={jpdbMiningDeckId}
+        />
       })
       : text
     }
@@ -155,12 +175,12 @@ function AnalyzedText({text, analyze, jpdbRules, jpdbMiningDeckId}: AnalyzedText
 
 interface TextTokenProps {
   text: string,
-  rule?: JpdbRule,
-  vocabulary?: JpdbVocabulary,
-  jpdbMiningDeckId: number,
+  rule: JpdbRule | undefined,
+  vocabulary: JpdbVocabulary | undefined,
+  miningDeckId: number,
 }
 
-function TextToken({text, rule, vocabulary, jpdbMiningDeckId}: TextTokenProps) {
+function TextToken({text, rule, vocabulary, miningDeckId}: TextTokenProps) {
   const [mouseOver, setMouseOver] = useState(false)
   const debouncedMouseOver = useDebounce(mouseOver, 40)
 
@@ -171,7 +191,7 @@ function TextToken({text, rule, vocabulary, jpdbMiningDeckId}: TextTokenProps) {
   return <JpdbPopupWrapper
     rule={rule}
     vocabulary={vocabulary}
-    miningDeckId={jpdbMiningDeckId}
+    miningDeckId={miningDeckId}
     mouseOverReference={debouncedMouseOver}
     placement="bottom"
     wrapper={(ref) => <span
@@ -181,8 +201,7 @@ function TextToken({text, rule, vocabulary, jpdbMiningDeckId}: TextTokenProps) {
       onMouseLeave={() => setMouseOver(false)}
     >
       {text}
-    </span>
-    }
+    </span>}
   />
 }
 

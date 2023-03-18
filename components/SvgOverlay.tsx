@@ -40,7 +40,8 @@ export default function SvgOverlay(
     textOrientation,
     minimumConfidence,
     jpdbMiningDeckId,
-  }: Props) {
+  }: Props
+) {
   const sizeDiv = 1000
   const scaleX = pageDimensions.w / sizeDiv
   const scaleY = pageDimensions.h / sizeDiv
@@ -57,7 +58,9 @@ export default function SvgOverlay(
     <SvgOverlayContext.Provider value={{
       scaleX: scaleX,
       scaleY: scaleY,
+      showParagraphs: showParagraphs,
       showText: showText,
+      showAnalysis: showAnalysis,
       autoFontSize: autoFontSize,
       fontSize: fontSize,
       textOrientation: textOrientation,
@@ -78,8 +81,7 @@ export default function SvgOverlay(
           <SvgAnalysis
             paragraphs={filteredAnalysisParagraphs || []}
             vocabulary={analysis.vocabulary}
-            rules={jpdbRules}
-            showAnalysis={showAnalysis}/>
+            rules={jpdbRules}/>
           : filteredParagraphs.map(paragraph => <SvgParagraph key={paragraph.id} lines={paragraph.lines}/>)
         }
       </svg>

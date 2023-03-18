@@ -26,6 +26,7 @@ jobs:
         run: |
           mv ./.next/standalone ./ocr-reader
           mv ./.next/static ./ocr-reader/.next
+          mkdir -p ./ocr-reader/data
           mv ./public ./ocr-reader
           cp ./scripts/* ./ocr-reader
           cp ./README.md ./ocr-reader
