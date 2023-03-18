@@ -137,9 +137,10 @@ function JpdbPopupDialogInternal(
           {vocabulary.cardStates.map((state, index) => <Text key={index} fontSize="sm">{state}</Text>)}
         </VStack>
       </HStack>
-      <Text fontSize="sm" color={vocabulary.frequencyRank < 30000 ? commonVocabularyColor : undefined}>
-        Top {vocabulary.frequencyRank}
-      </Text>
+      {vocabulary.frequencyRank &&
+        <Text fontSize="sm" color={vocabulary.frequencyRank < 30000 ? commonVocabularyColor : undefined}>
+          Top {vocabulary.frequencyRank}
+        </Text>}
       {expanded ?
         <OrderedList pt={3} pl={4}>
           {vocabulary.meanings.map((meaning, index) => <ListItem key={index} fontSize="sm">{meaning}</ListItem>)}

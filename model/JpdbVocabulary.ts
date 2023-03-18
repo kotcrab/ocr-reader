@@ -6,7 +6,7 @@ export interface JpdbVocabulary {
   readonly rid: number,
   readonly spelling: string,
   readonly reading: string,
-  readonly frequencyRank: number,
+  readonly frequencyRank?: number,
   readonly meanings: string[],
   readonly cardStates: JpdbCardState[]
 }

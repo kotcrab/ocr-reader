@@ -1,3 +1,6 @@
+#### Version 1.3.1
+- Fixed bug where missing frequency rank is not handled in the popup
+
 #### Version 1.3
 - JPDB integration was rewritten to use the new JPDB API.
   - If you are using this integration you will need to go the settings and enter your JPDB API key.
