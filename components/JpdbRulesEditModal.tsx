@@ -33,7 +33,6 @@ export default function JpdbRulesEditModal({rules, defaultRules, open, onSave, o
         description: "Don't forget to save your settings",
         status: "info",
         duration: 2000,
-        isClosable: true,
       })
     } catch (e: any) {
       console.log(e)
