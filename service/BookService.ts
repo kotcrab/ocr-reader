@@ -2,7 +2,7 @@ import {StorageService} from "./StorageService"
 import vision from "@google-cloud/vision"
 import path from "path"
 import {emptyOcrJob} from "../model/OcrJob"
-import {Book, BookInfoUpdate} from "../model/Book"
+import {Book} from "../model/Book"
 import {RequestError} from "../util/RequestError"
 import {bookToBookResponse} from "../model/BookResponse"
 import {PromisePool} from "@supercharge/promise-pool"
@@ -13,6 +13,7 @@ import {TextOrientation} from "../model/TextOrientation"
 import {Dimensions} from "../model/Dimensions"
 import IWord = google.cloud.vision.v1.IWord
 import IVertex = google.cloud.vision.v1.IVertex
+import {BookInfoUpdate} from "../model/BookInfoUpdate"
 
 const {promisify} = require("util")
 const sizeOf = promisify(require("image-size"))

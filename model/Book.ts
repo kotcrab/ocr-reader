@@ -21,11 +21,3 @@ export interface BookInfo {
   pinned: boolean,
   currentPage: number,
 }
-
-export interface BookInfoUpdate {
-  description?: string,
-  notes?: string,
-  source?: string,
-  archived?: boolean,
-  pinned?: boolean,
-}

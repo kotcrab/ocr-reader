@@ -1,6 +1,7 @@
 import type {NextApiRequest, NextApiResponse} from "next"
 import {services} from "../../../../../service/Services"
 import * as fs from "fs"
+import {validateGet} from "../../../../../util/Validate"
 
 function getParams(req: NextApiRequest) {
   const {bookId, page, ocr, analyze} = req.query
@@ -12,14 +13,10 @@ function getParams(req: NextApiRequest) {
   }
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "GET") {
-    res.status(400).end()
-    return
-  }
   const {bookId, page, ocr, analyze} = getParams(req)
 
   if (ocr) {
@@ -33,6 +30,8 @@ export default async function handler(
     fs.createReadStream(imagePath).pipe(res)
   }
 }
+
+export default validateGet(handler)
 
 export const config = {
   api: {

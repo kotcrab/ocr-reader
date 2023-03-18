@@ -12,7 +12,7 @@ import {ImageAnalysis, ImageAnalysisFragment, ImageAnalysisParagraph} from "../m
 import {unionRectangles} from "../util/OverlayUtil"
 import {JPDB_BASE} from "../util/JpdbUitl"
 import {RequestError} from "../util/RequestError"
-import {JpdbDeckId} from "../model/Jpdb"
+import {JpdbDeckId} from "../model/JpdbDeckId"
 
 export class JpdbService {
   private readonly bookService: BookService

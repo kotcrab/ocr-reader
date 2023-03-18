@@ -1,5 +1,6 @@
 import type {NextApiRequest, NextApiResponse} from "next"
 import {services} from "../../../../service/Services"
+import {validateGet} from "../../../../util/Validate"
 
 function getParams(req: NextApiRequest) {
   const {bookId, removeLineBreaks} = req.query
@@ -9,15 +10,13 @@ function getParams(req: NextApiRequest) {
   }
 }
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "GET") {
-    res.status(400).end()
-    return
-  }
   const {bookId, removeLineBreaks} = getParams(req)
 
   res.status(200).send(await services.bookService.getBookTextDump(bookId, removeLineBreaks))
 }
+
+export default validateGet(handler)

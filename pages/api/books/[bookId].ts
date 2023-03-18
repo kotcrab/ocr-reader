@@ -1,6 +1,8 @@
 import type {NextApiRequest, NextApiResponse} from "next"
 import {services} from "../../../service/Services"
-import {BookInfoUpdate} from "../../../model/Book"
+import {boolean, InferType, number, object} from "yup"
+import {bookInfoUpdateSchema} from "../../../model/BookInfoUpdate"
+import {validatePost} from "../../../util/Validate"
 
 function getParams(req: NextApiRequest) {
   const {bookId} = req.query
@@ -9,20 +11,17 @@ function getParams(req: NextApiRequest) {
   }
 }
 
-interface Body {
-  ocr: boolean | undefined
-  currentPage: number | undefined
-  info: BookInfoUpdate | undefined
-}
+const bodySchema = object({
+  ocr: boolean(),
+  currentPage: number().integer(),
+  info: bookInfoUpdateSchema,
+})
+type Body = InferType<typeof bodySchema>;
 
-export default async function handler(
+async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method !== "POST") {
-    res.status(400).end()
-    return
-  }
   const {bookId} = getParams(req)
   const body = req.body as Body
 
@@ -39,3 +38,5 @@ export default async function handler(
     res.status(400).end()
   }
 }
+
+export default validatePost(bodySchema, handler)
