@@ -1,7 +1,5 @@
 import PageHead from "../components/PageHead"
 import {
-  Alert,
-  AlertIcon,
   Box,
   Button,
   Checkbox,
@@ -12,6 +10,7 @@ import {
   FormLabel,
   HStack,
   Text,
+  useToast,
   VStack,
 } from "@chakra-ui/react"
 import React, {useState} from "react"
@@ -30,23 +29,23 @@ interface Props {
 }
 
 export default function Settings({appSettings, defaultAppSettings}: Props) {
+  const toast = useToast()
+
   const [readingTimerEnabled, setReadingTimerEnabled] = useState(appSettings.readingTimerEnabled)
   const [jpdbApiKey, setJpdbApiKey] = useState(appSettings.jpdbApiKey)
   const [jpdbMiningDeckId, setJpdbMiningDeckId] = useState(appSettings.jpdbMiningDeckId)
   const [jpdbRules, setJpdbRules] = useState(appSettings.jpdbRules)
   const [textHookerWebSocketUrl, setTextHookerWebSocketUrl] = useState(appSettings.textHookerWebSocketUrl)
 
-  const [settingsSaved, setSettingsSaved] = useState(false)
-  const [settingsInvalid, setSettingsInvalid] = useState(false)
-  const [settingsInvalidMessage, setSettingsInvalidMessage] = useState("")
-
   const [jpdbRulesEditPending, setJpdbRulesEditPending] = useState(false)
 
   async function saveSettings() {
     if (!isValidWebSocketUrl(textHookerWebSocketUrl)) {
-      setSettingsSaved(false)
-      setSettingsInvalid(true)
-      setSettingsInvalidMessage("WebSocket URL is not valid")
+      toast({
+        description: "WebSocket URL is not valid",
+        status: "error",
+        duration: 3000,
+      })
       return
     }
     await Api.updateAppSettings({
@@ -56,8 +55,11 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
       jpdbRules: jpdbRules,
       textHookerWebSocketUrl: textHookerWebSocketUrl,
     })
-    setSettingsSaved(true)
-    setSettingsInvalid(false)
+    toast({
+      description: "Settings saved",
+      status: "success",
+      duration: 1200,
+    })
   }
 
   return (
@@ -78,14 +80,6 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
           <NavBar/>
           <Container maxW="xl">
             <VStack alignItems="center" spacing="8">
-              {settingsSaved ? <Alert status="success">
-                <AlertIcon/>
-                Settings saved
-              </Alert> : null}
-              {settingsInvalid ? <Alert status="error">
-                <AlertIcon/>
-                {settingsInvalidMessage}
-              </Alert> : null}
               <Text fontSize="2xl">Settings</Text>
               <Text fontSize="xl">General</Text>
               <VStack alignSelf="start">
