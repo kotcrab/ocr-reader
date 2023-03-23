@@ -6,22 +6,28 @@ import {JpdbRule} from "../model/JpdbRule"
 import {SvgOverlayContext} from "../util/SvgOverlayContext"
 import {rgba} from "color2k"
 import JpdbPopupWrapper from "./JpdbPopupWrapper"
+import {TextOrientation} from "../model/TextOrientation"
 
 interface Props {
   bounds: Rectangle,
   rule: JpdbRule,
   vocabulary: JpdbVocabulary | undefined,
+  textOrientation: TextOrientation,
   mouseOverGroup: boolean,
 }
 
-export default function SvgHighlight({bounds, rule, vocabulary, mouseOverGroup}: Props) {
-  const {jpdbMiningDeckId} = useContext(SvgOverlayContext)
+export default function SvgHighlight({bounds, rule, vocabulary, textOrientation, mouseOverGroup}: Props) {
+  const {
+    jpdbMiningDeckId,
+    jpdbHorizontalTextPopupPosition,
+    jpdbVerticalTextPopupPosition,
+  } = useContext(SvgOverlayContext)
 
   return <JpdbPopupWrapper
-    placement="right"
     rule={rule}
     vocabulary={vocabulary}
     miningDeckId={jpdbMiningDeckId}
+    position={textOrientation == TextOrientation.Horizontal ? jpdbHorizontalTextPopupPosition : jpdbVerticalTextPopupPosition}
     mouseOverReference={mouseOverGroup}
     wrapper={(ref) => <rect
       x={bounds.x}

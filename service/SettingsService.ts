@@ -8,6 +8,7 @@ import {ReadingDirection} from "../model/ReadingDirection"
 import {JpdbRule} from "../model/JpdbRule"
 import {JpdbCardState} from "../model/JpdbCardState"
 import {JpdbPopup} from "../model/JpdbPopup"
+import {PopupPosition} from "../model/PopupPosition"
 
 export class SettingsService {
   private readonly appSettingsFile: string
@@ -24,6 +25,8 @@ export class SettingsService {
       readingTimerEnabled: true,
       jpdbApiKey: "",
       jpdbMiningDeckId: 0,
+      jpdbHorizontalTextPopupPosition: PopupPosition.BelowText,
+      jpdbVerticalTextPopupPosition: PopupPosition.LeftOfText,
       jpdbRules: DEFAULT_JPDB_RULES,
       textHookerWebSocketUrl: "ws://127.0.0.1:9001",
     }
@@ -52,6 +55,8 @@ export class SettingsService {
       readingTimerEnabled: data.readingTimerEnabled ?? defaultSettings.readingTimerEnabled,
       jpdbApiKey: data.jpdbApiKey ?? defaultSettings.jpdbApiKey,
       jpdbMiningDeckId: data.jpdbMiningDeckId ?? defaultSettings.jpdbMiningDeckId,
+      jpdbHorizontalTextPopupPosition: data.jpdbHorizontalTextPopupPosition ?? defaultSettings.jpdbHorizontalTextPopupPosition,
+      jpdbVerticalTextPopupPosition: data.jpdbVerticalTextPopupPosition ?? defaultSettings.jpdbVerticalTextPopupPosition,
       jpdbRules: data.jpdbRules ?? defaultSettings.jpdbRules,
       textHookerWebSocketUrl: data.textHookerWebSocketUrl ?? defaultSettings.textHookerWebSocketUrl,
     }

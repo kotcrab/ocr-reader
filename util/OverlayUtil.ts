@@ -63,6 +63,6 @@ export function pointsToPolygonPoints(points: readonly number[], scaleX: number,
   return polygon.substring(0, polygon.length - 1)
 }
 
-export function effectiveTextOrientation(setting: TextOrientationSetting, detected: TextOrientation) {
+export function getEffectiveTextOrientation(setting: TextOrientationSetting, detected: TextOrientation) {
   return setting == TextOrientationSetting.Auto ? detected : textOrientationFromSetting(setting)
 }

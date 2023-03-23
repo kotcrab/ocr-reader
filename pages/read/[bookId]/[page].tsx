@@ -22,6 +22,7 @@ import {Api} from "../../../util/Api"
 import {Dimensions} from "../../../model/Dimensions"
 import {ImageAnalysis} from "../../../model/ImageAnalysis"
 import {JpdbRule} from "../../../model/JpdbRule"
+import {PopupPosition} from "../../../model/PopupPosition"
 
 interface Props {
   title: string,
@@ -31,6 +32,8 @@ interface Props {
   jpdbRules: readonly JpdbRule[],
   jpdbEnabled: boolean,
   jpdbMiningDeckId: number,
+  jpdbHorizontalTextPopupPosition: PopupPosition,
+  jpdbVerticalTextPopupPosition: PopupPosition,
   readingTimerEnabled: boolean,
   readerSettings: ReaderSettings,
 }
@@ -52,6 +55,8 @@ export default function ReadBookPage(
     jpdbRules,
     jpdbEnabled,
     jpdbMiningDeckId,
+    jpdbHorizontalTextPopupPosition,
+    jpdbVerticalTextPopupPosition,
     readingTimerEnabled,
     readerSettings,
   }: Props
@@ -204,6 +209,8 @@ export default function ReadBookPage(
               textOrientation={textOrientation}
               minimumConfidence={minimumConfidence}
               jpdbMiningDeckId={jpdbMiningDeckId}
+              jpdbHorizontalTextPopupPosition={jpdbHorizontalTextPopupPosition}
+              jpdbVerticalTextPopupPosition={jpdbVerticalTextPopupPosition}
             />
           </div>
         </Flex>
@@ -229,6 +236,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       jpdbEnabled: await services.jpdbService.isEnabled(),
       jpdbRules: appSettings.jpdbRules,
       jpdbMiningDeckId: appSettings.jpdbMiningDeckId,
+      jpdbHorizontalTextPopupPosition: appSettings.jpdbHorizontalTextPopupPosition,
+      jpdbVerticalTextPopupPosition: appSettings.jpdbVerticalTextPopupPosition,
       readingTimerEnabled: appSettings.readingTimerEnabled,
       readerSettings: readerSettings,
     },

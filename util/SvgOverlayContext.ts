@@ -1,5 +1,6 @@
 import {createContext} from "react"
 import {TextOrientationSetting} from "../model/TextOrientationSetting"
+import {PopupPosition} from "../model/PopupPosition"
 
 export const SvgOverlayContext = createContext({
   scaleX: 1,
@@ -12,4 +13,6 @@ export const SvgOverlayContext = createContext({
   textOrientation: TextOrientationSetting.Auto,
   chromiumBased: false,
   jpdbMiningDeckId: 0,
+  jpdbHorizontalTextPopupPosition: PopupPosition.AboveText,
+  jpdbVerticalTextPopupPosition: PopupPosition.AboveText,
 })

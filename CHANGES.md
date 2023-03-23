@@ -1,5 +1,9 @@
+#### Version 1.3.2
+- JPDB popup placement can now be configured for horizontal and vertical text.
+- Reorganized settings page.
+
 #### Version 1.3.1
-- Fixed bug where missing frequency rank is not handled in the popup
+- Fixed bug where missing frequency rank is not handled in the popup.
 
 #### Version 1.3
 - JPDB integration was rewritten to use the new JPDB API.

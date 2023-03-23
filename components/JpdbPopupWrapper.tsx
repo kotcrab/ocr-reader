@@ -5,27 +5,28 @@ import {Portal, usePopper} from "@chakra-ui/react"
 import {JpdbPopupDialog} from "./JpdbPopupDialog"
 import {JpdbRule} from "../model/JpdbRule"
 import {JpdbPopup} from "../model/JpdbPopup"
+import {PopupPosition} from "../model/PopupPosition"
 
 interface Props {
-  placement: "right" | "bottom",
   rule: JpdbRule,
   vocabulary: JpdbVocabulary | undefined,
   miningDeckId: number,
+  position: PopupPosition,
   mouseOverReference: boolean,
   wrapper: (reference: React.Ref<any>) => JSX.Element,
 }
 
 export default function JpdbPopupWrapper(
   {
-    wrapper,
     rule,
     vocabulary,
     miningDeckId,
+    position,
     mouseOverReference,
-    placement,
+    wrapper,
   }: Props
 ) {
-  const {popperRef, referenceRef} = usePopper({placement: placement})
+  const {popperRef, referenceRef} = usePopper({placement: positionToPlacement(position)})
 
   const [mouseOverPopup, setMouseOverPopup] = useState(false)
 
@@ -45,4 +46,18 @@ export default function JpdbPopupWrapper(
     </Portal>
     }
   </>
+}
+
+function positionToPlacement(position: PopupPosition) {
+  switch (position) {
+    case PopupPosition.BelowText:
+      return "bottom"
+    case PopupPosition.AboveText:
+      return "top"
+    case PopupPosition.LeftOfText:
+      return "left"
+    case PopupPosition.RightOfText:
+      return "right"
+  }
+  throw new Error("Unhandled popup position")
 }

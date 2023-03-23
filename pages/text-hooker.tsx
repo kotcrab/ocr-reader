@@ -13,11 +13,13 @@ import {JpdbRule} from "../model/JpdbRule"
 import {JpdbVocabulary} from "../model/JpdbVocabulary"
 import JpdbPopupWrapper from "../components/JpdbPopupWrapper"
 import useDebounce from "../util/Debounce"
+import {PopupPosition} from "../model/PopupPosition"
 
 interface Props {
   jpdbEnabled: boolean,
   jpdbRules: readonly JpdbRule[],
   jpdbMiningDeckId: number,
+  jpdbPopupPosition: PopupPosition,
   readingTimerEnabled: boolean,
   textHookerWebSocketUrl: string,
 }
@@ -27,6 +29,7 @@ export default function TextHooker(
     jpdbEnabled,
     jpdbRules,
     jpdbMiningDeckId,
+    jpdbPopupPosition,
     readingTimerEnabled,
     textHookerWebSocketUrl,
   }: Props
@@ -120,6 +123,7 @@ export default function TextHooker(
                 analyze={analyze}
                 jpdbRules={jpdbRules}
                 jpdbMiningDeckId={jpdbMiningDeckId}
+                jpdbPopupPosition={jpdbPopupPosition}
               />
             ))}
           </VStack>
@@ -135,9 +139,10 @@ interface AnalyzedTextProps {
   analyze: boolean,
   jpdbRules: readonly JpdbRule[],
   jpdbMiningDeckId: number,
+  jpdbPopupPosition: PopupPosition,
 }
 
-function AnalyzedText({text, analyze, jpdbRules, jpdbMiningDeckId}: AnalyzedTextProps) {
+function AnalyzedText({text, analyze, jpdbRules, jpdbMiningDeckId, jpdbPopupPosition}: AnalyzedTextProps) {
   const [wantsAnalyze, _] = useState(analyze)
   const [analysis, setAnalysis] = useState<TextAnalysis | undefined>(undefined)
 
@@ -166,6 +171,7 @@ function AnalyzedText({text, analyze, jpdbRules, jpdbMiningDeckId}: AnalyzedText
           rule={rule}
           vocabulary={vocabulary}
           miningDeckId={jpdbMiningDeckId}
+          popupPosition={jpdbPopupPosition}
         />
       })
       : text
@@ -178,9 +184,10 @@ interface TextTokenProps {
   rule: JpdbRule | undefined,
   vocabulary: JpdbVocabulary | undefined,
   miningDeckId: number,
+  popupPosition: PopupPosition,
 }
 
-function TextToken({text, rule, vocabulary, miningDeckId}: TextTokenProps) {
+function TextToken({text, rule, vocabulary, miningDeckId, popupPosition}: TextTokenProps) {
   const [mouseOver, setMouseOver] = useState(false)
   const debouncedMouseOver = useDebounce(mouseOver, 40)
 
@@ -192,8 +199,8 @@ function TextToken({text, rule, vocabulary, miningDeckId}: TextTokenProps) {
     rule={rule}
     vocabulary={vocabulary}
     miningDeckId={miningDeckId}
+    position={popupPosition}
     mouseOverReference={debouncedMouseOver}
-    placement="bottom"
     wrapper={(ref) => <span
       ref={ref}
       style={{color: rule.textColor}}
@@ -213,6 +220,7 @@ export async function getServerSideProps() {
       jpdbEnabled: await services.jpdbService.isEnabled(),
       jpdbRules: appSettings.jpdbRules,
       jpdbMiningDeckId: appSettings.jpdbMiningDeckId,
+      jpdbPopupPosition: appSettings.jpdbHorizontalTextPopupPosition,
       readingTimerEnabled: appSettings.readingTimerEnabled,
       textHookerWebSocketUrl: appSettings.textHookerWebSocketUrl,
     },

@@ -10,6 +10,7 @@ import {ImageAnalysis} from "../model/ImageAnalysis"
 import {SvgOverlayContext} from "../util/SvgOverlayContext"
 import SvgParagraph from "./SvgParagraph"
 import {JpdbRule} from "../model/JpdbRule"
+import {PopupPosition} from "../model/PopupPosition"
 
 interface Props {
   ocr: OcrPage,
@@ -24,6 +25,8 @@ interface Props {
   textOrientation: TextOrientationSetting,
   minimumConfidence: number,
   jpdbMiningDeckId: number,
+  jpdbHorizontalTextPopupPosition: PopupPosition,
+  jpdbVerticalTextPopupPosition: PopupPosition,
 }
 
 export default function SvgOverlay(
@@ -40,6 +43,8 @@ export default function SvgOverlay(
     textOrientation,
     minimumConfidence,
     jpdbMiningDeckId,
+    jpdbHorizontalTextPopupPosition,
+    jpdbVerticalTextPopupPosition,
   }: Props
 ) {
   const sizeDiv = 1000
@@ -66,6 +71,8 @@ export default function SvgOverlay(
       textOrientation: textOrientation,
       chromiumBased: chromiumBased,
       jpdbMiningDeckId: jpdbMiningDeckId,
+      jpdbHorizontalTextPopupPosition: jpdbHorizontalTextPopupPosition,
+      jpdbVerticalTextPopupPosition: jpdbVerticalTextPopupPosition,
     }}>
       <svg width="100%"
            height="100%"

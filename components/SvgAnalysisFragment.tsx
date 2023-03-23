@@ -1,4 +1,4 @@
-import {effectiveTextOrientation, scaleRectangle} from "../util/OverlayUtil"
+import {getEffectiveTextOrientation, scaleRectangle} from "../util/OverlayUtil"
 import * as React from "react"
 import {useContext, useState} from "react"
 import {ImageAnalysisFragment} from "../model/ImageAnalysis"
@@ -22,6 +22,7 @@ export default function SvgAnalysisFragment({fragment, rule, vocabulary}: Props)
   const debouncedMouseOver = useDebounce(mouseOver, 40)
 
   const bounds = scaleRectangle(fragment.bounds, scaleX, scaleY)
+  const effectiveTextOrientation = getEffectiveTextOrientation(textOrientation, fragment.orientation)
 
   return <g
     onMouseEnter={() => setMouseOver(true)}
@@ -31,13 +32,14 @@ export default function SvgAnalysisFragment({fragment, rule, vocabulary}: Props)
       bounds={bounds}
       rule={rule}
       vocabulary={vocabulary}
+      textOrientation={effectiveTextOrientation}
       mouseOverGroup={debouncedMouseOver}
     />}
     {fragment.symbols.map((symbol, symbolIndex) =>
       <SvgSymbol
         key={symbolIndex}
         packedSymbol={symbol}
-        textOrientation={effectiveTextOrientation(textOrientation, fragment.orientation)}
+        textOrientation={effectiveTextOrientation}
       />
     )}
   </g>
