@@ -97,7 +97,7 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
 
               <Text fontSize="xl">Text hooker</Text>
               <FormControl>
-                <FormLabel>Text hooker WebSocket URL</FormLabel>
+                <FormLabel>WebSocket URL</FormLabel>
                 <HStack>
                   <Input value={textHookerWebSocketUrl}
                          onChange={event => setTextHookerWebSocketUrl(event.target.value)}/>
