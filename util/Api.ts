@@ -16,11 +16,15 @@ export class Api {
   }
 
   static async updateAppSettings(appSettings: AppSettings) {
-    await fetch(appSettingsUrl(), {
+    const response = await fetch(appSettingsUrl(), {
       method: "POST",
       headers: jsonHeaders,
       body: JSON.stringify(appSettings),
     })
+    if (!response.ok) {
+      const body = await response.json()
+      throw new RequestError(body["error"] || "Unknown error")
+    }
   }
 
   static async updateReaderSettings(bookId: string, readerSettings: ReaderSettings) {

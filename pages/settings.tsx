@@ -18,7 +18,6 @@ import NavBar from "../components/NavBar"
 import {services} from "../service/Services"
 import {Input} from "@chakra-ui/input"
 import {AppSettings} from "../model/AppSettings"
-import {isValidWebSocketUrl} from "../util/Url"
 import RestoreDefaultValueButton from "../components/RestoreDefaultValueButton"
 import {Api} from "../util/Api"
 import JpdbRulesEditModal from "../components/JpdbRulesEditModal"
@@ -43,28 +42,29 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
   const [jpdbRulesEditPending, setJpdbRulesEditPending] = useState(false)
 
   async function saveSettings() {
-    if (!isValidWebSocketUrl(textHookerWebSocketUrl)) {
+    try {
+      await Api.updateAppSettings({
+        readingTimerEnabled: readingTimerEnabled,
+        textHookerWebSocketUrl: textHookerWebSocketUrl,
+        jpdbApiKey: jpdbApiKey,
+        jpdbMiningDeckId: jpdbMiningDeckId,
+        jpdbRules: jpdbRules,
+        jpdbHorizontalTextPopupPosition: jpdbHorizontalTextPopupPosition,
+        jpdbVerticalTextPopupPosition: jpdbVerticalTextPopupPosition,
+      })
       toast({
-        description: "WebSocket URL is not valid",
+        description: "Settings saved",
+        status: "success",
+        duration: 1200,
+      })
+    } catch (e: any) {
+      console.log(e)
+      toast({
+        description: e.message,
         status: "error",
         duration: 3000,
       })
-      return
     }
-    await Api.updateAppSettings({
-      readingTimerEnabled: readingTimerEnabled,
-      textHookerWebSocketUrl: textHookerWebSocketUrl,
-      jpdbApiKey: jpdbApiKey,
-      jpdbMiningDeckId: jpdbMiningDeckId,
-      jpdbRules: jpdbRules,
-      jpdbHorizontalTextPopupPosition: jpdbHorizontalTextPopupPosition,
-      jpdbVerticalTextPopupPosition: jpdbVerticalTextPopupPosition,
-    })
-    toast({
-      description: "Settings saved",
-      status: "success",
-      duration: 1200,
-    })
   }
 
   return (

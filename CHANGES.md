@@ -1,3 +1,6 @@
+#### Version 1.3.3
+- Fixed app settings validation.
+
 #### Version 1.3.2
 - JPDB popup placement can now be configured for horizontal and vertical text.
 - Reorganized settings page.
