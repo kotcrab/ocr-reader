@@ -10,10 +10,10 @@ export function validatePost(schema: ISchema<any>, handler: NextApiHandler) {
 
     try {
       req.body = await schema
-        .validate(req.body, {abortEarly: false, stripUnknown: true})
+        .validate(req.body, {abortEarly: true, stripUnknown: true})
     } catch (error) {
       if (error instanceof ValidationError) {
-        res.status(400).json({error: error.message, errorDetails: error.errors})
+        res.status(400).json({error: error.message})
         return
       }
       res.status(400).json({error: "Unknown error"})

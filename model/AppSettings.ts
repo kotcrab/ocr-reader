@@ -14,7 +14,7 @@ const floatingPageSchema = object({
 export const appSettingsSchema = object({
   readingTimerEnabled: boolean().required(),
   floatingPage: floatingPageSchema.required(),
-  jpdbApiKey: string().required().default(""),
+  jpdbApiKey: string().default(""),
   jpdbMiningDeckId: number().integer().required().default(0),
   jpdbHorizontalTextPopupPosition: mixed<PopupPosition>().oneOf(Object.values(PopupPosition)).required(),
   jpdbVerticalTextPopupPosition: mixed<PopupPosition>().oneOf(Object.values(PopupPosition)).required(),

@@ -26,6 +26,7 @@ import {PopupPosition} from "../../../model/PopupPosition"
 import {PageViewWrapper, PageViewWrapperHandle} from "../../../components/PageViewWrapper"
 import {PageView} from "../../../model/PageView"
 import {FloatingPageSettings} from "../../../model/AppSettings"
+import {useImmer} from "use-immer"
 
 interface Props {
   title: string,
@@ -39,7 +40,7 @@ interface Props {
   jpdbVerticalTextPopupPosition: PopupPosition,
   readingTimerEnabled: boolean,
   floatingPage: FloatingPageSettings,
-  readerSettings: ReaderSettings,
+  initialReaderSettings: ReaderSettings,
 }
 
 function getParams(params: ParsedUrlQuery) {
@@ -63,22 +64,13 @@ export default function ReadBookPage(
     jpdbVerticalTextPopupPosition,
     readingTimerEnabled,
     floatingPage,
-    readerSettings,
+    initialReaderSettings,
   }: Props
 ) {
   const router = useRouter()
   const {bookId, page} = getParams(router.query)
 
-  const [zoom, setZoom] = useState(readerSettings.zoom)
-  const [autoFontSize, setAutoFontSize] = useState(readerSettings.autoFontSize)
-  const [fontSize, setFontSize] = useState(readerSettings.fontSize)
-  const [minimumConfidence, setMinimumConfidence] = useState(readerSettings.minimumConfidence)
-  const [showText, setShowText] = useState(readerSettings.showText)
-  const [showParagraphs, setShowParagraphs] = useState(readerSettings.showParagraphs)
-  const [showAnalysis, setShowAnalysis] = useState(readerSettings.showAnalysis)
-  const [textOrientation, setTextOrientation] = useState(readerSettings.textOrientation)
-  const [readingDirection, setReadingDirection] = useState(readerSettings.readingDirection)
-  const [pageView, setPageView] = useState(readerSettings.pageView)
+  const [readerSettings, updateReaderSettings] = useImmer(initialReaderSettings)
 
   const [fontSizeHover, setFontSizeHover] = useState(false)
   const [minimumConfidenceHover, setMinimumConfidenceHover] = useState(false)
@@ -93,26 +85,14 @@ export default function ReadBookPage(
 
   useEffect(() => {
     const timer = setTimeout(async () => {
-      await Api.updateReaderSettings(bookId, {
-        zoom: zoom,
-        autoFontSize: autoFontSize,
-        fontSize: fontSize,
-        minimumConfidence: minimumConfidence,
-        showText: showText,
-        showParagraphs: showParagraphs,
-        showAnalysis: showAnalysis,
-        textOrientation: textOrientation,
-        readingDirection: readingDirection,
-        pageView: pageView,
-      })
+      await Api.updateReaderSettings(bookId, readerSettings)
     }, 300)
     return () => clearTimeout(timer)
-  }, [bookId, zoom, autoFontSize, fontSize, minimumConfidence, showText, showParagraphs, showAnalysis,
-    textOrientation, readingDirection, pageView])
+  }, [bookId, readerSettings])
 
   useEffect(() => {
     pageViewWrapperRef.current?.zoomToPageNow()
-  }, [pageView])
+  }, [readerSettings.pageView])
 
   async function analyze() {
     if (analysisStarted) {
@@ -122,7 +102,9 @@ export default function ReadBookPage(
     const res = await fetch(bookAnalyzePageUrl(bookId, page - 1))
     if (res.ok) {
       setAnalysis(await res.json())
-      setShowAnalysis(true)
+      updateReaderSettings(draft => {
+        draft.showAnalysis = true
+      })
     } else {
       setAnalysisStarted(false)
       console.log("Failed to analyze page")
@@ -164,15 +146,19 @@ export default function ReadBookPage(
               <PageSwitcher
                 page={page}
                 pages={pages}
-                readingDirection={readingDirection}
+                readingDirection={readerSettings.readingDirection}
                 onChange={(newPage) => changePage(newPage)}
               />
             </GridItem>
             <GridItem justifySelf="end">
               <HStack>
-                {pageView === PageView.Fixed &&
+                {readerSettings.pageView === PageView.Fixed &&
                   <Box pr={4}>
-                    <ZoomSelector zoom={zoom} onChange={v => setZoom(v)}/>
+                    <ZoomSelector
+                      zoom={readerSettings.zoom}
+                      onChange={v => updateReaderSettings(draft => {
+                        draft.zoom = v
+                      })}/>
                   </Box>}
                 {readingTimerEnabled ?
                   <ReadingTimer
@@ -181,28 +167,38 @@ export default function ReadBookPage(
                     unitType={ReadingUnitType.Pages}
                     onReset={onReadingTimerReset}/> : null}
                 <ReaderMenu
-                  showText={showText}
-                  showParagraphs={showParagraphs}
-                  showAnalysis={showAnalysis}
-                  textOrientation={textOrientation}
-                  readingDirection={readingDirection}
-                  pageView={pageView}
-                  autoFontSize={autoFontSize}
-                  fontSize={fontSize}
-                  minimumConfidence={minimumConfidence}
+                  readerSettings={readerSettings}
                   analysisEnabled={jpdbEnabled && !analysisStarted}
                   hasAnalysis={analysis !== undefined}
-                  onChangeShowText={it => setShowText(it)}
-                  onChangeShowParagraphs={it => setShowParagraphs(it)}
-                  onChangeShowAnalysis={it => setShowAnalysis(it)}
-                  onChangeTextOrientation={it => setTextOrientation(it)}
-                  onChangeReadingDirection={it => setReadingDirection(it)}
-                  onChangePageView={it => setPageView(it)}
+                  onChangeShowText={it => updateReaderSettings(draft => {
+                    draft.showText = it
+                  })}
+                  onChangeShowParagraphs={it => updateReaderSettings(draft => {
+                    draft.showParagraphs = it
+                  })}
+                  onChangeShowAnalysis={it => updateReaderSettings(draft => {
+                    draft.showAnalysis = it
+                  })}
+                  onChangeTextOrientation={it => updateReaderSettings(draft => {
+                    draft.textOrientation = it
+                  })}
+                  onChangeReadingDirection={it => updateReaderSettings(draft => {
+                    draft.readingDirection = it
+                  })}
+                  onChangePageView={it => updateReaderSettings(draft => {
+                    draft.pageView = it
+                  })}
+                  onAutoFontSizeChange={it => updateReaderSettings(draft => {
+                    draft.autoFontSize = it
+                  })}
+                  onFontSizeChange={it => updateReaderSettings(draft => {
+                    draft.fontSize = it
+                  })}
+                  onMinimumConfidenceChange={it => updateReaderSettings(draft => {
+                    draft.minimumConfidence = it
+                  })}
                   onAnalyze={async () => await analyze()}
-                  onAutoFontSizeChange={it => setAutoFontSize(it)}
-                  onFontSizeChange={it => setFontSize(it)}
                   onFontSizeHover={it => setFontSizeHover(it)}
-                  onMinimumConfidenceChange={it => setMinimumConfidence(it)}
                   onMinimumConfidenceHover={it => setMinimumConfidenceHover(it)}
                 />
                 <ColorModeSwitcher/>
@@ -210,9 +206,9 @@ export default function ReadBookPage(
             </GridItem>
           </Grid>
           <PageViewWrapper
-            pageView={pageView}
+            pageView={readerSettings.pageView}
             pageDimensions={pageDimensions}
-            zoom={zoom}
+            zoom={readerSettings.zoom}
             floatingPage={floatingPage}
             ref={pageViewWrapperRef}
             wrapper={(divRef, width, alignSelf) =>
@@ -229,13 +225,13 @@ export default function ReadBookPage(
                   pageDimensions={pageDimensions}
                   analysis={analysis}
                   jpdbRules={jpdbRules}
-                  showParagraphs={showParagraphs || minimumConfidenceHover}
-                  showText={showText || fontSizeHover}
-                  showAnalysis={showAnalysis}
-                  autoFontSize={autoFontSize}
-                  fontSize={fontSize}
-                  textOrientation={textOrientation}
-                  minimumConfidence={minimumConfidence}
+                  showParagraphs={readerSettings.showParagraphs || minimumConfidenceHover}
+                  showText={readerSettings.showText || fontSizeHover}
+                  showAnalysis={readerSettings.showAnalysis}
+                  autoFontSize={readerSettings.autoFontSize}
+                  fontSize={readerSettings.fontSize}
+                  textOrientation={readerSettings.textOrientation}
+                  minimumConfidence={readerSettings.minimumConfidence}
                   jpdbMiningDeckId={jpdbMiningDeckId}
                   jpdbHorizontalTextPopupPosition={jpdbHorizontalTextPopupPosition}
                   jpdbVerticalTextPopupPosition={jpdbVerticalTextPopupPosition}
@@ -270,7 +266,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       jpdbVerticalTextPopupPosition: appSettings.jpdbVerticalTextPopupPosition,
       readingTimerEnabled: appSettings.readingTimerEnabled,
       floatingPage: appSettings.floatingPage,
-      readerSettings: readerSettings,
+      initialReaderSettings: readerSettings,
     },
   }
 }

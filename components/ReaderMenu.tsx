@@ -19,6 +19,7 @@ import {ReadingDirection} from "../model/ReadingDirection"
 import MinimumConfidenceSelector from "./MinimumConfidenceSelector"
 import {useKeyPress} from "../util/KeyPress"
 import {PageView} from "../model/PageView"
+import {ReaderSettings} from "../model/ReaderSettings"
 
 const optionText = "text"
 const optionParagraphs = "paragraphs"
@@ -26,15 +27,7 @@ const optionAnalysis = "analysis"
 const optionAutoFontSize = "auto"
 
 interface Props {
-  showText: boolean,
-  showParagraphs: boolean,
-  showAnalysis: boolean,
-  textOrientation: TextOrientationSetting,
-  readingDirection: ReadingDirection,
-  pageView: PageView,
-  autoFontSize: boolean,
-  fontSize: number,
-  minimumConfidence: number,
+  readerSettings: ReaderSettings,
   analysisEnabled: boolean,
   hasAnalysis: boolean,
   onChangeShowText: (showText: boolean) => void,
@@ -53,15 +46,7 @@ interface Props {
 
 export default function ReaderMenu(
   {
-    showText,
-    showParagraphs,
-    showAnalysis,
-    textOrientation,
-    readingDirection,
-    pageView,
-    autoFontSize,
-    fontSize,
-    minimumConfidence,
+    readerSettings,
     analysisEnabled,
     hasAnalysis,
     onChangeShowText,
@@ -82,22 +67,22 @@ export default function ReaderMenu(
     if (analysisEnabled) {
       onAnalyze()
     } else if (hasAnalysis) {
-      onChangeShowAnalysis(!showAnalysis)
+      onChangeShowAnalysis(!readerSettings.showAnalysis)
     }
-  }, [analysisEnabled, hasAnalysis, showAnalysis, onAnalyze, onChangeShowAnalysis])
-  useHotkeys("s", () => onChangeShowText(!showText), [showText, onChangeShowText])
-  useHotkeys("d", () => onChangeShowParagraphs(!showParagraphs), [showParagraphs, onChangeShowParagraphs])
+  }, [analysisEnabled, hasAnalysis, readerSettings.showAnalysis, onAnalyze, onChangeShowAnalysis])
+  useHotkeys("s", () => onChangeShowText(!readerSettings.showText), [readerSettings.showText, onChangeShowText])
+  useHotkeys("d", () => onChangeShowParagraphs(!readerSettings.showParagraphs), [readerSettings.showParagraphs, onChangeShowParagraphs])
 
   const altKeyPressed = useKeyPress("Alt")
 
   const overlayValues = []
-  if (showText) {
+  if (readerSettings.showText) {
     overlayValues.push(optionText)
   }
-  if (showParagraphs) {
+  if (readerSettings.showParagraphs) {
     overlayValues.push(optionParagraphs)
   }
-  if (showAnalysis) {
+  if (readerSettings.showAnalysis) {
     overlayValues.push(optionAnalysis)
   }
   return <Menu closeOnSelect={false}>
@@ -134,7 +119,7 @@ export default function ReaderMenu(
         <MenuGroup title="Minimum confidence">
           <MenuItem>
             <MinimumConfidenceSelector
-              minimumConfidence={minimumConfidence}
+              minimumConfidence={readerSettings.minimumConfidence}
               onChange={onMinimumConfidenceChange}
               onHover={onMinimumConfidenceHover}
             />
@@ -142,7 +127,7 @@ export default function ReaderMenu(
         </MenuGroup>
         <MenuDivider/>
 
-        <MenuOptionGroup title="Page view" type="radio" value={pageView}>
+        <MenuOptionGroup title="Page view" type="radio" value={readerSettings.pageView}>
           <MenuItemOption
             value={PageView.Fixed}
             onClick={() => onChangePageView(PageView.Fixed)}>
@@ -160,14 +145,14 @@ export default function ReaderMenu(
           <MenuGroup title="Font size">
             <MenuOptionGroup
               type="checkbox"
-              value={autoFontSize ? [optionAutoFontSize] : []}
+              value={readerSettings.autoFontSize ? [optionAutoFontSize] : []}
               onChange={e => onAutoFontSizeChange(e.includes(optionAutoFontSize))}>
               <MenuItemOption value={optionAutoFontSize}>Auto</MenuItemOption>
             </MenuOptionGroup>
-            <MenuItem disabled={autoFontSize}>
+            <MenuItem disabled={readerSettings.autoFontSize}>
               <FontSizeSelector
-                fontSize={fontSize}
-                disabled={autoFontSize}
+                fontSize={readerSettings.fontSize}
+                disabled={readerSettings.autoFontSize}
                 onChange={onFontSizeChange}
                 onHover={onFontSizeHover}
               />
@@ -175,7 +160,7 @@ export default function ReaderMenu(
           </MenuGroup>
           <MenuDivider/>
 
-          <MenuOptionGroup title="Text orientation" type="radio" value={textOrientation}>
+          <MenuOptionGroup title="Text orientation" type="radio" value={readerSettings.textOrientation}>
             <MenuItemOption
               value={TextOrientationSetting.Auto}
               onClick={() => onChangeTextOrientation(TextOrientationSetting.Auto)}>
@@ -195,7 +180,7 @@ export default function ReaderMenu(
           <MenuDivider/>
         </>}
 
-        <MenuOptionGroup title="Reading direction" type="radio" value={readingDirection}>
+        <MenuOptionGroup title="Reading direction" type="radio" value={readerSettings.readingDirection}>
           <MenuItemOption
             value={ReadingDirection.LeftToRight}
             onClick={() => onChangeReadingDirection(ReadingDirection.LeftToRight)}>

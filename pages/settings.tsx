@@ -25,26 +25,17 @@ import {Api} from "../util/Api"
 import JpdbRulesEditModal from "../components/JpdbRulesEditModal"
 import PopupPositionSelect from "../components/PopupPositionSelect"
 import {FloatingPageTurnAction} from "../model/FloatingPageTurnAction"
+import {useImmer} from "use-immer"
 
 interface Props {
-  appSettings: AppSettings,
+  initialAppSettings: AppSettings,
   defaultAppSettings: AppSettings,
 }
 
-export default function Settings({appSettings, defaultAppSettings}: Props) {
+export default function Settings({initialAppSettings, defaultAppSettings}: Props) {
   const toast = useToast()
 
-  const [readingTimerEnabled, setReadingTimerEnabled] = useState(appSettings.readingTimerEnabled)
-  const [textHookerWebSocketUrl, setTextHookerWebSocketUrl] = useState(appSettings.textHookerWebSocketUrl)
-  const [floatingPagePanningVelocity, setFloatingPagePanningVelocity] = useState(appSettings.floatingPage.panningVelocity)
-  const [floatingPageTurnAction, setFloatingPageTurnAction] = useState(appSettings.floatingPage.turnAction)
-  const [floatingPageAnimateTurn, setFloatingPageAnimateTurn] = useState(appSettings.floatingPage.animateTurn)
-  const [floatingPageLimitToBounds, setFloatingPageLimitToBounds] = useState(appSettings.floatingPage.limitToBounds)
-  const [jpdbApiKey, setJpdbApiKey] = useState(appSettings.jpdbApiKey)
-  const [jpdbMiningDeckId, setJpdbMiningDeckId] = useState(appSettings.jpdbMiningDeckId)
-  const [jpdbRules, setJpdbRules] = useState(appSettings.jpdbRules)
-  const [jpdbHorizontalTextPopupPosition, setJpdbHorizontalTextPopupPosition] = useState(appSettings.jpdbHorizontalTextPopupPosition)
-  const [jpdbVerticalTextPopupPosition, setJpdbVerticalTextPopupPosition] = useState(appSettings.jpdbVerticalTextPopupPosition)
+  const [appSettings, updateAppSettings] = useImmer(initialAppSettings)
 
   const [jpdbRulesEditPending, setJpdbRulesEditPending] = useState(false)
 
@@ -52,21 +43,8 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
 
   async function saveSettings() {
     try {
-      await Api.updateAppSettings({
-        readingTimerEnabled: readingTimerEnabled,
-        textHookerWebSocketUrl: textHookerWebSocketUrl,
-        floatingPage: {
-          panningVelocity: floatingPagePanningVelocity,
-          turnAction: floatingPageTurnAction,
-          animateTurn: floatingPageAnimateTurn,
-          limitToBounds: floatingPageLimitToBounds,
-        },
-        jpdbApiKey: jpdbApiKey,
-        jpdbMiningDeckId: jpdbMiningDeckId,
-        jpdbRules: jpdbRules,
-        jpdbHorizontalTextPopupPosition: jpdbHorizontalTextPopupPosition,
-        jpdbVerticalTextPopupPosition: jpdbVerticalTextPopupPosition,
-      })
+      toast.closeAll()
+      await Api.updateAppSettings(appSettings)
       toast({
         description: "Settings saved",
         status: "success",
@@ -87,11 +65,13 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
       <PageHead/>
       <main>
         <JpdbRulesEditModal
-          rules={jpdbRules}
+          rules={appSettings.jpdbRules}
           defaultRules={defaultAppSettings.jpdbRules}
           open={jpdbRulesEditPending}
           onSave={(newJpdbRules) => {
-            setJpdbRules(newJpdbRules)
+            updateAppSettings(it => {
+              it.jpdbRules = newJpdbRules
+            })
             setJpdbRulesEditPending(false)
           }}
           onCancel={() => setJpdbRulesEditPending(false)}
@@ -105,8 +85,10 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
               <Text fontSize="xl">General</Text>
               <Checkbox
                 alignSelf="start"
-                isChecked={readingTimerEnabled}
-                onChange={event => setReadingTimerEnabled(event.target.checked)}>
+                isChecked={appSettings.readingTimerEnabled}
+                onChange={e => updateAppSettings(it => {
+                  it.readingTimerEnabled = e.target.checked
+                })}>
                 Enable reading timer
               </Checkbox>
 
@@ -114,14 +96,18 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
               <Text color={helperTextColor}>Customize reader behavior when using floating page view.</Text>
               <Checkbox
                 alignSelf="start"
-                isChecked={floatingPagePanningVelocity}
-                onChange={event => setFloatingPagePanningVelocity(event.target.checked)}>
+                isChecked={appSettings.floatingPage.panningVelocity}
+                onChange={e => updateAppSettings(it => {
+                  it.floatingPage.panningVelocity = e.target.checked
+                })}>
                 Panning has velocity effect
               </Checkbox>
               <Checkbox
                 alignSelf="start"
-                isChecked={floatingPageLimitToBounds}
-                onChange={event => setFloatingPageLimitToBounds(event.target.checked)}>
+                isChecked={appSettings.floatingPage.limitToBounds}
+                onChange={e => updateAppSettings(it => {
+                  it.floatingPage.limitToBounds = e.target.checked
+                })}>
                 Limit panning to screen bounds
               </Checkbox>
               <VStack alignSelf="stretch" spacing={3}>
@@ -129,22 +115,28 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
                   <FormLabel>On page turn</FormLabel>
                   <HStack pb={0}>
                     <Select
-                      value={floatingPageTurnAction}
-                      onChange={event => setFloatingPageTurnAction(event.target.value as FloatingPageTurnAction)}>
+                      value={appSettings.floatingPage.turnAction}
+                      onChange={e => updateAppSettings(it => {
+                        it.floatingPage.turnAction = e.target.value as FloatingPageTurnAction
+                      })}>
                       <option value={FloatingPageTurnAction.FitToScreen}>Fit to screen</option>
                       <option value={FloatingPageTurnAction.CenterViewKeepZoom}>Center view, keep current zoom</option>
                       <option value={FloatingPageTurnAction.CenterViewResetZoom}>Center view, reset zoom</option>
                       <option value={FloatingPageTurnAction.KeepCurrentView}>Keep current view</option>
                     </Select>
                     <RestoreDefaultValueButton
-                      onClick={() => setFloatingPageTurnAction(defaultAppSettings.floatingPage.turnAction)}/>
+                      onClick={() => updateAppSettings(it => {
+                        it.floatingPage.turnAction = defaultAppSettings.floatingPage.turnAction
+                      })}/>
                   </HStack>
                 </FormControl>
-                {floatingPageTurnAction !== FloatingPageTurnAction.KeepCurrentView &&
+                {appSettings.floatingPage.turnAction !== FloatingPageTurnAction.KeepCurrentView &&
                   <Checkbox
                     alignSelf="start"
-                    isChecked={floatingPageAnimateTurn}
-                    onChange={event => setFloatingPageAnimateTurn(event.target.checked)}>
+                    isChecked={appSettings.floatingPage.animateTurn}
+                    onChange={e => updateAppSettings(it => {
+                      it.floatingPage.animateTurn = e.target.checked
+                    })}>
                     Animate this transition
                   </Checkbox>}
               </VStack>
@@ -153,10 +145,15 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
               <FormControl>
                 <FormLabel>WebSocket URL</FormLabel>
                 <HStack>
-                  <Input value={textHookerWebSocketUrl}
-                         onChange={event => setTextHookerWebSocketUrl(event.target.value)}/>
+                  <Input
+                    value={appSettings.textHookerWebSocketUrl}
+                    onChange={e => updateAppSettings(it => {
+                      it.textHookerWebSocketUrl = e.target.value
+                    })}/>
                   <RestoreDefaultValueButton
-                    onClick={() => setTextHookerWebSocketUrl(defaultAppSettings.textHookerWebSocketUrl)}/>
+                    onClick={() => updateAppSettings(it => {
+                      it.textHookerWebSocketUrl = defaultAppSettings.textHookerWebSocketUrl
+                    })}/>
                 </HStack>
                 <FormHelperText>WebSocket URL used for the text hooker page.</FormHelperText>
               </FormControl>
@@ -165,17 +162,32 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
               <FormControl>
                 <FormLabel>API key</FormLabel>
                 <HStack>
-                  <Input type="password" value={jpdbApiKey} onChange={event => setJpdbApiKey(event.target.value)}/>
-                  <RestoreDefaultValueButton onClick={() => setJpdbApiKey(defaultAppSettings.jpdbApiKey)}/>
+                  <Input
+                    type="password"
+                    value={appSettings.jpdbApiKey}
+                    onChange={e => updateAppSettings(it => {
+                      it.jpdbApiKey = e.target.value
+                    })}/>
+                  <RestoreDefaultValueButton
+                    onClick={() => updateAppSettings(it => {
+                      it.jpdbApiKey = defaultAppSettings.jpdbApiKey
+                    })}/>
                 </HStack>
                 <FormHelperText>JPDB API key used for text parsing and words highlighting.</FormHelperText>
               </FormControl>
               <FormControl>
                 <FormLabel>Mining deck ID</FormLabel>
                 <HStack>
-                  <Input type="number" value={jpdbMiningDeckId}
-                         onChange={event => setJpdbMiningDeckId(parseInt(event.target.value))}/>
-                  <RestoreDefaultValueButton onClick={() => setJpdbMiningDeckId(defaultAppSettings.jpdbMiningDeckId)}/>
+                  <Input
+                    type="number"
+                    value={appSettings.jpdbMiningDeckId}
+                    onChange={e => updateAppSettings(it => {
+                      it.jpdbMiningDeckId = parseInt(e.target.value)
+                    })}/>
+                  <RestoreDefaultValueButton
+                    onClick={() => updateAppSettings(it => {
+                      it.jpdbMiningDeckId = defaultAppSettings.jpdbMiningDeckId
+                    })}/>
                 </HStack>
                 <FormHelperText>Mined words will be added to this JPDB deck.</FormHelperText>
               </FormControl>
@@ -183,20 +195,30 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
                 <FormLabel>Horizontal text popup position</FormLabel>
                 <HStack>
                   <PopupPositionSelect
-                    value={jpdbHorizontalTextPopupPosition}
-                    onChange={setJpdbHorizontalTextPopupPosition}/>
+                    value={appSettings.jpdbHorizontalTextPopupPosition}
+                    onChange={value => updateAppSettings(it => {
+                      it.jpdbHorizontalTextPopupPosition = value
+                    })}/>
                   <RestoreDefaultValueButton
-                    onClick={() => setJpdbHorizontalTextPopupPosition(defaultAppSettings.jpdbHorizontalTextPopupPosition)}/>
+                    onClick={() => updateAppSettings(it => {
+                      it.jpdbHorizontalTextPopupPosition = defaultAppSettings.jpdbHorizontalTextPopupPosition
+                    })}/>
                 </HStack>
               </FormControl>
               <FormControl>
                 <FormLabel>Vertical text popup position</FormLabel>
                 <HStack>
                   <PopupPositionSelect
-                    value={jpdbVerticalTextPopupPosition}
-                    onChange={setJpdbVerticalTextPopupPosition}/>
+                    value={appSettings.jpdbVerticalTextPopupPosition}
+                    onChange={value => updateAppSettings(it => {
+                      it.jpdbVerticalTextPopupPosition = value
+                    })}
+                  />
                   <RestoreDefaultValueButton
-                    onClick={() => setJpdbVerticalTextPopupPosition(defaultAppSettings.jpdbVerticalTextPopupPosition)}/>
+                    onClick={() => updateAppSettings(it => {
+                      it.jpdbVerticalTextPopupPosition = defaultAppSettings.jpdbVerticalTextPopupPosition
+                    })}
+                  />
                 </HStack>
               </FormControl>
               <FormControl>
@@ -205,7 +227,7 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
                 <FormHelperText>Configure colors and which words should be highlighted.</FormHelperText>
               </FormControl>
 
-              <Box pt={8}>
+              <Box pt={8} pb={12}>
                 <Button variant="solid" colorScheme="blue" onClick={saveSettings}>
                   Save settings
                 </Button>
@@ -223,7 +245,7 @@ export async function getServerSideProps() {
   const defaultAppSettings = await services.settingsService.getDefaultAppSettings()
   return {
     props: {
-      appSettings: appSettings,
+      initialAppSettings: appSettings,
       defaultAppSettings: defaultAppSettings,
     },
   }
