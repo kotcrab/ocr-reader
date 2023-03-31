@@ -12,8 +12,8 @@ interface Props {
   vocabulary: JpdbVocabulary | undefined,
   miningDeckId: number,
   position: PopupPosition,
-  mouseOverReference: boolean,
-  wrapper: (reference: React.Ref<any>) => JSX.Element,
+  mouseOverRef: boolean,
+  wrapper: (ref: React.Ref<any>) => JSX.Element,
 }
 
 export default function JpdbPopupWrapper(
@@ -22,7 +22,7 @@ export default function JpdbPopupWrapper(
     vocabulary,
     miningDeckId,
     position,
-    mouseOverReference,
+    mouseOverRef,
     wrapper,
   }: Props
 ) {
@@ -30,7 +30,7 @@ export default function JpdbPopupWrapper(
 
   const [mouseOverPopup, setMouseOverPopup] = useState(false)
 
-  const popupOpen = mouseOverReference || mouseOverPopup
+  const popupOpen = mouseOverRef || mouseOverPopup
   const popupPossible = vocabulary && rule.popup !== JpdbPopup.None
 
   return <>

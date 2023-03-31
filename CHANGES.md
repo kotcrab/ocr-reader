@@ -1,3 +1,7 @@
+#### Version 1.4
+- Added alternative page view mode where page can be freely panned and zoomed.
+- Font size and text orientation options are now hidden by default in the reader menu. Hold Alt key to show them.
+
 #### Version 1.3.3
 - Fixed app settings validation.
 

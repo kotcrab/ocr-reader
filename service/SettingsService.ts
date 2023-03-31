@@ -9,6 +9,8 @@ import {JpdbRule} from "../model/JpdbRule"
 import {JpdbCardState} from "../model/JpdbCardState"
 import {JpdbPopup} from "../model/JpdbPopup"
 import {PopupPosition} from "../model/PopupPosition"
+import {PageView} from "../model/PageView"
+import {FloatingPageTurnAction} from "../model/FloatingPageTurnAction"
 
 export class SettingsService {
   private readonly appSettingsFile: string
@@ -23,6 +25,12 @@ export class SettingsService {
   getDefaultAppSettings(): AppSettings {
     return {
       readingTimerEnabled: true,
+      floatingPage: {
+        panningVelocity: true,
+        turnAction: FloatingPageTurnAction.FitToScreen,
+        animateTurn: true,
+        limitToBounds: false,
+      },
       jpdbApiKey: "",
       jpdbMiningDeckId: 0,
       jpdbHorizontalTextPopupPosition: PopupPosition.BelowText,
@@ -53,6 +61,12 @@ export class SettingsService {
     const data = JSON.parse(await fs.promises.readFile(this.appSettingsFile, "utf8"))
     return {
       readingTimerEnabled: data.readingTimerEnabled ?? defaultSettings.readingTimerEnabled,
+      floatingPage: {
+        panningVelocity: data.floatingPage?.panningVelocity ?? defaultSettings.floatingPage.panningVelocity,
+        turnAction: data.floatingPage?.turnAction ?? defaultSettings.floatingPage.turnAction,
+        animateTurn: data.floatingPage?.animateTurn ?? defaultSettings.floatingPage.animateTurn,
+        limitToBounds: data.floatingPage?.limitToBounds ?? defaultSettings.floatingPage.limitToBounds,
+      },
       jpdbApiKey: data.jpdbApiKey ?? defaultSettings.jpdbApiKey,
       jpdbMiningDeckId: data.jpdbMiningDeckId ?? defaultSettings.jpdbMiningDeckId,
       jpdbHorizontalTextPopupPosition: data.jpdbHorizontalTextPopupPosition ?? defaultSettings.jpdbHorizontalTextPopupPosition,
@@ -93,6 +107,7 @@ export class SettingsService {
       showAnalysis: true,
       textOrientation: TextOrientationSetting.Auto,
       readingDirection: ReadingDirection.RightToLeft,
+      pageView: PageView.Fixed,
     }
     const fileExists = await fs.promises.stat(book.readerSettingsFile).then(() => true, () => false)
     if (!fileExists) {
@@ -109,6 +124,7 @@ export class SettingsService {
       showAnalysis: data.showAnalysis ?? defaultSettings.showAnalysis,
       textOrientation: data.textOrientation ?? defaultSettings.textOrientation,
       readingDirection: data.readingDirection ?? defaultSettings.readingDirection,
+      pageView: data.pageView ?? defaultSettings.pageView,
     }
   }
 

@@ -117,10 +117,22 @@ In reader mode, you can:
 - Use the reading timer to track elapsed time and reading speed.
 - Change minimum OCR confidence level.
 - Change reading direction (right to left by default).
+- Change page view mode.
 - Adjust the overlay:
   - Those options are meant for finding issues with the OCR, most of the time there's no need to use them.
   - Show overlaid text and highlight detected paragraphs.
-  - Override font size and detected text direction.
+  - Override font size and detected text direction (hold Alt key while menu is open to show these options).
+
+#### Keyboard shortcuts
+
+- `Left`/`Right` arrow keys - next/previous page.
+- `[`/`]` - zoom in/out (in fixed page view mode).
+- `Alt` (hold)
+  - disable dragging to allow for text selection (in floating page view mode).
+  - show additional options in the reader menu.
+- `a` - analyze using JPDB. After page is analyzed show/hide analysis result.
+- `s` - show/hide overlaid text.
+- `d` - show/hide detected text paragraphs.
 
 ### Text hooker
 

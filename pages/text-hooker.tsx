@@ -200,7 +200,7 @@ function TextToken({text, rule, vocabulary, miningDeckId, popupPosition}: TextTo
     vocabulary={vocabulary}
     miningDeckId={miningDeckId}
     position={popupPosition}
-    mouseOverReference={debouncedMouseOver}
+    mouseOverRef={debouncedMouseOver}
     wrapper={(ref) => <span
       ref={ref}
       style={{color: rule.textColor}}

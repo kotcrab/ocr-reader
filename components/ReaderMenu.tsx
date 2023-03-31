@@ -17,6 +17,8 @@ import FontSizeSelector from "./FontSizeSelector"
 import {useHotkeys} from "react-hotkeys-hook"
 import {ReadingDirection} from "../model/ReadingDirection"
 import MinimumConfidenceSelector from "./MinimumConfidenceSelector"
+import {useKeyPress} from "../util/KeyPress"
+import {PageView} from "../model/PageView"
 
 const optionText = "text"
 const optionParagraphs = "paragraphs"
@@ -29,16 +31,18 @@ interface Props {
   showAnalysis: boolean,
   textOrientation: TextOrientationSetting,
   readingDirection: ReadingDirection,
-  analysisEnabled: boolean,
-  hasAnalysis: boolean,
+  pageView: PageView,
   autoFontSize: boolean,
   fontSize: number,
   minimumConfidence: number,
+  analysisEnabled: boolean,
+  hasAnalysis: boolean,
   onChangeShowText: (showText: boolean) => void,
   onChangeShowParagraphs: (showParagraphs: boolean) => void,
   onChangeShowAnalysis: (showAnalysis: boolean) => void,
   onChangeTextOrientation: (textOrientation: TextOrientationSetting) => void,
   onChangeReadingDirection: (readingDirection: ReadingDirection) => void,
+  onChangePageView: (pageView: PageView) => void,
   onAnalyze: () => void,
   onAutoFontSizeChange: (autoFontSize: boolean) => void,
   onFontSizeChange: (newSize: number) => void,
@@ -54,16 +58,18 @@ export default function ReaderMenu(
     showAnalysis,
     textOrientation,
     readingDirection,
-    analysisEnabled,
-    hasAnalysis,
+    pageView,
     autoFontSize,
     fontSize,
     minimumConfidence,
+    analysisEnabled,
+    hasAnalysis,
     onChangeShowText,
     onChangeShowParagraphs,
     onChangeShowAnalysis,
     onChangeTextOrientation,
     onChangeReadingDirection,
+    onChangePageView,
     onAnalyze,
     onAutoFontSizeChange,
     onFontSizeChange,
@@ -82,6 +88,8 @@ export default function ReaderMenu(
   useHotkeys("s", () => onChangeShowText(!showText), [showText, onChangeShowText])
   useHotkeys("d", () => onChangeShowParagraphs(!showParagraphs), [showParagraphs, onChangeShowParagraphs])
 
+  const altKeyPressed = useKeyPress("Alt")
+
   const overlayValues = []
   if (showText) {
     overlayValues.push(optionText)
@@ -95,10 +103,10 @@ export default function ReaderMenu(
   return <Menu closeOnSelect={false}>
     <MenuButton
       as={IconButton}
-      aria-label='Options'
+      aria-label="Options"
       fontSize="lg"
       icon={<HamburgerIcon/>}
-      variant='ghost'
+      variant="ghost"
     />
     <Portal>
       <MenuList>
@@ -108,8 +116,8 @@ export default function ReaderMenu(
         <MenuDivider/>
 
         <MenuOptionGroup
-          title='Overlay'
-          type='checkbox'
+          title="Overlay"
+          type="checkbox"
           value={overlayValues}
           onChange={e => {
             onChangeShowText(e.includes(optionText))
@@ -123,7 +131,7 @@ export default function ReaderMenu(
         </MenuOptionGroup>
         <MenuDivider/>
 
-        <MenuGroup title='Minimum confidence'>
+        <MenuGroup title="Minimum confidence">
           <MenuItem>
             <MinimumConfidenceSelector
               minimumConfidence={minimumConfidence}
@@ -134,44 +142,60 @@ export default function ReaderMenu(
         </MenuGroup>
         <MenuDivider/>
 
-        <MenuGroup title='Font size'>
-          <MenuOptionGroup
-            type='checkbox'
-            value={autoFontSize ? [optionAutoFontSize] : []}
-            onChange={e => onAutoFontSizeChange(e.includes(optionAutoFontSize))}>
-            <MenuItemOption value={optionAutoFontSize}>Auto</MenuItemOption>
-          </MenuOptionGroup>
-          <MenuItem disabled={autoFontSize}>
-            <FontSizeSelector
-              fontSize={fontSize}
-              disabled={autoFontSize}
-              onChange={onFontSizeChange}
-              onHover={onFontSizeHover}
-            />
-          </MenuItem>
-        </MenuGroup>
-        <MenuDivider/>
-
-        <MenuOptionGroup title='Text orientation' type='radio' value={textOrientation}>
+        <MenuOptionGroup title="Page view" type="radio" value={pageView}>
           <MenuItemOption
-            value={TextOrientationSetting.Auto}
-            onClick={() => onChangeTextOrientation(TextOrientationSetting.Auto)}>
-            Auto
+            value={PageView.Fixed}
+            onClick={() => onChangePageView(PageView.Fixed)}>
+            Fixed
           </MenuItemOption>
           <MenuItemOption
-            value={TextOrientationSetting.Horizontal}
-            onClick={() => onChangeTextOrientation(TextOrientationSetting.Horizontal)}>
-            Horizontal
-          </MenuItemOption>
-          <MenuItemOption
-            value={TextOrientationSetting.Vertical}
-            onClick={() => onChangeTextOrientation(TextOrientationSetting.Vertical)}>
-            Vertical
+            value={PageView.Floating}
+            onClick={() => onChangePageView(PageView.Floating)}>
+            Floating
           </MenuItemOption>
         </MenuOptionGroup>
         <MenuDivider/>
 
-        <MenuOptionGroup title='Reading direction' type='radio' value={readingDirection}>
+        {altKeyPressed && <>
+          <MenuGroup title="Font size">
+            <MenuOptionGroup
+              type="checkbox"
+              value={autoFontSize ? [optionAutoFontSize] : []}
+              onChange={e => onAutoFontSizeChange(e.includes(optionAutoFontSize))}>
+              <MenuItemOption value={optionAutoFontSize}>Auto</MenuItemOption>
+            </MenuOptionGroup>
+            <MenuItem disabled={autoFontSize}>
+              <FontSizeSelector
+                fontSize={fontSize}
+                disabled={autoFontSize}
+                onChange={onFontSizeChange}
+                onHover={onFontSizeHover}
+              />
+            </MenuItem>
+          </MenuGroup>
+          <MenuDivider/>
+
+          <MenuOptionGroup title="Text orientation" type="radio" value={textOrientation}>
+            <MenuItemOption
+              value={TextOrientationSetting.Auto}
+              onClick={() => onChangeTextOrientation(TextOrientationSetting.Auto)}>
+              Auto
+            </MenuItemOption>
+            <MenuItemOption
+              value={TextOrientationSetting.Horizontal}
+              onClick={() => onChangeTextOrientation(TextOrientationSetting.Horizontal)}>
+              Horizontal
+            </MenuItemOption>
+            <MenuItemOption
+              value={TextOrientationSetting.Vertical}
+              onClick={() => onChangeTextOrientation(TextOrientationSetting.Vertical)}>
+              Vertical
+            </MenuItemOption>
+          </MenuOptionGroup>
+          <MenuDivider/>
+        </>}
+
+        <MenuOptionGroup title="Reading direction" type="radio" value={readingDirection}>
           <MenuItemOption
             value={ReadingDirection.LeftToRight}
             onClick={() => onChangeReadingDirection(ReadingDirection.LeftToRight)}>

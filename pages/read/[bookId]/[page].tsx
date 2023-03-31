@@ -1,6 +1,6 @@
 import PageHead, {defaultPageTitle} from "../../../components/PageHead"
 import {Box, Flex, Grid, GridItem, HStack, Image} from "@chakra-ui/react"
-import React, {useEffect, useState} from "react"
+import React, {useEffect, useRef, useState} from "react"
 import {useRouter} from "next/router"
 import {ColorModeSwitcher} from "../../../components/ColorModeSwitcher"
 import {services} from "../../../service/Services"
@@ -23,6 +23,9 @@ import {Dimensions} from "../../../model/Dimensions"
 import {ImageAnalysis} from "../../../model/ImageAnalysis"
 import {JpdbRule} from "../../../model/JpdbRule"
 import {PopupPosition} from "../../../model/PopupPosition"
+import {PageViewWrapper, PageViewWrapperHandle} from "../../../components/PageViewWrapper"
+import {PageView} from "../../../model/PageView"
+import {FloatingPageSettings} from "../../../model/AppSettings"
 
 interface Props {
   title: string,
@@ -35,6 +38,7 @@ interface Props {
   jpdbHorizontalTextPopupPosition: PopupPosition,
   jpdbVerticalTextPopupPosition: PopupPosition,
   readingTimerEnabled: boolean,
+  floatingPage: FloatingPageSettings,
   readerSettings: ReaderSettings,
 }
 
@@ -58,6 +62,7 @@ export default function ReadBookPage(
     jpdbHorizontalTextPopupPosition,
     jpdbVerticalTextPopupPosition,
     readingTimerEnabled,
+    floatingPage,
     readerSettings,
   }: Props
 ) {
@@ -73,6 +78,7 @@ export default function ReadBookPage(
   const [showAnalysis, setShowAnalysis] = useState(readerSettings.showAnalysis)
   const [textOrientation, setTextOrientation] = useState(readerSettings.textOrientation)
   const [readingDirection, setReadingDirection] = useState(readerSettings.readingDirection)
+  const [pageView, setPageView] = useState(readerSettings.pageView)
 
   const [fontSizeHover, setFontSizeHover] = useState(false)
   const [minimumConfidenceHover, setMinimumConfidenceHover] = useState(false)
@@ -82,6 +88,8 @@ export default function ReadBookPage(
   const [charactersRead, setCharactersRead] = useState(0)
   const [charactersReadMaxPage, setCharactersReadMaxPage] = useState(page)
   const [pagesRead, setPagesRead] = useState(0)
+
+  const pageViewWrapperRef = useRef<PageViewWrapperHandle>(null)
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -95,10 +103,16 @@ export default function ReadBookPage(
         showAnalysis: showAnalysis,
         textOrientation: textOrientation,
         readingDirection: readingDirection,
+        pageView: pageView,
       })
     }, 300)
     return () => clearTimeout(timer)
-  }, [bookId, zoom, autoFontSize, fontSize, minimumConfidence, showText, showParagraphs, showAnalysis, textOrientation, readingDirection])
+  }, [bookId, zoom, autoFontSize, fontSize, minimumConfidence, showText, showParagraphs, showAnalysis,
+    textOrientation, readingDirection, pageView])
+
+  useEffect(() => {
+    pageViewWrapperRef.current?.zoomToPageNow()
+  }, [pageView])
 
   async function analyze() {
     if (analysisStarted) {
@@ -127,7 +141,6 @@ export default function ReadBookPage(
       setPagesRead(it => it + 1)
       console.log(`Stats: add ${ocr.characterCount} characters, new max page: ${newPage}`)
     }
-
     await router.push(readBookRoute(bookId, newPage))
   }
 
@@ -137,14 +150,13 @@ export default function ReadBookPage(
     setPagesRead(0)
   }
 
-  const zoomPx = Math.round(pageDimensions.w * zoom / 100) + "px"
   return (
     <>
       <PageHead title={`${title} - ${defaultPageTitle}`}/>
       <main>
         <SelectionColorOverride/>
-        <Flex p={4} direction="column" alignItems="center">
-          <Grid alignSelf="stretch" templateColumns="repeat(3, 1fr)" pb={4}>
+        <Flex direction="column" alignItems="stretch" height="100vh">
+          <Grid alignSelf="stretch" templateColumns="repeat(3, 1fr)" p={4}>
             <GridItem>
               <ExitButton/>
             </GridItem>
@@ -158,9 +170,10 @@ export default function ReadBookPage(
             </GridItem>
             <GridItem justifySelf="end">
               <HStack>
-                <Box pr={4}>
-                  <ZoomSelector zoom={zoom} onChange={v => setZoom(v)}/>
-                </Box>
+                {pageView === PageView.Fixed &&
+                  <Box pr={4}>
+                    <ZoomSelector zoom={zoom} onChange={v => setZoom(v)}/>
+                  </Box>}
                 {readingTimerEnabled ?
                   <ReadingTimer
                     charactersRead={charactersRead}
@@ -173,16 +186,18 @@ export default function ReadBookPage(
                   showAnalysis={showAnalysis}
                   textOrientation={textOrientation}
                   readingDirection={readingDirection}
-                  analysisEnabled={jpdbEnabled && !analysisStarted}
-                  hasAnalysis={analysis !== undefined}
+                  pageView={pageView}
                   autoFontSize={autoFontSize}
                   fontSize={fontSize}
                   minimumConfidence={minimumConfidence}
+                  analysisEnabled={jpdbEnabled && !analysisStarted}
+                  hasAnalysis={analysis !== undefined}
                   onChangeShowText={it => setShowText(it)}
                   onChangeShowParagraphs={it => setShowParagraphs(it)}
                   onChangeShowAnalysis={it => setShowAnalysis(it)}
                   onChangeTextOrientation={it => setTextOrientation(it)}
                   onChangeReadingDirection={it => setReadingDirection(it)}
+                  onChangePageView={it => setPageView(it)}
                   onAnalyze={async () => await analyze()}
                   onAutoFontSizeChange={it => setAutoFontSize(it)}
                   onFontSizeChange={it => setFontSize(it)}
@@ -194,25 +209,40 @@ export default function ReadBookPage(
               </HStack>
             </GridItem>
           </Grid>
-          <div style={{position: "relative", width: zoomPx}}>
-            <Image alt="Page" width="100%" src={bookPageUrl(bookId, page - 1)}/>
-            <SvgOverlay
-              ocr={ocr}
-              pageDimensions={pageDimensions}
-              analysis={analysis}
-              jpdbRules={jpdbRules}
-              showParagraphs={showParagraphs || minimumConfidenceHover}
-              showText={showText || fontSizeHover}
-              showAnalysis={showAnalysis}
-              autoFontSize={autoFontSize}
-              fontSize={fontSize}
-              textOrientation={textOrientation}
-              minimumConfidence={minimumConfidence}
-              jpdbMiningDeckId={jpdbMiningDeckId}
-              jpdbHorizontalTextPopupPosition={jpdbHorizontalTextPopupPosition}
-              jpdbVerticalTextPopupPosition={jpdbVerticalTextPopupPosition}
-            />
-          </div>
+          <PageViewWrapper
+            pageView={pageView}
+            pageDimensions={pageDimensions}
+            zoom={zoom}
+            floatingPage={floatingPage}
+            ref={pageViewWrapperRef}
+            wrapper={(divRef, width, alignSelf) =>
+              <div style={{position: "relative", width: width, alignSelf: alignSelf}} ref={divRef}>
+                <Image
+                  alt="Page"
+                  htmlWidth={pageDimensions.w}
+                  htmlHeight={pageDimensions.h}
+                  src={bookPageUrl(bookId, page - 1)}
+                  onLoad={() => pageViewWrapperRef.current?.pageTurned()}
+                />
+                <SvgOverlay
+                  ocr={ocr}
+                  pageDimensions={pageDimensions}
+                  analysis={analysis}
+                  jpdbRules={jpdbRules}
+                  showParagraphs={showParagraphs || minimumConfidenceHover}
+                  showText={showText || fontSizeHover}
+                  showAnalysis={showAnalysis}
+                  autoFontSize={autoFontSize}
+                  fontSize={fontSize}
+                  textOrientation={textOrientation}
+                  minimumConfidence={minimumConfidence}
+                  jpdbMiningDeckId={jpdbMiningDeckId}
+                  jpdbHorizontalTextPopupPosition={jpdbHorizontalTextPopupPosition}
+                  jpdbVerticalTextPopupPosition={jpdbVerticalTextPopupPosition}
+                />
+              </div>
+            }
+          />
         </Flex>
       </main>
     </>
@@ -239,6 +269,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       jpdbHorizontalTextPopupPosition: appSettings.jpdbHorizontalTextPopupPosition,
       jpdbVerticalTextPopupPosition: appSettings.jpdbVerticalTextPopupPosition,
       readingTimerEnabled: appSettings.readingTimerEnabled,
+      floatingPage: appSettings.floatingPage,
       readerSettings: readerSettings,
     },
   }

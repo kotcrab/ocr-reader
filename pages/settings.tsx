@@ -9,7 +9,9 @@ import {
   FormHelperText,
   FormLabel,
   HStack,
+  Select,
   Text,
+  useColorModeValue,
   useToast,
   VStack,
 } from "@chakra-ui/react"
@@ -22,6 +24,7 @@ import RestoreDefaultValueButton from "../components/RestoreDefaultValueButton"
 import {Api} from "../util/Api"
 import JpdbRulesEditModal from "../components/JpdbRulesEditModal"
 import PopupPositionSelect from "../components/PopupPositionSelect"
+import {FloatingPageTurnAction} from "../model/FloatingPageTurnAction"
 
 interface Props {
   appSettings: AppSettings,
@@ -33,6 +36,10 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
 
   const [readingTimerEnabled, setReadingTimerEnabled] = useState(appSettings.readingTimerEnabled)
   const [textHookerWebSocketUrl, setTextHookerWebSocketUrl] = useState(appSettings.textHookerWebSocketUrl)
+  const [floatingPagePanningVelocity, setFloatingPagePanningVelocity] = useState(appSettings.floatingPage.panningVelocity)
+  const [floatingPageTurnAction, setFloatingPageTurnAction] = useState(appSettings.floatingPage.turnAction)
+  const [floatingPageAnimateTurn, setFloatingPageAnimateTurn] = useState(appSettings.floatingPage.animateTurn)
+  const [floatingPageLimitToBounds, setFloatingPageLimitToBounds] = useState(appSettings.floatingPage.limitToBounds)
   const [jpdbApiKey, setJpdbApiKey] = useState(appSettings.jpdbApiKey)
   const [jpdbMiningDeckId, setJpdbMiningDeckId] = useState(appSettings.jpdbMiningDeckId)
   const [jpdbRules, setJpdbRules] = useState(appSettings.jpdbRules)
@@ -41,11 +48,19 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
 
   const [jpdbRulesEditPending, setJpdbRulesEditPending] = useState(false)
 
+  const helperTextColor = useColorModeValue("gray.600", "whiteAlpha.600")
+
   async function saveSettings() {
     try {
       await Api.updateAppSettings({
         readingTimerEnabled: readingTimerEnabled,
         textHookerWebSocketUrl: textHookerWebSocketUrl,
+        floatingPage: {
+          panningVelocity: floatingPagePanningVelocity,
+          turnAction: floatingPageTurnAction,
+          animateTurn: floatingPageAnimateTurn,
+          limitToBounds: floatingPageLimitToBounds,
+        },
         jpdbApiKey: jpdbApiKey,
         jpdbMiningDeckId: jpdbMiningDeckId,
         jpdbRules: jpdbRules,
@@ -84,15 +99,54 @@ export default function Settings({appSettings, defaultAppSettings}: Props) {
         <Flex p={4} align="stretch" direction="column">
           <NavBar/>
           <Container maxW="xl">
-            <VStack alignItems="center" spacing="8">
+            <VStack spacing="8">
               <Text fontSize="2xl">Settings</Text>
 
               <Text fontSize="xl">General</Text>
-              <VStack alignSelf="start">
-                <Checkbox isChecked={readingTimerEnabled}
-                          onChange={event => setReadingTimerEnabled(event.target.checked)}>
-                  Enable reading timer
-                </Checkbox>
+              <Checkbox
+                alignSelf="start"
+                isChecked={readingTimerEnabled}
+                onChange={event => setReadingTimerEnabled(event.target.checked)}>
+                Enable reading timer
+              </Checkbox>
+
+              <Text fontSize="xl">Floating page</Text>
+              <Text color={helperTextColor}>Customize reader behavior when using floating page view.</Text>
+              <Checkbox
+                alignSelf="start"
+                isChecked={floatingPagePanningVelocity}
+                onChange={event => setFloatingPagePanningVelocity(event.target.checked)}>
+                Panning has velocity effect
+              </Checkbox>
+              <Checkbox
+                alignSelf="start"
+                isChecked={floatingPageLimitToBounds}
+                onChange={event => setFloatingPageLimitToBounds(event.target.checked)}>
+                Limit panning to screen bounds
+              </Checkbox>
+              <VStack alignSelf="stretch" spacing={3}>
+                <FormControl>
+                  <FormLabel>On page turn</FormLabel>
+                  <HStack pb={0}>
+                    <Select
+                      value={floatingPageTurnAction}
+                      onChange={event => setFloatingPageTurnAction(event.target.value as FloatingPageTurnAction)}>
+                      <option value={FloatingPageTurnAction.FitToScreen}>Fit to screen</option>
+                      <option value={FloatingPageTurnAction.CenterViewKeepZoom}>Center view, keep current zoom</option>
+                      <option value={FloatingPageTurnAction.CenterViewResetZoom}>Center view, reset zoom</option>
+                      <option value={FloatingPageTurnAction.KeepCurrentView}>Keep current view</option>
+                    </Select>
+                    <RestoreDefaultValueButton
+                      onClick={() => setFloatingPageTurnAction(defaultAppSettings.floatingPage.turnAction)}/>
+                  </HStack>
+                </FormControl>
+                {floatingPageTurnAction !== FloatingPageTurnAction.KeepCurrentView &&
+                  <Checkbox
+                    alignSelf="start"
+                    isChecked={floatingPageAnimateTurn}
+                    onChange={event => setFloatingPageAnimateTurn(event.target.checked)}>
+                    Animate this transition
+                  </Checkbox>}
               </VStack>
 
               <Text fontSize="xl">Text hooker</Text>

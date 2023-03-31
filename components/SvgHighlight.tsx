@@ -28,7 +28,7 @@ export default function SvgHighlight({bounds, rule, vocabulary, textOrientation,
     vocabulary={vocabulary}
     miningDeckId={jpdbMiningDeckId}
     position={textOrientation == TextOrientation.Horizontal ? jpdbHorizontalTextPopupPosition : jpdbVerticalTextPopupPosition}
-    mouseOverReference={mouseOverGroup}
+    mouseOverRef={mouseOverGroup}
     wrapper={(ref) => <rect
       x={bounds.x}
       y={bounds.y}
