@@ -73,13 +73,13 @@ export default function ReadingTimer({charactersRead, unitsRead, unitType, onRes
           variant="ghost"
           color="current"
           icon={<MdTimer/>}
-          aria-label={"Reading timer"}
+          aria-label="Timer"
         />
       </PopoverTrigger>
       <Portal>
         <PopoverContent width="unset" minWidth="200px">
           <PopoverArrow/>
-          <PopoverHeader fontWeight='bold' border="0">Reading timer</PopoverHeader>
+          <PopoverHeader fontWeight="bold" border="0">Reading timer</PopoverHeader>
           <PopoverBody>
             <Text>{timerText} elapsed</Text>
             <Text>{unitsRead} {getUnitName(unitsRead, unitType)}</Text>
@@ -87,14 +87,14 @@ export default function ReadingTimer({charactersRead, unitsRead, unitType, onRes
             <Text>({charactersPerHour}/h, {charactersPerMinute}/min)</Text>
           </PopoverBody>
           <PopoverFooter border="0">
-            <ButtonGroup size='sm'>
+            <ButtonGroup size="sm">
               <Tooltip label="Reset" openDelay={TOOLTIP_OPEN_DELAY}>
                 <IconButton
                   fontSize="lg"
                   colorScheme="red"
                   icon={<MdSettingsBackupRestore/>}
                   onClick={reset}
-                  aria-label={"Reset"}
+                  aria-label="Reset"
                 />
               </Tooltip>
               <Tooltip label={paused ? "Resume" : "Pause"} openDelay={TOOLTIP_OPEN_DELAY}>
@@ -103,7 +103,7 @@ export default function ReadingTimer({charactersRead, unitsRead, unitType, onRes
                   colorScheme={paused ? "green" : "blue"}
                   icon={paused ? <MdPlayArrow/> : <MdPause/>}
                   onClick={pauseResume}
-                  aria-label={"Pause/Resume"}
+                  aria-label={paused ? "Resume" : "Pause"}
                 />
               </Tooltip>
             </ButtonGroup>

@@ -25,7 +25,7 @@ export class StorageService {
       this.dataDir,
       await fs.promises.readdir(this.dataDir, {withFileTypes: true})
     )
-    const books = await Promise.all(bookDirs.map(async (it) => this.readBookDirectory(it)))
+    const books = await Promise.all(bookDirs.map(async it => this.readBookDirectory(it)))
 
     return books.flat()
       .filter(it => it.images.length > 0)
@@ -37,7 +37,7 @@ export class StorageService {
     const baseBook = await this.readBook(dir, baseFiles, baseName, "")
 
     const nestedDirs = this.getDirectories(dir, baseFiles)
-    const nestedBooks = await Promise.all(nestedDirs.map(async (nestedDir) => {
+    const nestedBooks = await Promise.all(nestedDirs.map(async nestedDir => {
       const nestedName = path.basename(nestedDir)
       const nestedFiles = await fs.promises.readdir(nestedDir, {withFileTypes: true})
       return await this.readBook(nestedDir, nestedFiles, nestedName, baseName)

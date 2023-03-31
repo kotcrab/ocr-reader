@@ -20,6 +20,7 @@ import MinimumConfidenceSelector from "./MinimumConfidenceSelector"
 import {useKeyPress} from "../util/KeyPress"
 import {PageView} from "../model/PageView"
 import {ReaderSettings} from "../model/ReaderSettings"
+import {PageDisplay} from "../model/PageDisplay"
 
 const optionText = "text"
 const optionParagraphs = "paragraphs"
@@ -36,6 +37,7 @@ interface Props {
   onChangeTextOrientation: (textOrientation: TextOrientationSetting) => void,
   onChangeReadingDirection: (readingDirection: ReadingDirection) => void,
   onChangePageView: (pageView: PageView) => void,
+  onChangePageDisplay: (pageDisplay: PageDisplay) => void,
   onAnalyze: () => void,
   onAutoFontSizeChange: (autoFontSize: boolean) => void,
   onFontSizeChange: (newSize: number) => void,
@@ -55,6 +57,7 @@ export default function ReaderMenu(
     onChangeTextOrientation,
     onChangeReadingDirection,
     onChangePageView,
+    onChangePageDisplay,
     onAnalyze,
     onAutoFontSizeChange,
     onFontSizeChange,
@@ -116,7 +119,7 @@ export default function ReaderMenu(
         </MenuOptionGroup>
         <MenuDivider/>
 
-        <MenuGroup title="Minimum confidence">
+        <MenuGroup title="Minimum OCR confidence">
           <MenuItem>
             <MinimumConfidenceSelector
               minimumConfidence={readerSettings.minimumConfidence}
@@ -137,6 +140,25 @@ export default function ReaderMenu(
             value={PageView.Floating}
             onClick={() => onChangePageView(PageView.Floating)}>
             Floating
+          </MenuItemOption>
+        </MenuOptionGroup>
+        <MenuDivider/>
+
+        <MenuOptionGroup title="Display" type="radio" value={readerSettings.pageDisplay}>
+          <MenuItemOption
+            value={PageDisplay.OnePage}
+            onClick={() => onChangePageDisplay(PageDisplay.OnePage)}>
+            One page
+          </MenuItemOption>
+          <MenuItemOption
+            value={PageDisplay.TwoPagesWithCover}
+            onClick={() => onChangePageDisplay(PageDisplay.TwoPagesWithCover)}>
+            Two pages (has cover)
+          </MenuItemOption>
+          <MenuItemOption
+            value={PageDisplay.TwoPagesNoCover}
+            onClick={() => onChangePageDisplay(PageDisplay.TwoPagesNoCover)}>
+            Two pages (no cover)
           </MenuItemOption>
         </MenuOptionGroup>
         <MenuDivider/>

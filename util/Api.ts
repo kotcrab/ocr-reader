@@ -1,10 +1,19 @@
-import {appSettingsUrl, bookReaderSettingsUrl, booksUrl, bookTextDumpUrl, bookUrl, jpdbDecksUrl} from "./Url"
+import {
+  appSettingsUrl,
+  bookAnalyzePageUrl,
+  bookReaderSettingsUrl,
+  booksUrl,
+  bookTextDumpUrl,
+  bookUrl,
+  jpdbDecksUrl,
+} from "./Url"
 import {AppSettings} from "../model/AppSettings"
 import {ReaderSettings} from "../model/ReaderSettings"
 import {RequestError} from "./RequestError"
 import {JpdbDeckId} from "../model/JpdbDeckId"
 import {BookInfoUpdate} from "../model/BookInfoUpdate"
 import {JpdbDeckUpdateMode} from "../model/JpdbDeckUpdateMode"
+import {ImageAnalysis} from "../model/ImageAnalysis"
 
 const jsonHeaders = {
   "Content-Type": "application/json",
@@ -54,6 +63,18 @@ export class Api {
   static async dumpBookText(bookId: string, removeLineBreaks: boolean) {
     const res = await fetch(bookTextDumpUrl(bookId, removeLineBreaks))
     return await res.blob()
+  }
+
+  static async analyze(bookId: string, pages: number[]) {
+    return await Promise.all(pages.map(async page => {
+      const res = await fetch(bookAnalyzePageUrl(bookId, page))
+      if (res.ok) {
+        return await res.json() as ImageAnalysis
+      } else {
+        console.log(`Failed to analyze page ${page}`)
+        return undefined
+      }
+    }))
   }
 
   static async modifyDeck(deckId: JpdbDeckId, vid: number, sid: number, mode: JpdbDeckUpdateMode) {

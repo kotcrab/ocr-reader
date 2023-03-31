@@ -1,5 +1,6 @@
 import {HStack, IconButton, Text} from "@chakra-ui/react"
 import * as React from "react"
+import {createContext, useContext} from "react"
 import {useHotkeys} from "react-hotkeys-hook"
 import {FaChevronLeft, FaChevronRight} from "react-icons/fa"
 import {ReadingDirection} from "../model/ReadingDirection"
@@ -7,79 +8,104 @@ import {ReadingDirection} from "../model/ReadingDirection"
 const elementSpacing = 8
 
 interface Props {
-  page: number,
-  pages: number,
+  lowPage: number,
+  highPage: number,
+  totalPages: number,
+  step: number,
   readingDirection: ReadingDirection,
   onChange: (page: number) => void,
 }
 
-export default function PageSwitcher({page, pages, readingDirection, onChange}: Props) {
+export default function PageSwitcher({lowPage, highPage, totalPages, step, readingDirection, onChange}: Props) {
+  return <PageSwitcherContext.Provider value={{
+    lowPage: lowPage,
+    highPage: highPage,
+    totalPages: totalPages,
+    step: step,
+    readingDirection: readingDirection,
+    onChange: onChange,
+  }}>
+    <PageSwitcherInternal/>
+  </PageSwitcherContext.Provider>
+}
+
+function PageSwitcherInternal() {
+  const {readingDirection} = useContext(PageSwitcherContext)
+
   switch (readingDirection) {
     case ReadingDirection.LeftToRight:
-      return <LeftToRightPageSwitcher page={page} pages={pages} onChange={onChange}/>
+      return <LeftToRightPageSwitcher/>
     case ReadingDirection.RightToLeft:
-      return <RightToLeftPageSwitcher page={page} pages={pages} onChange={onChange}/>
+      return <RightToLeftPageSwitcher/>
   }
 }
 
-interface PageSwitcherProps {
-  page: number,
-  pages: number,
-  onChange: (page: number) => void,
-}
 
-function LeftToRightPageSwitcher({page, pages, onChange}: PageSwitcherProps) {
-  useHotkeys("left", () => onChange(page - 1), {enabled: page > 1}, [page, onChange])
-  useHotkeys("right", () => onChange(page + 1), {enabled: page < pages}, [page, onChange])
+function LeftToRightPageSwitcher() {
+  const {lowPage, highPage, totalPages, step, onChange} = useContext(PageSwitcherContext)
+
+  useHotkeys("left", () => onChange(lowPage - step), {enabled: lowPage > 1}, [lowPage, highPage, step, onChange])
+  useHotkeys("right", () => onChange(lowPage + step), {enabled: highPage < totalPages}, [lowPage, highPage, step, onChange])
 
   return (
     <HStack spacing={elementSpacing}>
-      <PreviousPageButton icon={<FaChevronLeft/>} page={page} pages={pages} onChange={onChange}/>
-      <PagesText page={page} pages={pages}/>
-      <NextPageButton icon={<FaChevronRight/>} page={page} pages={pages} onChange={onChange}/>
+      <PreviousPageButton icon={<FaChevronLeft/>}/>
+      <PagesText/>
+      <NextPageButton icon={<FaChevronRight/>}/>
     </HStack>
   )
 }
 
-function RightToLeftPageSwitcher({page, pages, onChange}: PageSwitcherProps) {
-  useHotkeys("left", () => onChange(page + 1), {enabled: page < pages}, [page, onChange])
-  useHotkeys("right", () => onChange(page - 1), {enabled: page > 1}, [page, onChange])
+function RightToLeftPageSwitcher() {
+  const {lowPage, highPage, totalPages, step, onChange} = useContext(PageSwitcherContext)
+
+  useHotkeys("left", () => onChange(lowPage + step), {enabled: highPage < totalPages}, [lowPage, highPage, step, onChange])
+  useHotkeys("right", () => onChange(lowPage - step), {enabled: lowPage > 1}, [lowPage, highPage, step, onChange])
 
   return (
     <HStack spacing={elementSpacing}>
-      <NextPageButton icon={<FaChevronLeft/>} page={page} pages={pages} onChange={onChange}/>
-      <PagesText page={page} pages={pages}/>
-      <PreviousPageButton icon={<FaChevronRight/>} page={page} pages={pages} onChange={onChange}/>
+      <NextPageButton icon={<FaChevronLeft/>}/>
+      <PagesText/>
+      <PreviousPageButton icon={<FaChevronRight/>}/>
     </HStack>
   )
 }
 
 interface PageButtonProps {
   icon: JSX.Element,
-  page: number,
-  pages: number,
-  onChange: (page: number) => void,
 }
 
-function NextPageButton({icon, page, pages, onChange}: PageButtonProps) {
+function NextPageButton({icon}: PageButtonProps) {
+  const {lowPage, highPage, totalPages, step, onChange} = useContext(PageSwitcherContext)
+
   return <IconButton
-    icon={icon} variant="ghost" onClick={() => onChange(page + 1)} disabled={page >= pages}
+    icon={icon} variant="ghost" onClick={() => onChange(lowPage + step)} disabled={highPage >= totalPages}
     aria-label="Next page"
   />
 }
 
-function PreviousPageButton({icon, page, onChange}: PageButtonProps) {
+function PreviousPageButton({icon}: PageButtonProps) {
+  const {lowPage, step, onChange} = useContext(PageSwitcherContext)
+
   return <IconButton
-    icon={icon} variant="ghost" onClick={() => onChange(page - 1)} disabled={page <= 1}
+    icon={icon} variant="ghost" onClick={() => onChange(lowPage - step)} disabled={lowPage <= 1}
     aria-label="Previous page"
   />
 }
 
-interface PagesTextProps {
-  page: number,
-  pages: number,
+function PagesText() {
+  const {lowPage, highPage, totalPages} = useContext(PageSwitcherContext)
+
+  const pageText = lowPage === highPage ? `${lowPage}` : `${lowPage}-${highPage}`
+  return <Text>{pageText}&nbsp;/&nbsp;{totalPages}</Text>
 }
 
-function PagesText({page, pages}: PagesTextProps) {
-  return <Text>{page}&nbsp;/&nbsp;{pages}</Text>
-}
+export const PageSwitcherContext = createContext({
+  lowPage: 0,
+  highPage: 0,
+  totalPages: 0,
+  step: 0,
+  readingDirection: ReadingDirection.LeftToRight,
+  onChange: (_: number) => {
+  },
+})

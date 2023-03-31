@@ -17,3 +17,7 @@ export function settingsRoute(): string {
 export function readBookRoute(bookId: string, page: number): string {
   return `/read/${bookId}/${page}`
 }
+
+export function notFoundRoute(): string {
+  return "/404"
+}

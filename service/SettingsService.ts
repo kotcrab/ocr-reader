@@ -11,6 +11,7 @@ import {JpdbPopup} from "../model/JpdbPopup"
 import {PopupPosition} from "../model/PopupPosition"
 import {PageView} from "../model/PageView"
 import {FloatingPageTurnAction} from "../model/FloatingPageTurnAction"
+import {PageDisplay} from "../model/PageDisplay"
 
 export class SettingsService {
   private readonly appSettingsFile: string
@@ -108,6 +109,7 @@ export class SettingsService {
       textOrientation: TextOrientationSetting.Auto,
       readingDirection: ReadingDirection.RightToLeft,
       pageView: PageView.Fixed,
+      pageDisplay: PageDisplay.OnePage,
     }
     const fileExists = await fs.promises.stat(book.readerSettingsFile).then(() => true, () => false)
     if (!fileExists) {
@@ -125,6 +127,7 @@ export class SettingsService {
       textOrientation: data.textOrientation ?? defaultSettings.textOrientation,
       readingDirection: data.readingDirection ?? defaultSettings.readingDirection,
       pageView: data.pageView ?? defaultSettings.pageView,
+      pageDisplay: data.pageDisplay ?? defaultSettings.pageDisplay,
     }
   }
 

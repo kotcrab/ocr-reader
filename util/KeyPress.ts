@@ -21,6 +21,7 @@ export function useKeyPress(key: string) {
     return () => {
       window.removeEventListener("keydown", keyDown)
       window.removeEventListener("keyup", keyUp)
+      setKeyPressed(false)
     }
   }, [key])
 

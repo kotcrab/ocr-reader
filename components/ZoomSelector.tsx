@@ -25,7 +25,7 @@ export default function ZoomSelector({zoom, onChange}: Props) {
         marginLeft="2"
         onClick={() => onChange(zoom - 5)}
         icon={<HiZoomOut/>}
-        aria-label={"Zoom Out"}
+        aria-label="Zoom out"
         disabled={zoom <= minZoom}
       />
       <Text width="50px" align="center">{zoom}%</Text>
@@ -37,7 +37,7 @@ export default function ZoomSelector({zoom, onChange}: Props) {
         marginLeft="2"
         onClick={() => onChange(zoom + 5)}
         icon={<HiZoomIn/>}
-        aria-label={"Zoom In"}
+        aria-label="Zoom in"
         disabled={zoom >= maxZoom}
       />
     </HStack>

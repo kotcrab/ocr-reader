@@ -8,10 +8,9 @@ import {FloatingPageSettings} from "../model/AppSettings"
 
 interface Props {
   pageView: PageView,
-  pageDimensions: Dimensions,
   zoom: number,
   floatingPage: FloatingPageSettings,
-  wrapper: (ref: React.Ref<HTMLDivElement>, width: string, alignSelf: string) => JSX.Element,
+  wrapper: (ref: React.Ref<HTMLDivElement>, width: (dimensions: Dimensions) => string, alignSelf: string) => JSX.Element,
 }
 
 export type PageViewWrapperHandle = {
@@ -22,7 +21,6 @@ export type PageViewWrapperHandle = {
 export const PageViewWrapper = forwardRef<PageViewWrapperHandle, Props>(function PageViewWrapper(
   {
     pageView,
-    pageDimensions,
     zoom,
     floatingPage,
     wrapper,
@@ -64,8 +62,7 @@ export const PageViewWrapper = forwardRef<PageViewWrapperHandle, Props>(function
 
   switch (pageView) {
     case PageView.Fixed:
-      const zoomPx = Math.round(pageDimensions.w * zoom / 100) + "px"
-      return wrapper(divRef, zoomPx, "center")
+      return wrapper(divRef, (dimensions) => Math.round(dimensions.w * zoom / 100) + "px", "center")
     case PageView.Floating:
       return <TransformWrapper
         limitToBounds={floatingPage.limitToBounds}
@@ -77,7 +74,7 @@ export const PageViewWrapper = forwardRef<PageViewWrapperHandle, Props>(function
         ref={transformRef}
       >
         <TransformComponent wrapperStyle={{width: "100%", height: "100%"}}>
-          {wrapper(divRef, "auto", "stretch")}
+          {wrapper(divRef, () => "auto", "stretch")}
         </TransformComponent>
       </TransformWrapper>
   }

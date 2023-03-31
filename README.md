@@ -118,6 +118,7 @@ In reader mode, you can:
 - Change minimum OCR confidence level.
 - Change reading direction (right to left by default).
 - Change page view mode.
+- Change page display from single page to two pages.
 - Adjust the overlay:
   - Those options are meant for finding issues with the OCR, most of the time there's no need to use them.
   - Show overlaid text and highlight detected paragraphs.

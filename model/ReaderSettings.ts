@@ -2,6 +2,7 @@ import {TextOrientationSetting} from "./TextOrientationSetting"
 import {ReadingDirection} from "./ReadingDirection"
 import {boolean, InferType, mixed, number, object} from "yup"
 import {PageView} from "./PageView"
+import {PageDisplay} from "./PageDisplay"
 
 export const readerSettingsSchema = object({
   zoom: number().integer().positive().required(),
@@ -14,6 +15,7 @@ export const readerSettingsSchema = object({
   textOrientation: mixed<TextOrientationSetting>().oneOf(Object.values(TextOrientationSetting)).required(),
   readingDirection: mixed<ReadingDirection>().oneOf(Object.values(ReadingDirection)).required(),
   pageView: mixed<PageView>().oneOf(Object.values(PageView)).required(),
+  pageDisplay: mixed<PageDisplay>().oneOf(Object.values(PageDisplay)).required(),
 })
 
 export interface ReaderSettings extends InferType<typeof readerSettingsSchema> {
