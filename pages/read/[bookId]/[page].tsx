@@ -1,6 +1,6 @@
 import PageHead, {defaultPageTitle} from "../../../components/PageHead"
 import {Box, Flex, Grid, GridItem, HStack, IconButton, Image, Tooltip} from "@chakra-ui/react"
-import React, {useEffect, useRef, useState} from "react"
+import React, {useCallback, useEffect, useRef, useState} from "react"
 import {useRouter} from "next/router"
 import {ColorModeSwitcher} from "../../../components/ColorModeSwitcher"
 import {services} from "../../../service/Services"
@@ -90,10 +90,10 @@ export default function ReadBookPage(
 
   const pageViewWrapperRef = useRef<PageViewWrapperHandle>(null)
 
-  async function pushRouterPage(pageNumber: number) {
+  const pushRouterPage = useCallback(async (pageNumber: number) => {
     await router.push(readBookRoute(bookId, pageNumber))
     pageViewWrapperRef.current?.pageTurned()
-  }
+  }, [bookId, router])
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -104,7 +104,7 @@ export default function ReadBookPage(
       }
     }, 300)
     return () => clearTimeout(timer)
-  }, [bookId, lowPage, readerSettings, reloadRequired, router])
+  }, [bookId, lowPage, pushRouterPage, readerSettings, reloadRequired])
 
   useEffect(() => {
     pageViewWrapperRef.current?.zoomToPageNow()
