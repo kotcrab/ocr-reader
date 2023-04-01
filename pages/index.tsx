@@ -1,7 +1,7 @@
 import PageHead from "../components/PageHead"
 import {Button, Container, Flex, Text, VStack} from "@chakra-ui/react"
 import BookCard from "../components/BookCard"
-import React, {useState} from "react"
+import React, {memo, useDeferredValue, useState} from "react"
 import {services} from "../service/Services"
 import {BookResponse} from "../model/BookResponse"
 import SearchBar from "../components/SearchBar"
@@ -88,12 +88,13 @@ interface BookListProps {
 
 function BookList({books, viewArchived}: BookListProps) {
   const [filter, setFilter] = useState("")
+  const deferredFilter = useDeferredValue(filter)
   const filteredBooks = books
     .filter(book => {
-      return !filter ||
-        book.title.toLowerCase().includes(filter) ||
-        book.author.toLowerCase().includes(filter) ||
-        book.description.toLowerCase().includes(filter)
+      return !deferredFilter ||
+        book.title.toLowerCase().includes(deferredFilter) ||
+        book.author.toLowerCase().includes(deferredFilter) ||
+        book.description.toLowerCase().includes(deferredFilter)
     })
 
   return (
@@ -109,7 +110,7 @@ interface BookItemProps {
   book: BookResponse,
 }
 
-function BookItem({book}: BookItemProps) {
+const BookItem = memo(function BookItem({book}: BookItemProps) {
   const router = useRouter()
 
   const onRunOcr = async (id: string) => {
@@ -134,7 +135,7 @@ function BookItem({book}: BookItemProps) {
     onRunOcr={onRunOcr}
     onDownloadText={onDownloadText}
   />
-}
+})
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {viewArchived} = getParams(context.query)

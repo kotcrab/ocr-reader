@@ -4,6 +4,7 @@
 - Font size and text orientation options are now hidden by default in the reader menu. Hold Alt key to show them.
 - JPDB deck ID input was replaced by proper select box with deck names.
 - Book description text now preserves white space formatting.
+- Optimized home screen performance when searching through many books.
 
 #### Version 1.3.3
 - Fixed app settings validation.
