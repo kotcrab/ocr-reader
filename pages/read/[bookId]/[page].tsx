@@ -255,6 +255,7 @@ export default function ReadBookPage(
                   >
                     <Image
                       alt={`Page ${page.index + 1}`}
+                      width="100%"
                       htmlWidth={page.dimensions.w}
                       htmlHeight={page.dimensions.h}
                       src={bookPageUrl(bookId, page.index)}
