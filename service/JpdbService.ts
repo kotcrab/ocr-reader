@@ -13,6 +13,7 @@ import {unionRectangles} from "../util/OverlayUtil"
 import {JPDB_BASE} from "../util/JpdbUitl"
 import {RequestError} from "../util/RequestError"
 import {JpdbDeckId} from "../model/JpdbDeckId"
+import {JPDB_DECK_API_FIELDS, JpdbDeck, JpdbPackedDecksResult, unpackJpdbDeck} from "../model/JpdbDeck"
 
 export class JpdbService {
   private readonly bookService: BookService
@@ -28,7 +29,7 @@ export class JpdbService {
   }
 
   async isEnabled() {
-    return (await this.getJpdbApiKey()).length > 0
+    return (await this.getApiKey()).length > 0
   }
 
   async analyzeBookPage(bookId: string, page: number): Promise<ImageAnalysis> {
@@ -167,6 +168,24 @@ export class JpdbService {
     }
   }
 
+  async listDecks(overrideApiKey?: string): Promise<JpdbDeck[]> {
+    await this.rateLimiter.removeTokens(1)
+    const response = await fetch(`${JPDB_BASE}/api/v1/list-user-decks`, {
+      method: "POST",
+      headers: await this.getStandardPostHeaders(overrideApiKey),
+      body: JSON.stringify({
+          fields: JPDB_DECK_API_FIELDS,
+        }
+      ),
+    })
+    if (!response.ok) {
+      console.log(await response.json())
+      throw new RequestError("Could not list user decks")
+    }
+    const deckResult = await response.json() as JpdbPackedDecksResult
+    return deckResult.decks.map(it => unpackJpdbDeck(it))
+  }
+
   async modifyVocabularyInDeck(deckId: JpdbDeckId, vid: number, sid: number, mode: "add" | "remove") {
     await this.rateLimiter.removeTokens(1)
     const response = await fetch(`${JPDB_BASE}/api/v1/deck/${mode}-vocabulary`, {
@@ -185,9 +204,9 @@ export class JpdbService {
     this.jpdbCache.clear()
   }
 
-  private async getStandardPostHeaders() {
+  private async getStandardPostHeaders(overrideApiKey?: string) {
     return {
-      "Authorization": "Bearer " + await this.getJpdbApiKey(),
+      "Authorization": "Bearer " + (overrideApiKey ?? await this.getApiKey()),
       "Content-Type": "application/json",
     }
   }
@@ -196,7 +215,7 @@ export class JpdbService {
     return crypto.createHash("sha256").update(text).digest("hex")
   }
 
-  private async getJpdbApiKey() {
+  private async getApiKey() {
     return (await this.settingsService.getAppSettings()).jpdbApiKey
   }
 }

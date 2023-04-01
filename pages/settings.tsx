@@ -26,6 +26,7 @@ import JpdbRulesEditModal from "../components/JpdbRulesEditModal"
 import PopupPositionSelect from "../components/PopupPositionSelect"
 import {FloatingPageTurnAction} from "../model/FloatingPageTurnAction"
 import {useImmer} from "use-immer"
+import JpdbDeckSelect from "../components/JpdbDeckSelect"
 
 interface Props {
   initialAppSettings: AppSettings,
@@ -176,14 +177,15 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
                 <FormHelperText>JPDB API key used for text parsing and words highlighting.</FormHelperText>
               </FormControl>
               <FormControl>
-                <FormLabel>Mining deck ID</FormLabel>
+                <FormLabel>Mining deck</FormLabel>
                 <HStack>
-                  <Input
-                    type="number"
-                    value={appSettings.jpdbMiningDeckId}
-                    onChange={e => updateAppSettings(it => {
-                      it.jpdbMiningDeckId = parseInt(e.target.value)
-                    })}/>
+                  <JpdbDeckSelect
+                    apiKey={appSettings.jpdbApiKey}
+                    deckId={appSettings.jpdbMiningDeckId}
+                    onChange={deckId => updateAppSettings(it => {
+                      it.jpdbMiningDeckId = deckId
+                    })}
+                  />
                   <RestoreDefaultValueButton
                     onClick={() => updateAppSettings(it => {
                       it.jpdbMiningDeckId = defaultAppSettings.jpdbMiningDeckId

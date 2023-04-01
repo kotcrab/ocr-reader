@@ -65,12 +65,11 @@ be http://localhost:3000. Open this address in your browser to access the app.
 ### JPDB Configuration
 
 If you have a JPDB account and want to use it for parsing text and words highlighting:
-1. Go to the [JPDB settings](https://jpdb.io/settings) page.
-2. Scroll to the bottom and copy your API key.
-3. In OCR Reader go to the "Settings" page.
-4. Paste your API key into the "JPDB API key" field.
-5. Optionally, enter the ID of your mining deck. You can find the deck ID in the URL after opening the deck on the JPDB site.
-6. Save settings.
+1. Go to the [JPDB settings](https://jpdb.io/settings) page, scroll to the bottom and copy your API key.
+2. In OCR Reader go to the "Settings" page.
+3. Paste your API key into the "JPDB API key" field.
+4. Optionally, select your mining deck.
+5. Save settings.
 
 ### Reader
 

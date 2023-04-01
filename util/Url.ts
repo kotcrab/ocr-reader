@@ -38,6 +38,10 @@ export function jpdbDecksUrl(): string {
   return "/api/jpdb/decks"
 }
 
+export function jpdbListDecksUrl(): string {
+  return "/api/jpdb/list-decks"
+}
+
 export function isValidWebSocketUrl(value: string) {
   let url
   try {

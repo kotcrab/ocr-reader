@@ -6,6 +6,7 @@ import {
   bookTextDumpUrl,
   bookUrl,
   jpdbDecksUrl,
+  jpdbListDecksUrl,
 } from "./Url"
 import {AppSettings} from "../model/AppSettings"
 import {ReaderSettings} from "../model/ReaderSettings"
@@ -14,6 +15,7 @@ import {JpdbDeckId} from "../model/JpdbDeckId"
 import {BookInfoUpdate} from "../model/BookInfoUpdate"
 import {JpdbDeckUpdateMode} from "../model/JpdbDeckUpdateMode"
 import {ImageAnalysis} from "../model/ImageAnalysis"
+import {JpdbDeck} from "../model/JpdbDeck"
 
 const jsonHeaders = {
   "Content-Type": "application/json",
@@ -86,5 +88,17 @@ export class Api {
     if (!response.ok) {
       throw new RequestError("Could not modify deck")
     }
+  }
+
+  static async listDecks(overrideApiKey: string) {
+    const response = await fetch(jpdbListDecksUrl(), {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({overrideApiKey: overrideApiKey}),
+    })
+    if (!response.ok) {
+      throw new RequestError("Could not list decks")
+    }
+    return (await response.json()).decks as JpdbDeck[]
   }
 }

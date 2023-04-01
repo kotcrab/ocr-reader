@@ -128,7 +128,7 @@ export default function ReadBookPage(
         .reduce((a, b) => a + b, 0)
       setCharactersRead(it => it + characterCount)
       setCharactersReadMaxPage(newPage)
-      setPagesRead(it => it + 1)
+      setPagesRead(it => it + pages.length)
       console.log(`Stats: add ${characterCount} characters, new max page: ${newPage}`)
     }
     await router.push(readBookRoute(bookId, newPage))
