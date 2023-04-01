@@ -83,7 +83,7 @@ export default function BookCard({book, onRead, onRunOcr, onDownloadText}: Props
           <Spacer/>
           <PinBookButton pinned={pinned} onTogglePinned={togglePinned}/>
         </Flex>
-        {description ? <Text py='4'>{description}</Text> : null}
+        {description ? <Text py='4' style={{whiteSpace: "pre-wrap"}}>{description}</Text> : null}
       </CardBody>
 
       <CardFooter>
