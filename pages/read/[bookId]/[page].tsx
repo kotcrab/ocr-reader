@@ -90,12 +90,17 @@ export default function ReadBookPage(
 
   const pageViewWrapperRef = useRef<PageViewWrapperHandle>(null)
 
+  async function pushRouterPage(pageNumber: number) {
+    await router.push(readBookRoute(bookId, pageNumber))
+    pageViewWrapperRef.current?.pageTurned()
+  }
+
   useEffect(() => {
     const timer = setTimeout(async () => {
       await Api.updateReaderSettings(bookId, readerSettings)
       if (reloadRequired) {
         setReloadRequired(false)
-        await router.push(readBookRoute(bookId, lowPage + 1))
+        await pushRouterPage(lowPage + 1)
       }
     }, 300)
     return () => clearTimeout(timer)
@@ -131,7 +136,7 @@ export default function ReadBookPage(
       setPagesRead(it => it + pages.length)
       console.log(`Stats: add ${characterCount} characters, new max page: ${newPage}`)
     }
-    await router.push(readBookRoute(bookId, newPage))
+    await pushRouterPage(newPage)
   }
 
   function onReadingTimerReset() {
@@ -253,7 +258,6 @@ export default function ReadBookPage(
                       htmlWidth={page.dimensions.w}
                       htmlHeight={page.dimensions.h}
                       src={bookPageUrl(bookId, page.index)}
-                      onLoad={() => pageViewWrapperRef.current?.pageTurned()}
                       userSelect="none"
                     />
                     <SvgOverlay
