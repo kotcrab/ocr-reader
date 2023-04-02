@@ -83,6 +83,7 @@ export default function ReadBookPage(
   const [analysis, setAnalysis] = useState<(ImageAnalysis | undefined)[] | undefined>(undefined)
   const [analysisStarted, setAnalysisStarted] = useState(false)
   const [reloadRequired, setReloadRequired] = useState(false)
+  const [initialLoad, setInitialLoad] = useState(true)
 
   const [charactersRead, setCharactersRead] = useState(0)
   const [charactersReadMaxPage, setCharactersReadMaxPage] = useState(lowPage)
@@ -139,7 +140,15 @@ export default function ReadBookPage(
     await pushRouterPage(newPage)
   }
 
-  function onReadingTimerReset() {
+  function handleImageLoaded() {
+    if (!initialLoad) {
+      return
+    }
+    setInitialLoad(false)
+    pageViewWrapperRef.current?.zoomToPageNow()
+  }
+
+  function readingTimerReset() {
     setCharactersRead(0)
     setCharactersReadMaxPage(lowPage)
     setPagesRead(0)
@@ -190,7 +199,7 @@ export default function ReadBookPage(
                     charactersRead={charactersRead}
                     unitsRead={pagesRead}
                     unitType={ReadingUnitType.Pages}
-                    onReset={onReadingTimerReset}/> : null}
+                    onReset={readingTimerReset}/> : null}
                 <ReaderMenu
                   readerSettings={readerSettings}
                   analysisEnabled={jpdbEnabled && !analysisStarted}
@@ -260,6 +269,7 @@ export default function ReadBookPage(
                       htmlHeight={page.dimensions.h}
                       src={bookPageUrl(bookId, page.index)}
                       userSelect="none"
+                      onLoad={() => handleImageLoaded()}
                     />
                     <SvgOverlay
                       ocr={page.ocr}
