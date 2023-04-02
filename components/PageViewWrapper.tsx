@@ -10,7 +10,7 @@ interface Props {
   pageView: PageView,
   zoom: number,
   floatingPage: FloatingPageSettings,
-  wrapper: (ref: React.Ref<HTMLDivElement>, width: (dimensions: Dimensions) => string, alignSelf: string) => JSX.Element,
+  wrapper: (ref: React.Ref<HTMLDivElement>, alignSelf: string, imageDivWidth: (dimensions: Dimensions) => string, imageWidth: string | undefined) => JSX.Element,
 }
 
 export type PageViewWrapperHandle = {
@@ -62,7 +62,7 @@ export const PageViewWrapper = forwardRef<PageViewWrapperHandle, Props>(function
 
   switch (pageView) {
     case PageView.Fixed:
-      return wrapper(divRef, (dimensions) => Math.round(dimensions.w * zoom / 100) + "px", "center")
+      return wrapper(divRef, "center", (dimensions) => Math.round(dimensions.w * zoom / 100) + "px", "100%")
     case PageView.Floating:
       return <TransformWrapper
         limitToBounds={floatingPage.limitToBounds}
@@ -74,7 +74,7 @@ export const PageViewWrapper = forwardRef<PageViewWrapperHandle, Props>(function
         ref={transformRef}
       >
         <TransformComponent wrapperStyle={{width: "100%", height: "100%"}}>
-          {wrapper(divRef, () => "auto", "stretch")}
+          {wrapper(divRef, "stretch", () => "auto", undefined)}
         </TransformComponent>
       </TransformWrapper>
   }

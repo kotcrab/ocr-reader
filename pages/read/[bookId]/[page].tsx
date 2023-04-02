@@ -27,7 +27,7 @@ import {FloatingPageSettings} from "../../../model/AppSettings"
 import {useImmer} from "use-immer"
 import {MdSettingsBackupRestore} from "react-icons/md"
 import {TOOLTIP_OPEN_DELAY} from "../../../util/Util"
-import {calculatePageStep, calculateWantedPages} from "../../../util/Pages"
+import {calculatePageStep, calculateWantedPages, isCurrentPageCoverOrOnePageDisplay} from "../../../util/Pages"
 import {ReaderPage} from "../../../model/ReaderPage"
 import {ReadingDirection} from "../../../model/ReadingDirection"
 import {PageDisplay} from "../../../model/PageDisplay"
@@ -101,6 +101,9 @@ export default function ReadBookPage(
       if (reloadRequired) {
         setReloadRequired(false)
         await pushRouterPage(lowPage + 1)
+        if (isCurrentPageCoverOrOnePageDisplay(lowPage, readerSettings.pageDisplay)) {
+          pageViewWrapperRef.current?.pageTurned()
+        }
       }
     }, 300)
     return () => clearTimeout(timer)
@@ -255,16 +258,16 @@ export default function ReadBookPage(
             zoom={readerSettings.zoom}
             floatingPage={floatingPage}
             ref={pageViewWrapperRef}
-            wrapper={(divRef, width, alignSelf) =>
+            wrapper={(divRef, alignSelf, imageDivWidth, imageWidth) =>
               <HStack alignSelf={alignSelf} ref={divRef} spacing={0}>
                 {pages.map((page, index) => {
                   return <div
                     key={page.index}
-                    style={{position: "relative", width: width(page.dimensions)}}
+                    style={{position: "relative", width: imageDivWidth(page.dimensions)}}
                   >
                     <Image
                       alt={`Page ${page.index + 1}`}
-                      width="100%"
+                      width={imageWidth}
                       htmlWidth={page.dimensions.w}
                       htmlHeight={page.dimensions.h}
                       src={bookPageUrl(bookId, page.index)}
