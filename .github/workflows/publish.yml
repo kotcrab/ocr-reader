@@ -40,3 +40,4 @@ jobs:
           asset_name: ocr-reader.zip
           body: See [CHANGES](https://github.com/kotcrab/ocr-reader/blob/master/CHANGES.md) file.
           tag: ${{ github.ref }}
+          prerelease: ${{ contains(github.ref_name, '-rc') }}
