@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react"
+import React, {memo, useEffect, useMemo, useState} from "react"
 import {
   ButtonGroup,
   IconButton,
@@ -65,17 +65,8 @@ export default function ReadingTimer({charactersRead, unitsRead, unitType, onRes
   const charactersPerMinute = calculateSpeed(totalElapsedTimeSeconds, charactersRead, 60)
 
   return (
-    <Popover>
-      <PopoverTrigger>
-        <IconButton
-          size="md"
-          fontSize="lg"
-          variant="ghost"
-          color="current"
-          icon={<MdTimer/>}
-          aria-label="Timer"
-        />
-      </PopoverTrigger>
+    <Popover isLazy>
+      <TimerPopoverTrigger/>
       <Portal>
         <PopoverContent width="unset" minWidth="200px">
           <PopoverArrow/>
@@ -113,6 +104,19 @@ export default function ReadingTimer({charactersRead, unitsRead, unitType, onRes
     </Popover>
   )
 }
+
+const TimerPopoverTrigger = memo(function TimerPopoverTrigger() {
+  return <PopoverTrigger>
+    <IconButton
+      size="md"
+      fontSize="lg"
+      variant="ghost"
+      color="current"
+      icon={<MdTimer/>}
+      aria-label="Timer"
+    />
+  </PopoverTrigger>
+})
 
 function calculateSpeed(elapsedTimeSeconds: number, charactersRead: number, secondsInTimeUnit: number) {
   if (elapsedTimeSeconds == 0) {
