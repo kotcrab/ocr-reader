@@ -30,7 +30,7 @@ export class SettingsService {
         panningVelocity: true,
         turnAction: FloatingPageTurnAction.FitToScreen,
         animateTurn: true,
-        limitToBounds: false,
+        limitToBounds: true,
       },
       jpdbApiKey: "",
       jpdbMiningDeckId: 0,
@@ -108,7 +108,7 @@ export class SettingsService {
       showAnalysis: true,
       textOrientation: TextOrientationSetting.Auto,
       readingDirection: ReadingDirection.RightToLeft,
-      pageView: PageView.Fixed,
+      pageView: PageView.Floating,
       pageDisplay: PageDisplay.OnePage,
     }
     const fileExists = await fs.promises.stat(book.readerSettingsFile).then(() => true, () => false)
