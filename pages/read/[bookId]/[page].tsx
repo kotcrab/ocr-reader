@@ -93,7 +93,6 @@ export default function ReadBookPage(
 
   const pushRouterPage = useCallback(async (pageNumber: number) => {
     await router.push(readBookRoute(bookId, pageNumber))
-    pageViewWrapperRef.current?.pageTurned()
   }, [bookId, router])
 
   useEffect(() => {
@@ -141,11 +140,12 @@ export default function ReadBookPage(
   }
 
   function handleImageLoaded() {
-    if (!initialLoad) {
-      return
+    if (initialLoad) {
+      setInitialLoad(false)
+      pageViewWrapperRef.current?.zoomToPageNow()
+    } else {
+      pageViewWrapperRef.current?.pageTurned()
     }
-    setInitialLoad(false)
-    pageViewWrapperRef.current?.zoomToPageNow()
   }
 
   function readingTimerReset() {
