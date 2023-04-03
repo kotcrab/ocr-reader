@@ -1,5 +1,5 @@
 import PageHead from "../components/PageHead"
-import {Checkbox, Flex, Text, VStack} from "@chakra-ui/react"
+import {Checkbox, Flex, Text, useToast, VStack} from "@chakra-ui/react"
 import React, {useEffect, useRef, useState} from "react"
 import NavBar from "../components/NavBar"
 import useWebSocket, {ReadyState} from "react-use-websocket"
@@ -14,6 +14,7 @@ import {JpdbVocabulary} from "../model/JpdbVocabulary"
 import JpdbPopupWrapper from "../components/JpdbPopupWrapper"
 import useDebounce from "../util/Debounce"
 import {PopupPosition} from "../model/PopupPosition"
+import {Api} from "../util/Api"
 
 interface Props {
   jpdbEnabled: boolean,
@@ -143,6 +144,8 @@ interface AnalyzedTextProps {
 }
 
 function AnalyzedText({text, analyze, jpdbRules, jpdbMiningDeckId, jpdbPopupPosition}: AnalyzedTextProps) {
+  const toast = useToast()
+
   const [wantsAnalyze, _] = useState(analyze)
   const [analysis, setAnalysis] = useState<TextAnalysis | undefined>(undefined)
 
@@ -151,15 +154,19 @@ function AnalyzedText({text, analyze, jpdbRules, jpdbMiningDeckId, jpdbPopupPosi
       if (!wantsAnalyze || analysis) {
         return
       }
-      const result = await fetch(analyzeTextUrl(encodeURIComponent(text)))
-      if (result.ok) {
-        setAnalysis(await result.json())
-      }
+      setAnalysis(await Api.analyzeText(text))
     }
 
     analyzeMessage()
-      .catch(console.error)
-  }, [wantsAnalyze, analysis, text])
+      .catch(() => {
+        toast.closeAll()
+        toast({
+          description: "Could not analyze text",
+          status: "error",
+          duration: 3000,
+        })
+      })
+  }, [wantsAnalyze, analysis, text, toast])
 
   return <Text style={{whiteSpace: "pre-wrap"}}>
     {analysis ? analysis.tokens.map((it, index) => {

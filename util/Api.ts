@@ -1,4 +1,5 @@
 import {
+  analyzeTextUrl,
   appSettingsUrl,
   bookAnalyzePageUrl,
   bookReaderSettingsUrl,
@@ -16,6 +17,7 @@ import {BookInfoUpdate} from "../model/BookInfoUpdate"
 import {JpdbDeckUpdateMode} from "../model/JpdbDeckUpdateMode"
 import {ImageAnalysis} from "../model/ImageAnalysis"
 import {JpdbDeck} from "../model/JpdbDeck"
+import {TextAnalysis} from "../model/TextAnalysis"
 
 const jsonHeaders = {
   "Content-Type": "application/json",
@@ -77,6 +79,18 @@ export class Api {
         return undefined
       }
     }))
+  }
+
+  static async analyzeText(text: string) {
+    const response = await fetch(analyzeTextUrl(), {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({text: text}),
+    })
+    if (!response.ok) {
+      throw new RequestError("Could not analyze text")
+    }
+    return await response.json() as TextAnalysis
   }
 
   static async modifyDeck(deckId: JpdbDeckId, vid: number, sid: number, mode: JpdbDeckUpdateMode) {

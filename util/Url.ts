@@ -1,5 +1,5 @@
-export function analyzeTextUrl(text: string): string {
-  return `/api/analyze?text=${text}`
+export function analyzeTextUrl(): string {
+  return "/api/analyze"
 }
 
 export function appSettingsUrl(): string {
