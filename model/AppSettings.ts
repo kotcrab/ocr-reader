@@ -13,6 +13,7 @@ const floatingPageSchema = object({
 
 export const appSettingsSchema = object({
   readingTimerEnabled: boolean().required(),
+  mainLoadingBarEnabled: boolean().required(),
   floatingPage: floatingPageSchema.required(),
   jpdbApiKey: string().default(""),
   jpdbMiningDeckId: number().integer().required().default(0),

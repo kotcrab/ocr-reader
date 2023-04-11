@@ -12,9 +12,11 @@ import HomeMenu from "../components/HomeMenu"
 import {ParsedUrlQuery} from "querystring"
 import {GetServerSidePropsContext} from "next"
 import {Api} from "../util/Api"
+import MainLoadingBar from "../components/MainLoadingBar"
 
 interface Props {
   books: BookResponse[],
+  mainLoadingBarEnabled: boolean,
 }
 
 function getParams(params: ParsedUrlQuery) {
@@ -41,6 +43,7 @@ export default function Home({books}: Props) {
     <>
       <PageHead/>
       <main>
+        <MainLoadingBar/>
         <Flex p={4} direction="column">
           <NavBar extraEndElement={
             <HomeMenu
@@ -49,16 +52,16 @@ export default function Home({books}: Props) {
               onRescanBooks={rescanBooks}
             />
           }/>
-          <Container maxW='6xl'>
+          <Container maxW="6xl">
             <VStack align="stretch" spacing={4}>
               {books.length === 0 ? noBooks :
                 <BookList books={books} viewArchived={viewArchived}/>}
               {!viewArchived ?
-                <Button colorScheme='blue' variant='ghost' alignSelf="center" onClick={rescanBooks}>
+                <Button colorScheme="blue" variant="ghost" alignSelf="center" onClick={rescanBooks}>
                   Rescan books
                 </Button> : null}
               {viewArchived ?
-                <Button colorScheme='blue' variant='ghost' alignSelf="center" onClick={toggleViewArchived}>
+                <Button colorScheme="blue" variant="ghost" alignSelf="center" onClick={toggleViewArchived}>
                   Go back
                 </Button> : null}
             </VStack>
@@ -139,10 +142,12 @@ const BookItem = memo(function BookItem({book}: BookItemProps) {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const {viewArchived} = getParams(context.query)
+  const appSettings = await services.settingsService.getAppSettings()
 
   return {
     props: {
       books: await services.bookService.getBooks(viewArchived),
+      mainLoadingBarEnabled: appSettings.mainLoadingBarEnabled,
     },
   }
 }

@@ -26,6 +26,7 @@ export class SettingsService {
   getDefaultAppSettings(): AppSettings {
     return {
       readingTimerEnabled: true,
+      mainLoadingBarEnabled: true,
       floatingPage: {
         panningVelocity: true,
         turnAction: FloatingPageTurnAction.FitToScreen,
@@ -62,6 +63,7 @@ export class SettingsService {
     const data = JSON.parse(await fs.promises.readFile(this.appSettingsFile, "utf8"))
     return {
       readingTimerEnabled: data.readingTimerEnabled ?? defaultSettings.readingTimerEnabled,
+      mainLoadingBarEnabled: data.mainLoadingBarEnabled ?? defaultSettings.mainLoadingBarEnabled,
       floatingPage: {
         panningVelocity: data.floatingPage?.panningVelocity ?? defaultSettings.floatingPage.panningVelocity,
         turnAction: data.floatingPage?.turnAction ?? defaultSettings.floatingPage.turnAction,

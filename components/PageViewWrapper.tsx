@@ -69,6 +69,7 @@ export const PageViewWrapper = forwardRef<PageViewWrapperHandle, Props>(function
         minScale={0.1}
         disabled={altKeyPressed}
         panning={{velocityDisabled: !floatingPage.panningVelocity}}
+        wheel={{step: 0.05}}
         alignmentAnimation={{disabled: true}}
         disablePadding={true}
         ref={transformRef}
