@@ -203,6 +203,7 @@ export default function ReadBookPage(
                   </Tooltip>}
                 {readingTimerEnabled ?
                   <ReadingTimer
+                    description={title}
                     charactersRead={charactersRead}
                     unitsRead={pagesRead}
                     unitType={ReadingUnitType.Pages}

@@ -241,6 +241,56 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
                 <FormHelperText>Configure colors and which words should be highlighted.</FormHelperText>
               </FormControl>
 
+              <Text fontSize="xl">Toggl Track integration</Text>
+              <FormControl>
+                <FormLabel>API key</FormLabel>
+                <HStack>
+                  <Input
+                    type="password"
+                    value={appSettings.timeTracker.apiKey}
+                    onChange={e => updateAppSettings(it => {
+                      it.timeTracker.apiKey = e.target.value
+                    })}/>
+                  <RestoreDefaultValueButton
+                    onClick={() => updateAppSettings(it => {
+                      it.timeTracker.apiKey = defaultAppSettings.timeTracker.apiKey
+                    })}/>
+                </HStack>
+                <FormHelperText>API key.</FormHelperText>
+              </FormControl>
+              <FormControl>
+                <FormLabel>Workspace ID</FormLabel>
+                <HStack>
+                  <Input
+                    type="number"
+                    value={appSettings.timeTracker.workspaceId}
+                    onChange={e => updateAppSettings(it => {
+                      it.timeTracker.workspaceId = parseInt(e.target.value)
+                    })}/>
+                  <RestoreDefaultValueButton
+                    onClick={() => updateAppSettings(it => {
+                      it.timeTracker.workspaceId = defaultAppSettings.timeTracker.workspaceId
+                    })}/>
+                </HStack>
+                <FormHelperText>Workspace ID.</FormHelperText>
+              </FormControl>
+              <FormControl>
+                <FormLabel>Project ID</FormLabel>
+                <HStack>
+                  <Input
+                    type="number"
+                    value={appSettings.timeTracker.projectId}
+                    onChange={e => updateAppSettings(it => {
+                      it.timeTracker.projectId = parseInt(e.target.value)
+                    })}/>
+                  <RestoreDefaultValueButton
+                    onClick={() => updateAppSettings(it => {
+                      it.timeTracker.projectId = defaultAppSettings.timeTracker.projectId
+                    })}/>
+                </HStack>
+                <FormHelperText>Project ID.</FormHelperText>
+              </FormControl>
+
               <Box pt={8} pb={12}>
                 <Button variant="solid" colorScheme="blue" onClick={saveSettings}>
                   Save settings

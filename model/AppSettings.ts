@@ -11,10 +11,17 @@ const floatingPageSchema = object({
   limitToBounds: boolean().required(),
 })
 
+const timeTrackerSchema = object({
+  apiKey: string().default(""),
+  workspaceId: number().default(0),
+  projectId: number().default(0),
+})
+
 export const appSettingsSchema = object({
   readingTimerEnabled: boolean().required(),
   mainLoadingBarEnabled: boolean().required(),
   floatingPage: floatingPageSchema.required(),
+  timeTracker: timeTrackerSchema.required(),
   jpdbApiKey: string().default(""),
   jpdbMiningDeckId: number().integer().required().default(0),
   jpdbHorizontalTextPopupPosition: mixed<PopupPosition>().oneOf(Object.values(PopupPosition)).required(),
@@ -25,6 +32,9 @@ export const appSettingsSchema = object({
 })
 
 export interface FloatingPageSettings extends InferType<typeof floatingPageSchema> {
+}
+
+export interface TimeTrackerSettings extends InferType<typeof timeTrackerSchema> {
 }
 
 export interface AppSettings extends InferType<typeof appSettingsSchema> {

@@ -33,6 +33,11 @@ export class SettingsService {
         animateTurn: true,
         limitToBounds: true,
       },
+      timeTracker: {
+        apiKey: "",
+        workspaceId: 0,
+        projectId: 0,
+      },
       jpdbApiKey: "",
       jpdbMiningDeckId: 0,
       jpdbHorizontalTextPopupPosition: PopupPosition.BelowText,
@@ -69,6 +74,11 @@ export class SettingsService {
         turnAction: data.floatingPage?.turnAction ?? defaultSettings.floatingPage.turnAction,
         animateTurn: data.floatingPage?.animateTurn ?? defaultSettings.floatingPage.animateTurn,
         limitToBounds: data.floatingPage?.limitToBounds ?? defaultSettings.floatingPage.limitToBounds,
+      },
+      timeTracker: {
+        apiKey: data.timeTracker?.apiKey ?? defaultSettings.timeTracker.apiKey,
+        workspaceId: data.timeTracker?.workspaceId ?? defaultSettings.timeTracker.workspaceId,
+        projectId: data.timeTracker?.projectId ?? defaultSettings.timeTracker.projectId,
       },
       jpdbApiKey: data.jpdbApiKey ?? defaultSettings.jpdbApiKey,
       jpdbMiningDeckId: data.jpdbMiningDeckId ?? defaultSettings.jpdbMiningDeckId,

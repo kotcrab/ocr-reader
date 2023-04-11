@@ -5,6 +5,7 @@ import {GlobalRef} from "../util/GlobalRef"
 import {JpdbService} from "./JpdbService"
 import {SettingsService} from "./SettingsService"
 import {jpdbCache} from "./JpdbCache"
+import {TimeTrackerService} from "./TimeTrackerService"
 
 class Services {
   readonly env = new AppEnv()
@@ -12,6 +13,7 @@ class Services {
   readonly settingsService = new SettingsService(this.storageService)
   readonly bookService = new BookService(this.storageService)
   readonly jpdbService = new JpdbService(this.bookService, this.settingsService, jpdbCache)
+  readonly timeTrackerService = new TimeTrackerService(this.settingsService)
 }
 
 const servicesRef = new GlobalRef("reader.services")

@@ -21,12 +21,8 @@ words thanks to the JPDB integration.
   - Must be either an account with billing activated or in a trial period.
   - 1000 images per month can be processed for free, then $1.50 for each 1000 images, see [details](https://cloud.google.com/vision/pricing).
   - Account is not required if you import OCR data created by someone else or if you just want to use the text hooker.
-- Optionally, [JPDB](https://jpdb.io/) SRS account for text parsing and highlighting unknown words.
 
 ### Google Cloud Preparation
-
-In Google Cloud Console you will need to create a new project and enable Cloud Vision API. Then create service
-account and download its JSON key file (**never share this file with anyone**).
 
 1. Create a new project in the GCP console.
 2. Go to the [Cloud Vision API](https://console.cloud.google.com/apis/library/vision.googleapis.com) and press "Enable".
@@ -35,7 +31,7 @@ account and download its JSON key file (**never share this file with anyone**).
    - Click on the newly created account and go to the "Keys" tab.
    - Press "Add key" then "Create new key".
    - JSON should be selected, press "Create".
-   - JSON key file will be downloaded automatically, you will need it in the next steps.
+   - JSON key file will be downloaded automatically, you will need it in the next steps. **Never share this file with anyone.**
 
 ### Installation
 

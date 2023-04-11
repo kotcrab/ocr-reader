@@ -42,6 +42,10 @@ export function jpdbListDecksUrl(): string {
   return "/api/jpdb/list-decks"
 }
 
+export function timeEntryUrl(): string {
+  return "/api/time-entry"
+}
+
 export function isValidWebSocketUrl(value: string) {
   let url
   try {

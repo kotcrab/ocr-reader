@@ -109,6 +109,7 @@ export default function TextHooker(
         <Flex p={4} align="stretch" direction="column">
           <NavBar extraEndElement={
             readingTimerEnabled ? <ReadingTimer
+              description="Text hooker"
               charactersRead={charactersRead}
               unitsRead={entriesRead}
               unitType={ReadingUnitType.Entries}

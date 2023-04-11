@@ -8,6 +8,7 @@ import {
   bookUrl,
   jpdbDecksUrl,
   jpdbListDecksUrl,
+  timeEntryUrl,
 } from "./Url"
 import {AppSettings} from "../model/AppSettings"
 import {ReaderSettings} from "../model/ReaderSettings"
@@ -114,5 +115,20 @@ export class Api {
       throw new RequestError("Could not list decks")
     }
     return (await response.json()).decks as JpdbDeck[]
+  }
+
+  static async addTimeEntry(description: string, startTime: number, elapsedTime: number) {
+    const response = await fetch(timeEntryUrl(), {
+      method: "POST",
+      headers: jsonHeaders,
+      body: JSON.stringify({
+        description: description,
+        startTime: startTime,
+        elapsedTime: elapsedTime,
+      }),
+    })
+    if (!response.ok) {
+      throw new RequestError("Could not add time entry")
+    }
   }
 }

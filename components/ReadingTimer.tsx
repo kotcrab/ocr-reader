@@ -1,4 +1,4 @@
-import React, {memo, useEffect, useMemo, useState} from "react"
+import React, {memo, useEffect, useState} from "react"
 import {
   ButtonGroup,
   IconButton,
@@ -12,23 +12,28 @@ import {
   Portal,
   Text,
   Tooltip,
+  useToast,
 } from "@chakra-ui/react"
 import {MdPause, MdPlayArrow, MdSettingsBackupRestore, MdTimer} from "react-icons/md"
 import {TOOLTIP_OPEN_DELAY} from "../util/Util"
 import {ReadingUnitType} from "../model/ReadingUnitType"
+import {Api} from "../util/Api"
 
 const SECOND = 1000
 const MINUTE = SECOND * 60
 const HOUR = MINUTE * 60
 
 interface Props {
+  description: string
   charactersRead: number
   unitsRead: number
   unitType: ReadingUnitType,
   onReset: () => void
 }
 
-export default function ReadingTimer({charactersRead, unitsRead, unitType, onReset}: Props) {
+export default function ReadingTimer({description, charactersRead, unitsRead, unitType, onReset}: Props) {
+  const toast = useToast()
+
   const [startTime, setStartTime] = useState(Date.now())
   const [elapsedTime, setElapsedTime] = useState(0)
   const [committedTime, setCommittedTime] = useState(0)
@@ -39,7 +44,7 @@ export default function ReadingTimer({charactersRead, unitsRead, unitType, onRes
     return () => clearInterval(interval)
   }, [startTime, elapsedTime])
 
-  function pauseResume() {
+  async function pauseResume() {
     if (paused) {
       setStartTime(Date.now())
       setElapsedTime(0)
@@ -47,6 +52,15 @@ export default function ReadingTimer({charactersRead, unitsRead, unitType, onRes
     } else {
       setCommittedTime(committedTime + elapsedTime)
       setPaused(true)
+      try {
+        await Api.addTimeEntry(description, startTime, elapsedTime)
+      } catch (e) {
+        toast({
+          description: "Could not commit time entry",
+          status: "error",
+          isClosable: true,
+        })
+      }
     }
   }
 
