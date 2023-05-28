@@ -1,5 +1,6 @@
 #### Version 1.4.1
 - Added page loading progress bar to make the app feel more responsive. It can be disabled in settings.
+- Updated to the new JPDB parse API format.
 
 #### Version 1.4
 - Added page view mode where page can be freely panned and zoomed.

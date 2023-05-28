@@ -153,6 +153,7 @@ export class JpdbService {
           text: text,
           token_fields: JPDB_TOKEN_API_FIELDS,
           vocabulary_fields: JPDB_VOCABULARY_API_FIELDS,
+          position_length_encoding: "utf16",
         }
       ),
     })

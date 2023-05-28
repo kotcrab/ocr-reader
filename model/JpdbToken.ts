@@ -4,7 +4,7 @@ export interface JpdbToken {
   readonly length: number,
 }
 
-export const JPDB_TOKEN_API_FIELDS = ["vocabulary_index", "position_utf16", "length_utf16"]
+export const JPDB_TOKEN_API_FIELDS = ["vocabulary_index", "position", "length"]
 
 export function unpackJpdbToken(packed: any[]): JpdbToken {
   return {
