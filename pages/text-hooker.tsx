@@ -4,7 +4,6 @@ import React, {useEffect, useRef, useState} from "react"
 import NavBar from "../components/NavBar"
 import useWebSocket, {ReadyState} from "react-use-websocket"
 import {services} from "../service/Services"
-import {analyzeTextUrl} from "../util/Url"
 import {TextAnalysis} from "../model/TextAnalysis"
 import ReadingTimer from "../components/ReadingTimer"
 import {ReadingUnitType} from "../model/ReadingUnitType"
@@ -15,6 +14,7 @@ import JpdbPopupWrapper from "../components/JpdbPopupWrapper"
 import useDebounce from "../util/Debounce"
 import {PopupPosition} from "../model/PopupPosition"
 import {Api} from "../util/Api"
+import MainLoadingBar from "../components/MainLoadingBar"
 
 interface Props {
   jpdbEnabled: boolean,
@@ -22,6 +22,7 @@ interface Props {
   jpdbMiningDeckId: number,
   jpdbPopupPosition: PopupPosition,
   readingTimerEnabled: boolean,
+  mainLoadingBarEnabled: boolean,
   textHookerWebSocketUrl: string,
 }
 
@@ -32,6 +33,7 @@ export default function TextHooker(
     jpdbMiningDeckId,
     jpdbPopupPosition,
     readingTimerEnabled,
+    mainLoadingBarEnabled,
     textHookerWebSocketUrl,
   }: Props
 ) {
@@ -103,6 +105,7 @@ export default function TextHooker(
     <>
       <PageHead title="Text hooker"/>
       <main>
+        {mainLoadingBarEnabled && <MainLoadingBar/>}
         <Flex p={4} align="stretch" direction="column">
           <NavBar extraEndElement={
             readingTimerEnabled ? <ReadingTimer
@@ -229,6 +232,7 @@ export async function getServerSideProps() {
       jpdbMiningDeckId: appSettings.jpdbMiningDeckId,
       jpdbPopupPosition: appSettings.jpdbHorizontalTextPopupPosition,
       readingTimerEnabled: appSettings.readingTimerEnabled,
+      mainLoadingBarEnabled: appSettings.mainLoadingBarEnabled,
       textHookerWebSocketUrl: appSettings.textHookerWebSocketUrl,
     },
   }

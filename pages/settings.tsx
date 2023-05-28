@@ -27,6 +27,7 @@ import PopupPositionSelect from "../components/PopupPositionSelect"
 import {FloatingPageTurnAction} from "../model/FloatingPageTurnAction"
 import {useImmer} from "use-immer"
 import JpdbDeckSelect from "../components/JpdbDeckSelect"
+import MainLoadingBar from "../components/MainLoadingBar"
 
 interface Props {
   initialAppSettings: AppSettings,
@@ -37,6 +38,7 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
   const toast = useToast()
 
   const [appSettings, updateAppSettings] = useImmer(initialAppSettings)
+  const [mainLoadingBarEnabled, setMainLoadingBarEnabled] = useState(initialAppSettings.mainLoadingBarEnabled)
 
   const [jpdbRulesEditPending, setJpdbRulesEditPending] = useState(false)
 
@@ -46,6 +48,7 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
     try {
       toast.closeAll()
       await Api.updateAppSettings(appSettings)
+      setMainLoadingBarEnabled(appSettings.mainLoadingBarEnabled)
       toast({
         description: "Settings saved",
         status: "success",
@@ -65,6 +68,7 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
     <>
       <PageHead/>
       <main>
+        {mainLoadingBarEnabled && <MainLoadingBar/>}
         <JpdbRulesEditModal
           rules={appSettings.jpdbRules}
           defaultRules={defaultAppSettings.jpdbRules}
@@ -91,6 +95,14 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
                   it.readingTimerEnabled = e.target.checked
                 })}>
                 Enable reading timer
+              </Checkbox>
+              <Checkbox
+                alignSelf="start"
+                isChecked={appSettings.mainLoadingBarEnabled}
+                onChange={e => updateAppSettings(it => {
+                  it.mainLoadingBarEnabled = e.target.checked
+                })}>
+                Enable page loading bar
               </Checkbox>
 
               <Text fontSize="xl">Floating page</Text>

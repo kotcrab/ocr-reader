@@ -31,6 +31,7 @@ import {calculatePageStep, calculateWantedPages, isCurrentPageCoverOrOnePageDisp
 import {ReaderPage} from "../../../model/ReaderPage"
 import {ReadingDirection} from "../../../model/ReadingDirection"
 import {PageDisplay} from "../../../model/PageDisplay"
+import MainLoadingBar from "../../../components/MainLoadingBar"
 
 interface Props {
   title: string,
@@ -44,6 +45,7 @@ interface Props {
   jpdbHorizontalTextPopupPosition: PopupPosition,
   jpdbVerticalTextPopupPosition: PopupPosition,
   readingTimerEnabled: boolean,
+  mainLoadingBarEnabled: boolean,
   floatingPage: FloatingPageSettings,
   initialReaderSettings: ReaderSettings,
 }
@@ -69,6 +71,7 @@ export default function ReadBookPage(
     jpdbHorizontalTextPopupPosition,
     jpdbVerticalTextPopupPosition,
     readingTimerEnabled,
+    mainLoadingBarEnabled,
     floatingPage,
     initialReaderSettings,
   }: Props
@@ -161,6 +164,7 @@ export default function ReadBookPage(
     <>
       <PageHead title={`${title} - ${defaultPageTitle}`}/>
       <main>
+        {mainLoadingBarEnabled && <MainLoadingBar/>}
         <SelectionColorOverride/>
         <Flex direction="column" alignItems="stretch" height="100vh">
           <Grid alignSelf="stretch" templateColumns="repeat(3, 1fr)" p={4}>
@@ -349,6 +353,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       jpdbHorizontalTextPopupPosition: appSettings.jpdbHorizontalTextPopupPosition,
       jpdbVerticalTextPopupPosition: appSettings.jpdbVerticalTextPopupPosition,
       readingTimerEnabled: appSettings.readingTimerEnabled,
+      mainLoadingBarEnabled: appSettings.mainLoadingBarEnabled,
       floatingPage: appSettings.floatingPage,
       initialReaderSettings: readerSettings,
     },
