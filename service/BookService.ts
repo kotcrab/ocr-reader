@@ -76,18 +76,25 @@ export class BookService {
         .for([...book.images])
         .onTaskFinished((item, pool) => {
           console.log(`OCR progress: ${pool.processedPercentage().toFixed(2)}%`)
+          console.log(`Active tasks: ${pool.activeTasksCount()}, finished tasks: ${pool.processedCount()}`)
         })
         .process(async (image) => {
-          const ocrName = this.storageService.getOcrName(image)
-          this.ocrJob.currentImage += 1
-          if (book.ocrFiles.includes(ocrName)) {
-            console.log(`OCR results already present for ${image}`)
-            return
+          try {
+            const ocrName = this.storageService.getOcrName(image)
+            this.ocrJob.currentImage += 1
+            if (book.ocrFiles.includes(ocrName)) {
+              console.log(`OCR results already present for ${image}`)
+              return
+            }
+            console.log(`OCR started for ${image}`)
+            const [ocrResult] = await this.visionClient.documentTextDetection(path.join(book.baseDir, image))
+            console.log(`OCR results received for ${image}`)
+            await this.storageService.writeOcrFile(book, ocrName, ocrResult)
+            console.log(`OCR results saved for ${image}`)
+          } catch (e) {
+            console.log(e)
+            throw e
           }
-          console.log(`OCR started for ${image}`)
-          const [ocrResult] = await this.visionClient.documentTextDetection(path.join(book.baseDir, image))
-          await this.storageService.writeOcrFile(book, ocrName, ocrResult)
-          console.log(`OCR results saved for ${image}`)
         })
       if (errors.length === 0) {
         console.log("OCR completed")
