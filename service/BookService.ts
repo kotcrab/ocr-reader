@@ -72,7 +72,7 @@ export class BookService {
       this.ocrJob.totalImages = book.images.length
 
       const {errors} = await PromisePool
-        .withConcurrency(8)
+        .withConcurrency(1)
         .for([...book.images])
         .onTaskFinished((item, pool) => {
           console.log(`OCR progress: ${pool.processedPercentage().toFixed(2)}%`)
