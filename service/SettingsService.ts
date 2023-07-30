@@ -27,6 +27,7 @@ export class SettingsService {
     return {
       readingTimerEnabled: true,
       mainLoadingBarEnabled: true,
+      ocrConcurrency: 1,
       floatingPage: {
         panningVelocity: true,
         turnAction: FloatingPageTurnAction.FitToScreen,
@@ -64,6 +65,7 @@ export class SettingsService {
     return {
       readingTimerEnabled: data.readingTimerEnabled ?? defaultSettings.readingTimerEnabled,
       mainLoadingBarEnabled: data.mainLoadingBarEnabled ?? defaultSettings.mainLoadingBarEnabled,
+      ocrConcurrency: data.ocrConcurrency ?? defaultSettings.ocrConcurrency,
       floatingPage: {
         panningVelocity: data.floatingPage?.panningVelocity ?? defaultSettings.floatingPage.panningVelocity,
         turnAction: data.floatingPage?.turnAction ?? defaultSettings.floatingPage.turnAction,

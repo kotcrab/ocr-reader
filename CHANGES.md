@@ -1,3 +1,6 @@
+#### Version 1.4.2
+- Added setting for controlling OCR concurrency. The default concurrency is now set to 1 to avoid potential issues.
+
 #### Version 1.4.1
 - Added page loading progress bar to make the app feel more responsive. It can be disabled in settings.
 - Updated to the new JPDB parse API format.

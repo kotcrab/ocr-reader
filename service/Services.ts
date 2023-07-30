@@ -10,7 +10,7 @@ class Services {
   readonly env = new AppEnv()
   readonly storageService = new StorageService(this.env.dataDirectory)
   readonly settingsService = new SettingsService(this.storageService)
-  readonly bookService = new BookService(this.storageService)
+  readonly bookService = new BookService(this.storageService, this.settingsService)
   readonly jpdbService = new JpdbService(this.bookService, this.settingsService, jpdbCache)
 }
 

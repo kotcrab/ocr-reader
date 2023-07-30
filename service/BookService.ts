@@ -14,19 +14,22 @@ import {Dimensions} from "../model/Dimensions"
 import IWord = google.cloud.vision.v1.IWord
 import IVertex = google.cloud.vision.v1.IVertex
 import {BookInfoUpdate} from "../model/BookInfoUpdate"
+import {SettingsService} from "./SettingsService"
 
 const {promisify} = require("util")
 const sizeOf = promisify(require("image-size"))
 
 export class BookService {
   private readonly storageService: StorageService
+  private readonly settingsService: SettingsService
   private readonly visionClient = new vision.ImageAnnotatorClient()
 
   private books: Map<string, Book> = new Map()
   private ocrJob = emptyOcrJob()
 
-  constructor(storageService: StorageService) {
+  constructor(storageService: StorageService, settingsService: SettingsService) {
     this.storageService = storageService
+    this.settingsService = settingsService
   }
 
   async getBooks(archived: Boolean) {
@@ -64,6 +67,7 @@ export class BookService {
     if (this.ocrJob.running) {
       throw new RequestError("OCR is already running")
     }
+    const appSettings = await this.settingsService.getAppSettings()
     this.ocrJob.running = true
     try {
       const book = await this.getBookById(bookId)
@@ -72,7 +76,7 @@ export class BookService {
       this.ocrJob.totalImages = book.images.length
 
       const {errors} = await PromisePool
-        .withConcurrency(8)
+        .withConcurrency(appSettings.ocrConcurrency)
         .for([...book.images])
         .onTaskFinished((item, pool) => {
           console.log(`OCR progress: ${pool.processedPercentage().toFixed(2)}%`)

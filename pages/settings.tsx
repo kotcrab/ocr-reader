@@ -9,6 +9,11 @@ import {
   FormHelperText,
   FormLabel,
   HStack,
+  NumberDecrementStepper,
+  NumberIncrementStepper,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
   Select,
   Text,
   useColorModeValue,
@@ -64,6 +69,7 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
     }
   }
 
+  const sectionHeaderPadding = 8
   return (
     <>
       <PageHead/>
@@ -84,7 +90,7 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
         <Flex p={4} align="stretch" direction="column">
           <NavBar/>
           <Container maxW="xl">
-            <VStack spacing="8">
+            <VStack spacing="6">
               <Text fontSize="2xl">Settings</Text>
 
               <Text fontSize="xl">General</Text>
@@ -104,9 +110,35 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
                 })}>
                 Enable page loading bar
               </Checkbox>
+              <FormControl>
+                <FormLabel>OCR concurrency</FormLabel>
+                <HStack>
+                  <NumberInput
+                    flex="1" min={1} max={8} allowMouseWheel
+                    value={appSettings.ocrConcurrency}
+                    onChange={e => updateAppSettings(it => {
+                      it.ocrConcurrency = parseInt(e)
+                    })}
+                  >
+                    <NumberInputField/>
+                    <NumberInputStepper>
+                      <NumberIncrementStepper/>
+                      <NumberDecrementStepper/>
+                    </NumberInputStepper>
+                  </NumberInput>
+                  <RestoreDefaultValueButton
+                    onClick={() => updateAppSettings(it => {
+                      it.ocrConcurrency = defaultAppSettings.ocrConcurrency
+                    })}/>
+                </HStack>
+                <FormHelperText>How many images to OCR at the same time, higher values may cause
+                  instability.</FormHelperText>
+              </FormControl>
 
-              <Text fontSize="xl">Floating page</Text>
-              <Text color={helperTextColor}>Customize reader behavior when using floating page view.</Text>
+              <VStack pt={sectionHeaderPadding}>
+                <Text fontSize="xl">Floating page</Text>
+                <Text color={helperTextColor}>Customize reader behavior when using floating page view.</Text>
+              </VStack>
               <Checkbox
                 alignSelf="start"
                 isChecked={appSettings.floatingPage.panningVelocity}
@@ -154,7 +186,7 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
                   </Checkbox>}
               </VStack>
 
-              <Text fontSize="xl">Text hooker</Text>
+              <Text fontSize="xl" pt={sectionHeaderPadding}>Text hooker</Text>
               <FormControl>
                 <FormLabel>WebSocket URL</FormLabel>
                 <HStack>
@@ -171,7 +203,7 @@ export default function Settings({initialAppSettings, defaultAppSettings}: Props
                 <FormHelperText>WebSocket URL used for the text hooker page.</FormHelperText>
               </FormControl>
 
-              <Text fontSize="xl">JPDB integration</Text>
+              <Text fontSize="xl" pt={sectionHeaderPadding}>JPDB integration</Text>
               <FormControl>
                 <FormLabel>API key</FormLabel>
                 <HStack>

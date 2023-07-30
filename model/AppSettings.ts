@@ -14,6 +14,7 @@ const floatingPageSchema = object({
 export const appSettingsSchema = object({
   readingTimerEnabled: boolean().required(),
   mainLoadingBarEnabled: boolean().required(),
+  ocrConcurrency: number().integer().min(1).max(8).required().default(1),
   floatingPage: floatingPageSchema.required(),
   jpdbApiKey: string().default(""),
   jpdbMiningDeckId: number().integer().required().default(0),
